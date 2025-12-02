@@ -32,7 +32,8 @@ jobs:
         working-directory: ./frontend
         run: |
           rm -rf node_modules package-lock.json
-          npm install --force
+          npm install
+          npm install --cpu=x64 --os=linux @rollup/rollup-linux-x64-gnu
       
       - name: Build frontend
         working-directory: ./frontend
