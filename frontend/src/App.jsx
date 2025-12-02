@@ -115,7 +115,7 @@ function App() {
   return (
     <AuthProvider>
       <LoadingProvider>
-        <BrowserRouter>
+        <BrowserRouter basename="/Cybersafe">
           <AppInner />
         </BrowserRouter>
       </LoadingProvider>
