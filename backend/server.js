@@ -49,7 +49,14 @@ app.use("/api/auth", authRoutes);
 app.use("/api/stories", storyRoutes); 
 
 
-app.get("/", (req, res) => res.send({ ok: true, message: "QuickFind API" }));
+app.get("/", (req, res) => res.send({ ok: true, message: "CyberSafe API" }));
 
+// Health check endpoint
+app.get("/health", (req, res) => res.send({ ok: true, status: "healthy" }));
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// For Vercel serverless
+if (process.env.VERCEL) {
+  export default app;
+} else {
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+}
