@@ -1,0 +1,20 @@
+{
+  "text_features": 12000,
+  "numeric_features": [
+    "url_count",
+    "text_length",
+    "word_count",
+    "special_char_ratio",
+    "digit_ratio",
+    "uppercase_ratio",
+    "suspicious_keywords",
+    "has_ip_address",
+    "has_url",
+    "is_url_only",
+    "url_to_text_ratio"
+  ],
+  "preprocessing": {
+    "url_marker": "httpurl",
+    "www_marker": "wwwurl"
+  }
+}

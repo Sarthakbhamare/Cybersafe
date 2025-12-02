@@ -1,0 +1,41 @@
+feature,coefficient,direction
+confirm,6.428226269071823,scam_positive
+important,6.030700854091893,scam_positive
+important message,5.210419564094652,scam_positive
+message see,5.210307135954875,scam_positive
+message,5.142696952566644,scam_positive
+has_url,4.534867861225008,scam_positive
+see,4.2650042959763725,scam_positive
+verify,4.088549119282559,scam_positive
+view details,3.7045923223616977,scam_positive
+delivery,3.5659874271950485,scam_positive
+url,3.5510335569715634,scam_positive
+invoice,3.514145611154497,scam_positive
+invoice available,3.51343333418854,scam_positive
+available for,3.4852868610409056,scam_positive
+order is,3.416721932701676,scam_positive
+booking order,3.3596928669201613,scam_positive
+ready view,3.3596928669201613,scam_positive
+is ready,3.3586937660700515,scam_positive
+available,3.3229518079803007,scam_positive
+ready,3.2806316268886704,scam_positive
+is confirmed,-6.862781507291777,scam_negative
+confirmed,-6.860695796193736,scam_negative
+your,-5.887529543175624,scam_negative
+has been,-5.637916924413833,scam_negative
+has,-5.621003292602554,scam_negative
+been,-5.540298555349828,scam_negative
+off,-5.36213688497009,scam_negative
+get,-4.5403365546593335,scam_negative
+is,-4.403052865435936,scam_negative
+successful receipt,-4.34456799833853,scam_negative
+was successful,-4.34456799833853,scam_negative
+your payment,-4.335941534336266,scam_negative
+successful,-4.310654583242376,scam_negative
+receipt,-4.298639911455812,scam_negative
+in,-4.14053202394447,scam_negative
+2025,-3.8614409879825073,scam_negative
+table,-3.7851465919934344,scam_negative
+is booked,-3.7751056755442964,scam_negative
+your table,-3.775038767667083,scam_negative
+table is,-3.775038767667083,scam_negative

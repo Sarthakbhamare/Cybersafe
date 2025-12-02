@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Scam Detection Platform</title>
+    <!-- Use Tailwind CSS for a modern, responsive design -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for a cleaner UI */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .container {
+            max-width: 900px;
+        }
+        .button-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .card-shadow {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .loader {
+            border-top-color: #3b82f6;
+            -webkit-animation: spinner 1.5s linear infinite;
+            animation: spinner 1.5s linear infinite;
+        }
+        @-webkit-keyframes spinner {
+            0% { -webkit-transform: rotate(0deg); }
+            100% { -webkit-transform: rotate(360deg); }
+        }
+        @keyframes spinner {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .threat-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            margin: 0.25rem;
+        }
+        .threat-active {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 2px solid #fca5a5;
+        }
+        .threat-inactive {
+            background-color: #f3f4f6;
+            color: #6b7280;
+            border: 2px solid #e5e7eb;
+        }
+        .confidence-bar {
+            transition: width 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen py-8">
+    <div class="container mx-auto p-4 md:p-8">
+        <div class="bg-white rounded-2xl p-6 md:p-10 card-shadow">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-bold text-gray-800 mb-2">🛡️ Enhanced Scam Detection</h1>
+                <p class="text-gray-600">Advanced AI-powered threat analysis with typosquatting detection</p>
+                <div class="mt-4 flex justify-center space-x-4 text-sm">
+                    <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full">✓ 90.9% Accuracy</span>
+                    <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full">✓ Domain Analysis</span>
+                    <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full">✓ Typosquatting Detection</span>
+                </div>
+            </div>
+
+            <!-- Input and Buttons Section -->
+            <div class="mb-6">
+                <label for="inputText" class="block text-gray-700 font-semibold mb-3 text-lg">Enter Message or URL to Analyze:</label>
+                <textarea id="inputText" class="w-full h-40 p-4 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200 text-base" placeholder="Paste suspicious message, email, or URL here...
+
+Example: 'Your PayPal account has been suspended. Click here to verify: http://paypal-secure.xyz'"></textarea>
+            </div>
+
+            <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mb-8">
+                <button id="scamButton" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold py-4 px-6 rounded-xl hover:from-blue-700 hover:to-purple-700 transition duration-200 button-shadow transform hover:scale-105">
+                    🔍 Analyze for Scam
+                </button>
+            </div>
+
+            <!-- Results Section -->
+            <div id="loadingIndicator" class="hidden text-center text-gray-600 mb-6 bg-gray-50 rounded-xl p-6">
+                <div class="flex justify-center items-center">
+                    <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-10 w-10 mr-3"></div>
+                    <span class="text-lg font-medium">Analyzing threat indicators...</span>
+                </div>
+            </div>
+
+            <div id="resultContainer" class="hidden transition-all duration-300">
+                <!-- Main Result -->
+                <div class="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-6 mb-6 border-l-4" id="mainResultCard">
+                    <div class="flex items-center justify-between mb-4">
+                        <p class="font-semibold text-gray-700 text-lg">Analysis Result:</p>
+                        <span id="resultBadge" class="px-4 py-2 rounded-full text-sm font-bold"></span>
+                    </div>
+                    <div id="resultOutput" class="text-3xl font-bold mb-3"></div>
+                    <div id="confidenceContainer" class="mb-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-medium text-gray-600">Confidence Score:</span>
+                            <span id="confidenceText" class="text-sm font-bold text-gray-800"></span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                            <div id="confidenceBar" class="confidence-bar h-3 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div id="inputEcho" class="text-sm text-gray-600 bg-white p-3 rounded-lg break-words border border-gray-200"></div>
+                </div>
+
+                <!-- Threat Indicators -->
+                <div id="threatIndicators" class="hidden bg-white rounded-xl p-6 border-2 border-red-200">
+                    <h3 class="text-xl font-bold text-red-700 mb-4 flex items-center">
+                        <span class="text-2xl mr-2">⚠️</span>
+                        Threat Indicators Detected
+                    </h3>
+                    <div id="threatBadges" class="flex flex-wrap"></div>
+                    <div id="threatSummary" class="mt-4 p-4 bg-red-50 rounded-lg border border-red-200">
+                        <p class="text-sm text-red-800 font-medium"></p>
+                    </div>
+                </div>
+
+                <!-- Safe Indicators -->
+                <div id="safeIndicators" class="hidden bg-white rounded-xl p-6 border-2 border-green-200">
+                    <h3 class="text-xl font-bold text-green-700 mb-4 flex items-center">
+                        <span class="text-2xl mr-2">✅</span>
+                        Safety Check
+                    </h3>
+                    <div class="p-4 bg-green-50 rounded-lg border border-green-200">
+                        <p class="text-sm text-green-800 font-medium">No threat indicators detected. This message appears legitimate.</p>
+                        <p class="text-xs text-green-700 mt-2">Always verify sender information and be cautious with personal data.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error Message Box -->
+            <div id="errorContainer" class="hidden mt-4 bg-red-100 border-2 border-red-400 text-red-700 px-6 py-4 rounded-xl relative">
+                <div class="flex items-center">
+                    <span class="text-xl mr-3">❌</span>
+                    <span id="errorMessage" class="block text-sm font-medium"></span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer Info -->
+        <div class="text-center mt-6 text-white text-sm">
+            <p>Powered by Enhanced ML Model v2.0 | 90.9% Detection Accuracy</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const scamButton = document.getElementById('scamButton');
+            const inputText = document.getElementById('inputText');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const resultContainer = document.getElementById('resultContainer');
+            const resultOutput = document.getElementById('resultOutput');
+            const inputEcho = document.getElementById('inputEcho');
+            const errorContainer = document.getElementById('errorContainer');
+            const errorMessage = document.getElementById('errorMessage');
+            const confidenceContainer = document.getElementById('confidenceContainer');
+            const confidenceText = document.getElementById('confidenceText');
+            const confidenceBar = document.getElementById('confidenceBar');
+            const threatIndicators = document.getElementById('threatIndicators');
+            const safeIndicators = document.getElementById('safeIndicators');
+            const threatBadges = document.getElementById('threatBadges');
+            const threatSummary = document.getElementById('threatSummary');
+            const mainResultCard = document.getElementById('mainResultCard');
+            const resultBadge = document.getElementById('resultBadge');
+
+            // Set the API URL - use localhost for local testing
+            const API_BASE_URL = 'http://localhost:8004';
+
+            const showLoading = () => {
+                loadingIndicator.classList.remove('hidden');
+                resultContainer.classList.add('hidden');
+                errorContainer.classList.add('hidden');
+            };
+
+            const hideLoading = () => {
+                loadingIndicator.classList.add('hidden');
+            };
+
+            const showError = (message) => {
+                hideLoading();
+                errorContainer.classList.remove('hidden');
+                errorMessage.textContent = message;
+            };
+
+            const createThreatBadge = (label, isActive, icon = '🚨') => {
+                const badge = document.createElement('span');
+                badge.className = `threat-badge ${isActive ? 'threat-active' : 'threat-inactive'}`;
+                badge.innerHTML = `${icon} ${label}`;
+                return badge;
+            };
+
+            const showResult = (data, input) => {
+                hideLoading();
+                resultContainer.classList.remove('hidden');
+                
+                const isScam = data.prediction === 'scam';
+                const confidence = data.confidence || 0;
+                
+                // Update main result
+                resultOutput.textContent = isScam ? '🚨 SCAM DETECTED' : '✅ Appears Safe';
+                inputEcho.innerHTML = `<strong>Analyzed Message:</strong><br>"${input}"`;
+                
+                // Update result badge and card styling
+                if (isScam) {
+                    resultOutput.classList.remove('text-green-600');
+                    resultOutput.classList.add('text-red-600');
+                    mainResultCard.classList.add('border-red-500');
+                    mainResultCard.classList.remove('border-green-500');
+                    resultBadge.textContent = 'THREAT DETECTED';
+                    resultBadge.classList.add('bg-red-500', 'text-white');
+                    resultBadge.classList.remove('bg-green-500');
+                } else {
+                    resultOutput.classList.remove('text-red-600');
+                    resultOutput.classList.add('text-green-600');
+                    mainResultCard.classList.add('border-green-500');
+                    mainResultCard.classList.remove('border-red-500');
+                    resultBadge.textContent = 'SAFE';
+                    resultBadge.classList.add('bg-green-500', 'text-white');
+                    resultBadge.classList.remove('bg-red-500');
+                }
+                
+                // Update confidence bar
+                confidenceText.textContent = `${(confidence * 100).toFixed(1)}%`;
+                confidenceBar.style.width = `${confidence * 100}%`;
+                
+                if (isScam) {
+                    confidenceBar.classList.add('bg-red-500');
+                    confidenceBar.classList.remove('bg-green-500');
+                } else {
+                    confidenceBar.classList.add('bg-green-500');
+                    confidenceBar.classList.remove('bg-red-500');
+                }
+                
+                // Handle threat indicators (enhanced API response)
+                if (data.threat_indicators) {
+                    const indicators = data.threat_indicators;
+                    const hasThreats = indicators.total_red_flags > 0;
+                    
+                    if (hasThreats) {
+                        threatIndicators.classList.remove('hidden');
+                        safeIndicators.classList.add('hidden');
+                        
+                        // Clear previous badges
+                        threatBadges.innerHTML = '';
+                        
+                        // Add threat badges
+                        if (indicators.typosquatting) {
+                            threatBadges.appendChild(createThreatBadge('Typosquatting / Brand Impersonation', true, '🎭'));
+                        }
+                        if (indicators.ip_based_phishing) {
+                            threatBadges.appendChild(createThreatBadge('IP-Based URL', indicators.ip_based_phishing, '📍'));
+                        }
+                        if (indicators.private_ip_detected) {
+                            threatBadges.appendChild(createThreatBadge('Private IP Address', indicators.private_ip_detected, '🔒'));
+                        }
+                        if (indicators.url_shortener) {
+                            threatBadges.appendChild(createThreatBadge('URL Shortener', indicators.url_shortener, '🔗'));
+                        }
+                        if (indicators.suspicious_tld) {
+                            threatBadges.appendChild(createThreatBadge('Suspicious Domain Extension', indicators.suspicious_tld, '⚠️'));
+                        }
+                        
+                        // Update threat summary
+                        const summaryText = threatSummary.querySelector('p');
+                        summaryText.innerHTML = `
+                            <strong>Total Threat Indicators: ${indicators.total_red_flags}</strong><br>
+                            This message contains multiple red flags associated with phishing and scam attempts.
+                            ${indicators.typosquatting ? '<br><strong>⚠️ Brand impersonation detected!</strong> The domain appears to mimic a legitimate brand.' : ''}
+                        `;
+                    } else {
+                        threatIndicators.classList.add('hidden');
+                        safeIndicators.classList.remove('hidden');
+                    }
+                } else {
+                    // Fallback for simple API response
+                    threatIndicators.classList.add('hidden');
+                    safeIndicators.classList.remove('hidden');
+                }
+            };
+
+            const handlePrediction = async (endpoint, buttonId) => {
+                const text = inputText.value.trim();
+                if (text === '') {
+                    showError('Please enter some text to analyze.');
+                    return;
+                }
+
+                showLoading();
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/${endpoint}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ text: text }),
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.detail || 'An unknown error occurred.');
+                    }
+
+                    const data = await response.json();
+                    showResult(data, text);
+
+                } catch (error) {
+                    // Check for network errors like "Failed to fetch"
+                    if (error.message.includes('Failed to fetch')) {
+                        showError('Could not connect to the API. Make sure the server is running on http://localhost:8000');
+                    } else {
+                        showError(`API Error: ${error.message}`);
+                    }
+                }
+            };
+
+            scamButton.addEventListener('click', () => handlePrediction('predict-scam'));
+            
+            // Add keyboard shortcut (Ctrl+Enter to analyze)
+            inputText.addEventListener('keydown', (e) => {
+                if (e.ctrlKey && e.key === 'Enter') {
+                    handlePrediction('predict-scam');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

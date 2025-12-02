@@ -1,0 +1,403 @@
+{
+  "performance": {
+    "accuracy": 0.922547222103782,
+    "precision": 0.9757744335877137,
+    "recall": 0.8679029836543951,
+    "f1": 0.9186829912482933,
+    "roc_auc": 0.9767814751959607,
+    "pr_auc": 0.9806349799599474,
+    "confusion_matrix": [
+      [
+        45502,
+        1019
+      ],
+      [
+        6247,
+        41044
+      ]
+    ]
+  },
+  "cross_validation": {
+    "accuracy": {
+      "mean": 0.9163433225045836,
+      "std": 0.0006715922294465701
+    },
+    "precision": {
+      "mean": 0.9759657338838783,
+      "std": 0.0014250227763511214
+    },
+    "recall": {
+      "mean": 0.8551098774421515,
+      "std": 0.0014710067241314004
+    },
+    "f1": {
+      "mean": 0.911547647222503,
+      "std": 0.000733438525975871
+    },
+    "roc_auc": {
+      "mean": 0.9750335448202081,
+      "std": 0.000874490317106393
+    },
+    "pr_auc": {
+      "mean": 0.9790068376428922,
+      "std": 0.00105255246964639
+    }
+  },
+  "fairness_length_buckets": [
+    {
+      "bucket": "short",
+      "size": 38753,
+      "recall": 0.7104128157732594,
+      "false_positive_rate": 0.038557110908639114
+    },
+    {
+      "bucket": "medium",
+      "size": 39865,
+      "recall": 0.9254466554595566,
+      "false_positive_rate": 0.004409911801763965
+    },
+    {
+      "bucket": "long",
+      "size": 15194,
+      "recall": 0.9845179451090781,
+      "false_positive_rate": 0.0030906168871306715
+    }
+  ],
+  "robustness": {
+    "baseline": {
+      "accuracy": 0.922547222103782,
+      "precision": 0.9757744335877137,
+      "recall": 0.8679029836543951,
+      "f1": 0.9186829912482933,
+      "roc_auc": 0.9767814751959607,
+      "pr_auc": 0.9806349799599474,
+      "confusion_matrix": [
+        [
+          45502,
+          1019
+        ],
+        [
+          6247,
+          41044
+        ]
+      ]
+    },
+    "adversarial": {
+      "accuracy": 0.8403402549780412,
+      "precision": 0.7949073651546956,
+      "recall": 0.9208728933623734,
+      "f1": 0.8532661938163721,
+      "roc_auc": 0.943416459807958,
+      "pr_auc": 0.9466529329175096,
+      "confusion_matrix": [
+        [
+          35285,
+          11236
+        ],
+        [
+          3742,
+          43549
+        ]
+      ]
+    },
+    "delta_recall": 0.052969909707978324,
+    "delta_f1": -0.06541679743192119
+  },
+  "efficiency": {
+    "avg_single_inference_seconds": 0.001713395118713379,
+    "batch_inference": {
+      "64": {
+        "total_seconds": 0.00780034065246582,
+        "per_sample_ms": 0.12188032269477844
+      },
+      "256": {
+        "total_seconds": 0.02243661880493164,
+        "per_sample_ms": 0.08764304220676422
+      }
+    }
+  },
+  "complexity": {
+    "feature_count": 5018,
+    "parameter_count_estimate": 5019,
+    "model_type": "LogisticRegression",
+    "linear": true
+  },
+  "interpretability_global_weights": [
+    {
+      "feature": "confirm",
+      "coefficient": 6.428226269071823,
+      "direction": "scam_positive"
+    },
+    {
+      "feature": "important",
+      "coefficient": 6.030700854091893,
+      "direction": "scam_positive"
+    },
+    {
+      "feature": "important message",
+      "coefficient": 5.210419564094652,
+      "direction": "scam_positive"
+    },
+    {
+      "feature": "message see",
+      "coefficient": 5.210307135954875,
+      "direction": "scam_positive"
+    },
+    {
+      "feature": "message",
+      "coefficient": 5.142696952566644,
+      "direction": "scam_positive"
+    },
+    {
+      "feature": "has_url",
+      "coefficient": 4.534867861225008,
+      "direction": "scam_positive"
+    },
+    {
+      "feature": "see",
+      "coefficient": 4.2650042959763725,
+      "direction": "scam_positive"
+    },
+    {
+      "feature": "verify",
+      "coefficient": 4.088549119282559,
+      "direction": "scam_positive"
+    },
+    {
+      "feature": "view details",
+      "coefficient": 3.7045923223616977,
+      "direction": "scam_positive"
+    },
+    {
+      "feature": "delivery",
+      "coefficient": 3.5659874271950485,
+      "direction": "scam_positive"
+    },
+    {
+      "feature": "url",
+      "coefficient": 3.5510335569715634,
+      "direction": "scam_positive"
+    },
+    {
+      "feature": "invoice",
+      "coefficient": 3.514145611154497,
+      "direction": "scam_positive"
+    },
+    {
+      "feature": "invoice available",
+      "coefficient": 3.51343333418854,
+      "direction": "scam_positive"
+    },
+    {
+      "feature": "available for",
+      "coefficient": 3.4852868610409056,
+      "direction": "scam_positive"
+    },
+    {
+      "feature": "order is",
+      "coefficient": 3.416721932701676,
+      "direction": "scam_positive"
+    },
+    {
+      "feature": "booking order",
+      "coefficient": 3.3596928669201613,
+      "direction": "scam_positive"
+    },
+    {
+      "feature": "ready view",
+      "coefficient": 3.3596928669201613,
+      "direction": "scam_positive"
+    },
+    {
+      "feature": "is ready",
+      "coefficient": 3.3586937660700515,
+      "direction": "scam_positive"
+    },
+    {
+      "feature": "available",
+      "coefficient": 3.3229518079803007,
+      "direction": "scam_positive"
+    },
+    {
+      "feature": "ready",
+      "coefficient": 3.2806316268886704,
+      "direction": "scam_positive"
+    },
+    {
+      "feature": "is confirmed",
+      "coefficient": -6.862781507291777,
+      "direction": "scam_negative"
+    },
+    {
+      "feature": "confirmed",
+      "coefficient": -6.860695796193736,
+      "direction": "scam_negative"
+    },
+    {
+      "feature": "your",
+      "coefficient": -5.887529543175624,
+      "direction": "scam_negative"
+    },
+    {
+      "feature": "has been",
+      "coefficient": -5.637916924413833,
+      "direction": "scam_negative"
+    },
+    {
+      "feature": "has",
+      "coefficient": -5.621003292602554,
+      "direction": "scam_negative"
+    },
+    {
+      "feature": "been",
+      "coefficient": -5.540298555349828,
+      "direction": "scam_negative"
+    },
+    {
+      "feature": "off",
+      "coefficient": -5.36213688497009,
+      "direction": "scam_negative"
+    },
+    {
+      "feature": "get",
+      "coefficient": -4.5403365546593335,
+      "direction": "scam_negative"
+    },
+    {
+      "feature": "is",
+      "coefficient": -4.403052865435936,
+      "direction": "scam_negative"
+    },
+    {
+      "feature": "successful receipt",
+      "coefficient": -4.34456799833853,
+      "direction": "scam_negative"
+    },
+    {
+      "feature": "was successful",
+      "coefficient": -4.34456799833853,
+      "direction": "scam_negative"
+    },
+    {
+      "feature": "your payment",
+      "coefficient": -4.335941534336266,
+      "direction": "scam_negative"
+    },
+    {
+      "feature": "successful",
+      "coefficient": -4.310654583242376,
+      "direction": "scam_negative"
+    },
+    {
+      "feature": "receipt",
+      "coefficient": -4.298639911455812,
+      "direction": "scam_negative"
+    },
+    {
+      "feature": "in",
+      "coefficient": -4.14053202394447,
+      "direction": "scam_negative"
+    },
+    {
+      "feature": "2025",
+      "coefficient": -3.8614409879825073,
+      "direction": "scam_negative"
+    },
+    {
+      "feature": "table",
+      "coefficient": -3.7851465919934344,
+      "direction": "scam_negative"
+    },
+    {
+      "feature": "is booked",
+      "coefficient": -3.7751056755442964,
+      "direction": "scam_negative"
+    },
+    {
+      "feature": "your table",
+      "coefficient": -3.775038767667083,
+      "direction": "scam_negative"
+    },
+    {
+      "feature": "table is",
+      "coefficient": -3.775038767667083,
+      "direction": "scam_negative"
+    }
+  ],
+  "lime_examples": [
+    {
+      "index": 0,
+      "text": "Web: Important message. See: https://confunivermonpt3.web.app/ https://confunivermonpt3.web.app/",
+      "html": "Model/reports\\lime_example_1.html"
+    },
+    {
+      "index": 1,
+      "text": "http://87.120.115.240/Downloads/272.jpg.lnk",
+      "html": "Model/reports\\lime_example_2.html"
+    },
+    {
+      "index": 2,
+      "text": "http://87.120.115.240/Downloads/12.-zips-4-port-alarm-unit-indonesia.pdf.lnk",
+      "html": "Model/reports\\lime_example_3.html"
+    }
+  ],
+  "data_quality": {
+    "class_counts": {
+      "spam": 47291,
+      "ham": 46521
+    },
+    "vocab_size": 121705,
+    "avg_length": 88.13213661365283,
+    "median_length": 56.0,
+    "duplicates": 0,
+    "top_tokens": {
+      ".": 17462,
+      "Your": 16712,
+      "_": 15845,
+      "is": 13891,
+      "-": 13591,
+      ",": 12150,
+      "to": 10952,
+      "[URL]": 9965,
+      "for": 9868,
+      "the": 9221,
+      "Important": 9043,
+      "See:": 8966,
+      "of": 8584,
+      "message.": 8338,
+      "*": 6987,
+      "your": 5930,
+      "and": 5499,
+      "in": 5228,
+      "View:": 4983,
+      "a": 4552,
+      "has": 4533,
+      "been": 4420,
+      "confirmed.": 3973,
+      ":": 3864,
+      ")": 3826,
+      "Track:": 3711,
+      "Use": 3607,
+      "(": 3607,
+      "on": 3586,
+      "=": 3254
+    }
+  },
+  "deployment": {
+    "deterministic": true,
+    "artifact_hashes": {
+      "model": "f07cee3414b10095617266f2036ac89a9153f50eedaea7454ff5eb8c89f88775",
+      "vectorizer": "624bdb66168d9200a406a665bf905d64bc5d2514ba4bf442e34bcaeba5777e7f"
+    },
+    "lightweight": true,
+    "requires_gpu": false,
+    "supports_batching": true
+  },
+  "business_fit": {
+    "high_recall": true,
+    "acceptable_precision": true,
+    "roc_auc_target_met": true,
+    "summary": "Meets baseline protection goals"
+  },
+  "stability_repeat_run_variation": null
+}

@@ -1,0 +1,288 @@
+{
+  "test_date": "2025-11-13T13:49:46.188166",
+  "model_type": "Enhanced Scam Detector with Domain Reputation Boosting",
+  "total_tests": 57,
+  "categories": {
+    "IP-based Phishing": {
+      "total": 4,
+      "correct": 4,
+      "accuracy": 100.0,
+      "tests": [
+        {
+          "message": "http://87.120.115.240/Downloads/54140991015_071a800694_o-st6ltr.jpeg.lnk",
+          "expected": "spam",
+          "predicted": "spam",
+          "confidence": 0.75,
+          "correct": true
+        },
+        {
+          "message": "URGENT: Verify your account now: http://192.168.1.100/verify",
+          "expected": "spam",
+          "predicted": "spam",
+          "confidence": 0.9,
+          "correct": true
+        },
+        {
+          "message": "Your package is ready: http://10.0.0.5/tracking",
+          "expected": "spam",
+          "predicted": "spam",
+          "confidence": 0.9,
+          "correct": true
+        },
+        {
+          "message": "Bank alert: Login required http://172.16.0.1/secure",
+          "expected": "spam",
+          "predicted": "spam",
+          "confidence": 0.9,
+          "correct": true
+        }
+      ]
+    },
+    "URL Shorteners": {
+      "total": 4,
+      "correct": 4,
+      "accuracy": 100.0,
+      "tests": [
+        {
+          "message": "Congratulations! You've won $1000. Click: http://bit.ly/xyz123",
+          "expected": "spam",
+          "predicted": "spam",
+          "confidence": 0.9996811863026914,
+          "correct": true
+        },
+        {
+          "message": "Qrco - Limited time offer for you. Claim here: https://qrco.de/bfJnHU",
+          "expected": "spam",
+          "predicted": "spam",
+          "confidence": 0.9855224199440475,
+          "correct": true
+        },
+        {
+          "message": "https://q-r.to/bfSPgU",
+          "expected": "spam",
+          "predicted": "spam",
+          "confidence": 0.7870212954362161,
+          "correct": true
+        },
+        {
+          "message": "Free gift card! Claim now: https://tinyurl.com/freegift",
+          "expected": "spam",
+          "predicted": "spam",
+          "confidence": 0.9689707351670304,
+          "correct": true
+        }
+      ]
+    },
+    "Suspicious TLDs": {
+      "total": 5,
+      "correct": 2,
+      "accuracy": 40.0,
+      "tests": [
+        {
+          "message": "Free iPhone! Limited time: http://get-free-phone.tk",
+          "expected": "spam",
+          "predicted": "spam",
+          "confidence": 0.555273984005381,
+          "correct": true
+        },
+        {
+          "message": "Win cash prizes: https://lottery-winner.xyz",
+          "expected": "spam",
+          "predicted": "ham",
+          "confidence": 0.5968345806714621,
+          "correct": false
+        },
+        {
+          "message": "Click here for discount: http://amazing-deals.click",
+          "expected": "spam",
+          "predicted": "spam",
+          "confidence": 0.8358799885531732,
+          "correct": true
+        },
+        {
+          "message": "https://www.kuryoaitbmato.icu/",
+          "expected": "spam",
+          "predicted": "ham",
+          "confidence": 0.5949083270572573,
+          "correct": false
+        },
+        {
+          "message": "https://www.maryland-college.cf",
+          "expected": "spam",
+          "predicted": "ham",
+          "confidence": 0.594480038642247,
+          "correct": false
+        }
+      ]
+    },
+    "Email Phishing": {
+      "total": 4,
+      "correct": 4,
+      "accuracy": 100.0,
+      "tests": [
+        {
+          "message": "PayPal: Your account has been limited. Verify now: http://paypal-secure.com/login",
+          "expected": "spam",
+          "predicted": "spam",
+          "confidence": 0.85,
+          "correct": true
+        },
+        {
+          "message": "Amazon: Unusual activity detected. Confirm your identity: http://amazon-verify.net",
+          "expected": "spam",
+          "predicted": "spam",
+          "confidence": 0.85,
+          "correct": true
+        },
+        {
+          "message": "Apple ID: Your account will be disabled. Update info: http://appleid-update.com",
+          "expected": "spam",
+          "predicted": "spam",
+          "confidence": 0.85,
+          "correct": true
+        },
+        {
+          "message": "Netflix: Payment failed. Update billing: http://netflix-billing.info",
+          "expected": "spam",
+          "predicted": "spam",
+          "confidence": 0.99,
+          "correct": true
+        }
+      ]
+    },
+    "Financial Scams": {
+      "total": 4,
+      "correct": 4,
+      "accuracy": 100.0,
+      "tests": [
+        {
+          "message": "Congratulations! You've been selected for a $5000 loan. Apply: http://fast-loans.work",
+          "expected": "spam",
+          "predicted": "spam",
+          "confidence": 0.8150415950772871,
+          "correct": true
+        },
+        {
+          "message": "IRS: You have a tax refund of $2,847. Claim here: http://irs-refund.site",
+          "expected": "spam",
+          "predicted": "spam",
+          "confidence": 0.99,
+          "correct": true
+        },
+        {
+          "message": "Bitcoin investment opportunity! 300% returns guaranteed: http://crypto-invest.space",
+          "expected": "spam",
+          "predicted": "spam",
+          "confidence": 0.8403037802783431,
+          "correct": true
+        },
+        {
+          "message": "Western Union: You received $10,000. Collect: http://wu-transfer.store",
+          "expected": "spam",
+          "predicted": "spam",
+          "confidence": 0.9072203719864097,
+          "correct": true
+        }
+      ]
+    },
+    "Legitimate Banking": {
+      "total": 4,
+      "correct": 4,
+      "accuracy": 100.0,
+      "tests": [
+        {
+          "message": "Chase: Your payment of $125.50 to Amazon was processed. Available balance: $3,420.15",
+          "expected": "ham",
+          "predicted": "ham",
+          "confidence": 0.99576880777941,
+          "correct": true
+        },
+        {
+          "message": "Bank of America: Low balance alert. Your checking account balance is $45.23",
+          "expected": "ham",
+          "predicted": "ham",
+          "confidence": 0.9890433091502823,
+          "correct": true
+        },
+        {
+          "message": "Wells Fargo: Your statement is ready. View at wellsfargo.com",
+          "expected": "ham",
+          "predicted": "ham",
+          "confidence": 0.6945634702075276,
+          "correct": true
+        },
+        {
+          "message": "Amazon: Your ride is arriving in 2 mins. Track: https://amazon.in/orders%2F876777?ref=sms&mid=769161",
+          "expected": "ham",
+          "predicted": "ham",
+          "confidence": 0.9999982593371248,
+          "correct": true
+        }
+      ]
+    },
+    "Legitimate OTP/2FA": {
+      "total": 4,
+      "correct": 4,
+      "accuracy": 100.0,
+      "tests": [
+        {
+          "message": "Google: Your verification code is 482916. Do not share this code.",
+          "expected": "ham",
+          "predicted": "ham",
+          "confidence": 0.9994993725941396,
+          "correct": true
+        },
+        {
+          "message": "Microsoft: Use code 739201 to sign in to your account",
+          "expected": "ham",
+          "predicted": "ham",
+          "confidence": 0.9890454369571412,
+          "correct": true
+        },
+        {
+          "message": "Grofers: OTP 697113 for your transaction. Do not share.",
+          "expected": "ham",
+          "predicted": "ham",
+          "confidence": 0.9997623727089239,
+          "correct": true
+        },
+        {
+          "message": "Facebook: 518394 is your confirmation code",
+          "expected": "ham",
+          "predicted": "ham",
+          "confidence": 0.994957844646647,
+          "correct": true
+        }
+      ]
+    },
+    "Legitimate Work": {
+      "total": 3,
+      "correct": 3,
+      "accuracy": 100.0,
+      "tests": [
+        {
+          "message": "Meeting at 3pm tomorrow in conference room B",
+          "expected": "ham",
+          "predicted": "ham",
+          "confidence": 0.9928999054305765,
+          "correct": true
+        },
+        {
+          "message": "Hi John, I've shared the quarterly report. Let me know if you have questions.",
+          "expected": "ham",
+          "predicted": "ham",
+          "confidence": 0.9763127349436578,
+          "correct": true
+        },
+        {
+          "message": "Can you send me the project files by EOD?",
+          "expected": "ham",
+          "predicted": "ham",
+          "confidence": 0.9811658457306789,
+          "correct": true
+        }
+      ]
+    }
+  },
+  "detailed_results": []
+}

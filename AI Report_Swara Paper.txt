@@ -1,0 +1,959 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Mangesh Balpande
+Swara Paper
+ My Files  My Files
+ Shri Vile Parle Kelavani Mandal
+
+
+Document Details
+
+Submission ID trn:oid:::9832:120447603
+Submission Date
+Nov 9, 2025, 1:44 PM GMT+5:30
+
+Download Date
+Nov 9, 2025, 3:16 PM GMT+5:30
+
+File Name
+Research Paper (without references).pdf
+
+File Size
+8.2 MB
+
+
+
+22% detected as AI
+The percentage indicates the combined amount of likely AI-generated text as well as likely AI-generated text that was also likely AI-paraphrased.
+
+
+
+Detection Groups
+34 AI-generated only 22%
+Likely AI-generated text from a large-language model.
+
+0 AI-generated text that was AI-paraphrased 0%
+Likely AI-generated text that was likely revised using an AI-paraphrase tool or word spinner.
+
+
+Disclaimer
+Our AI writing assessment is designed to help educators identify text that might be prepared by a generative AI tool. Our AI writing assessment may not always be accurate (i.e., our AI models may produce either false positive results or false negative results), so it should not be used as the sole basis for adverse actions against a student. It takes further scrutiny and human judgment in conjunction with an organization's application of its specific academic policies to determine whether any academic misconduct has occurred.
+
+
+Frequently Asked Questions
+
+How should I interpret Turnitin's AI writing percentage and false positives?
+The percentage shown in the AI writing report is the amount of qualifying text within the submission that Turnitin's AI writing detection model determines was either likely AI-generated text from a large-language model or likely AI-generated text that was likely revised using an AI paraphrase tool or word spinner.
+
+False positives (incorrectly flagging human-written text as AI-generated) are a possibility in AI models.
+
+AI detection scores under 20%, which we do not surface in new reports, have a higher likelihood of false positives. To reduce the likelihood of misinterpretation, no score or highlights are attributed and are indicated with an asterisk in the report (*%).
+
+The AI writing percentage should not be the sole basis to determine whether misconduct has occurred. The reviewer/instructor should use the percentage as a means to start a formative conversation with their student and/or use it to examine the submitted assignment in accordance with their school's policies.
+
+What does 'qualifying text' mean?
+Our model only processes qualifying text in the form of long-form writing. Long-form writing means individual sentences contained in paragraphs that make up a longer piece of written work, such as an essay, a dissertation, or an article, etc. Qualifying text that has been determined to be likely AI-generated will be highlighted in cyan in the submission, and likely AI-generated and then likely AI-paraphrased will be highlighted purple.
+
+Non-qualifying text, such as bullet points, annotated bibliographies, etc., will not be processed and can create disparity between the submission highlights and the percentage shown.
+
+
+
+
+
+
+
+Feature Analysis and Hybrid HMM Approaches
+
+
+
+Abstract
+
+Speech disorders in children can crucially impact communication, social relations,and learning outcomes. This research presents a complete system for detect-ing misarticulations in Hindi speech using acoustic feature analysis merged withhybrid Hidden Markov Model (HMM) approaches. The proposed system fusesGaussian Mixture Model-HMM (GMM-HMM) and Deep Neural Network-HMM
+                                       Speech signals are preprocessed and fea- tures such as Mel-Frequency Cepstral Coefficients (MFCCs), formant frequencies (F1-F3), pitch, rate of speech, and prosodic characteristics are extracted. Evalu- ation over multiple datasets, including a custom misarticulation dataset, shows that the DNN-HMM model achieves higher accuracy (89%) and F1-score (0.89) compared to the GMM-HMM standard. The system additionally uses rule-based thresholds to categorize pronunciations as poor, acceptable, or outstanding, providing workable feedback. A prototype application shows real-time misartic- ulation detection and curative guidance, highlighting the system's potential for scalable, remote speech therapy intermediation.
+
+Keywords: Acoustic feature analysis, F1-score, Hybrid HMM, Hindi speech, MFCC, Speech therapy.
+
+
+
+
+1 Introduction
+Speech is most basic human ability that allows individuals to express thoughts, emo- tion and bui ld social relations and engaging in thoughtful communication. It is highly tedious line process involves confluence of actions of number of anatomical organs sauch as lungs, vocal cords, tongue, lips and palate. Not just exchange of information, speech holds emotional weight, empowering relationships and carving out individ- ual identity.Communication disorders, which include speech, language, and cognitive difficulties, can severely damage social interaction, academic performance, and emo- tional well-being. Research reports that 13.3% of school-age children are at risk of communication challenges, with 7.3% impacted by hearing problems and 6% having
+
+
+1
+
+speech-language impairments. These statistics emphasize the extreme consequences of communication disorders on both society and individuals, including early retirement from education, isolation from social activities, and lowered self-confidence. Tradi- tional way to overcome speech therapy, thought effective, face limitation. Accessibility defiance, expensive treatment, and shortage of qualified therapist limits many affected individuals from receiving on time and complete care. Often a one size fit therapy model fails to address the diverse and needs based on individual feature of patient in vast and varies population. Thus, the urgent need for innovative and scalable and all comprehensive approaches to speech therapy. The advances in digital technology and telehealth in past years have opened new doors of opportunity to overcome the mentioned limitations. By combining multidisciplinary expertise and sensitive way to culture, the platform seeks to provide remote and personalized speech therapy exercise and resource material. The aim is to enhance communication skills, support emotional well-being, and promote social adaptability of such individuals with communication disorders, particularly resource constrained society.
+
+2 Literature Survey
+The diagnosis of speech and voice disorders is becoming a rapidly growing field of research, in which technologies such as deep learning, signal processing, and machine learning are being effectively used.
+   Aljarallah et al. [? ] proposed an image classification-based model for automatic speech disorder detection using Mel-spectrograms. In their method, features were extracted using hybrid wavelet transform and an improved LEVIT transformer, and an ensemble learning approach was used that included CatBoost, XGBoost, and Extremely Randomized Trees. This model achieves 99.1% accuracy using only 8.2M parameters, indicating that it is suitable for clinical use.
+   Rehman et al. [? ] studied machine learning algorithms for dysphonia detection on multiple datasets such as Saarbruecken and MEEI. Their research showed that support vector machines (SVMs) used with proper feature selection can accurately differentiate between healthy and pathological voices.
+   In earlier research, Huici et al. [? ] proposed a landmark-based algorithm to measure speech rate in disordered speech. While traditional methods were designed only for normal speech, their spectral landmark method provided higher accuracy in dysarthric speech, and showed more than 0.84 correlation between estimated and reference speech rates.
+   Matsumoto et al. [? ] evaluated the ABFW screening protocol to detect early-stage speech disorders in young children in the Brazilian population. The study achieved 72.1% accuracy and proved effective in identifying autism-related linguistic changes, which can be useful in primary healthcare settings.
+   Just et al. [? ] evaluated automatic speech recognition (ASR) in patients with schizophrenia-spectrum disorders. Their research found that looking only at word error rate (WER) is not sufficient, since age of patients, severity of symptoms, and demographic factors affect the outcomes. Hence, they advocated for a comprehensive evaluation framework that includes semantic and contextual accuracy.
+
+
+2
+
+   Paulraj and Brindha [? ] presented a multimodal approach for vocal pathology detection using speech and electroglottographic (EGG) signals together. Their deep neural network model with scalogram-based feature representation achieved 98.91% accuracy, which proved more effective than models using only a single modality.
+   Chung and Schellinger [? ] analyzed the acoustic properties of semivowels and vowels in children with and without speech sound disorders. They found that acous- tic separation of semivowels is related to perceptual accuracy evaluation, and that interventions based on this can help improve speech skills.
+   Garg et al. [? ] conducted research on accented speech classification. They used MFCCs, spectral, and chroma features to build a machine learning model, which achieved 86.67% accuracy. This study showed that non-native speakers face difficulties in automated systems and that there is a need for accent-aware recognition models.
+   There has been significant progress in the field of automatic mispronunciation detection and speech disorder diagnosis in recent decades, made possible primarily due to the development of speech processing, machine learning, and deep neural networks. The initial research efforts concentrated on creating dedicated database systems which would help identify speech problems in young children. [? ] developed a speech database for the automatic detection of /r/ sound disorders in the Arabic language, providing infrastructure for language-specific research. Deep learning models have brought about a major advancement in the detection of mispronunciations among
+students who learn languages as their first or second language.
+   Hu et al. [? ] used deep neural networks (DNNs) and transfer learning-based logistic regression classifiers to improve accuracy among non-native language learners.
+   Li and Meng [? ] used multi-distribution DNNs to accurately capture acoustic and phonological variation in L2 English speech, leading to better results than forced- alignment-based methods.
+   Mao et al. [? ] further advanced the model by identifying non-categorical phonemes in L2 speech, thereby presenting mispronunciation patterns more effectively.
+   Recent trends place more importance on phonological feature-based detection than on phoneme-level analysis, because this provides more detailed articulatory feedback. Shahin et al. [? ] created a low-level detection system using phonological fea- tures and wav2vec2 models, in which false acceptance and rejection rates were lower
+compared to traditional methods.
+   C¸ alik et al. [? ] used audio-oriented transformer models such as UniSpeech and SEW, and demonstrated high accuracy in Arabic phoneme mispronunciation detection.
+   Rosyidah et al. [? ] used an AlexNet-based convolutional neural network to detect Arabic phonemes from Mel-spectrograms, and data augmentation led to a significant improvement in accuracy.
+   Traditional machine learning methods are still useful today. Wei et al. [? ] used Support Vector Machines (SVMs) and Pronunciation Space Models (PSMs) to detect mispronunciations in Mandarin, and showed better results than posterior probability- based methods.
+
+
+
+
+3
+
+   Zhang et al. [? ] and Duan et al. [? ] used statistical models and articulation- based analysis for syllable-level mispronunciation detection in Mandarin, which helps in providing guidance regarding place and manner of articulation.
+   Phoneme boundary detection is also a necessary step for accurately detecting mispronunciation.
+   Ramteke and Mary [? ] used speech waveform properties and power spectrum cor- relations to develop a rule-based segmentation approach, which showed good accuracy on Indic and English datasets.
+   Juraj and Gregor [? ] developed a method to detect boundaries using short-time energy and linear predictive coding.
+Research is ongoing in multilingual and low-resource languages as well. Deekshitha and Leena [? ] proposed broad phoneme classifiers for language-
+independent spoken term detection, which can be used across languages even with limited annotated data.
+   Walley [? ] showed the impact of context in children, suggesting that linguistic and contextual knowledge should be used in mispronunciation detection.
+   Table 1 summarizes the findings of previous research that have looked into a vari- ety of ways to find speech sound disorders (SSD) and analyze mispronunciation. These include acoustic characteristics, deep neural networks, and ASR-tive based scoring systems.The table provides a comparative overview of techniques, features, and mod- els, highlighting both the diversity of approaches and the lack of a unified framework for adaptive and personalized therapy.
+   The field of speech disorder diagnosis and mispronunciation detection has made substantial progress but researchers continue to identify various essential gaps in cur- rent academic studies. The main limitation occurs because existing systems fail to customize their approach according to different child age groups and specific disorder types and individual learning rates. The current methods focus mainly on identify- ing errors but they do not assess complete evaluation metrics which include speech rate and fluency and pauses for a full assessment. The implementation of gamifica- tion strategies for engagement improvement fails to deliver essential analytical depth and detailed feedback which therapy effectiveness depends on. The system does not support adaptive learning functions which would create customized exercise recom- mendations through analysis of individual performance results and repeated speech errors. The system maintains its dependence on therapist supervision which creates access problems for children who need regular clinical visits thus proving the need for systems that operate independently while adapting to different needs.
+
+3 Dataset Description
+In this study, we apply three individual datasets to build as we evaluate a system for misarticulation discovery in children's speech. These datasets deliver diverse speech samples across applicable linguistic, age, as well as proficiency levels, contributing to the stability of our model.
+
+
+
+
+4
+
+
+
+
+
+Table 1: Summary of Reviewed Studies on Speech Sound Disorder and Mispronunciation Detection
+
+No.  Reference	Focus Area	Features / Tech-
+niques
+
+Models / Meth- ods
+
+Findings
+
+1 Dudy	et	al. (2015)
+
+English child SSD detection
+
+Acoustic-phonetic correlates
+
+Acoustic models	Utilized deep learning (DL) techniques, driven
+by image classification models, to successfully detect speech disorders.
+
+2 Proen¸ca et al. (2018)
+
+Mispronunciation detection in chil- dren
+
+Pronunciation scores
++ acoustic analysis
+
+ASR-based	scor- ing
+
+Demonstrated that the SVM algorithm, when coupled with appropriate feature selection, yielded the most accurate results for detecting voice diseases.
+
+3 Ng et al. (2022)	SSD	classification
+(Cantonese)
+
+Posterior	speaker representations
+
+DNN	Developed a method for estimating speech rate in disordered speech based on the detection and analysis of spectral landmarks.
+
+4 Ng	and	Lee (2020)
+
+Phonological error detection
+
+Acoustic embeddings	Siamese	RNN
+autoencoder
+
+Assessed the accuracy of the ABFW Screening tool for identifying speech disorders specifi- cally in early childhood.
+
+5 Eshky	et	al. (2019)
+
+Dataset creation (ultrasound + speech)
+
+Ultrasound + audio alignment
+
+Data resource   Established the necessity of moving beyond
+traditional Word Error Rate (WER) to evaluate ASR performance accurately in clinical samples, such as those involving schizophrenia-spectrum disorders.
+
+6 Plantinga	Real-time	mis- pronunciation detection
+
+Acoustic features   Real-time ASR   Proposed a novel voice pathology detection
+technique utilizing DNNs that successfully integrates both speech signals and electroglot- tographic (EGG) signals.
+
+7 Hosseini- Kivanani et al. (2021)
+
+Mispronunciation scoring
+
+Acoustic + ASR out- puts
+
+ASR pipelines   Characterized and compared the acoustic fea-
+tures of English semivowels and vowels in young children with and without diagnosed SSDs.
+
+8 Cao et al. (2023)	Pronunciation scor-
+ing
+
+GOP scores	GOP-based mod- els
+
+Provided an in-depth analysis of key acous- tic features relevant for the classification of accented speech, crucial for L2 learning sys- tems.
+
+9 Zhang	et	al. (2022)
+
+10 Peng	et	al. (2023)
+
+End-to-end	mis- pronunciation detection
+Survey	of	MDD methods
+
+Embeddings + error simulation
+
+Acoustic and linguis- tic features
+
+End-to-end DL   Developed the Arabic Letter Disorder Diagno-
+sis (LDD) speech database for the automatic diagnosis of childhood speech disorders.
+Transfer learning  Introduced a phonological-level wav2vec2-
+based MDD method that significantly reduced the False Acceptance Rate (FAR) and False Rejection Rate (FRR) by 26% and 39%, respectively, compared to the conventional Goodness-of-Pronunciation (GOP) algorithm.
+
+
+
+
+3.1 Hindi Speech Dataset
+The Hindi Speech Dataset, collected by Shivam Shukla, involve of 600 voice samples compiled from 100 speakers, each supporting five instances for training as well as one for the testing. The dataset was in the beginning recorded in multiple formats, includ- ing MPEG, MP4, MP3, and the OGG, earlier being standardized into the .wav format for the consistency. Each audio significant has a duration ranging between 5 to 10 sec- onds, ensuing in a total dataset size of 600 MB and a aggregate duration of 1 hour and 40 minutes. Given the inconsistency in sample lengths, parameter tuning was implemented to assure uniform across the dataset. The dataset is accessible under the Creative Commons Attribution license, enabling research as well as educational use with the appropriate attribution. This dataset provides as a valuable source for signif- icant speech-related applications, containing speech integration, speaker recognition as well as speech recognition systems.
+
+3.2 ASER Dataset
+The PRATHAM dataset is sourced from the Annual Status of Education Report (ASER) initiative, it particularly plan for Automatic Speech Recognition (ASR) tai- lored to the children's speech. The dataset was assembled over six months to other side of three Indian states: Uttar Pradesh, Maharashtra, and Rajasthan. The dataset con- tains 81,330 labelled audio clips, recorded exploiting an omni- directional condenser microphone at a sampling frequency of 16 kHz to make sure to show an high-quality speech representation. Data collection was promoted throughout an Android-based application which captures the speech samples from children aged group 6 to 14 years in Hindi, Marathi, and English. The dataset is arranged into 5,301 sample folders and each containing multiple audio files along with their corresponding JSON meta- data files. The speech content contain various reading tasks such as a paragraphs, stories, words, and letters. Intended English recordings, the dataset is moreover clas- sifies speech into capital letters, small letters, words, as well as sentences which offers a comprehensive linguistic corpus. The dataset extents a total of 123 hours of the speech data, making it an essential resource for developing ASR models for children's speech. Its varied distribution through a languages, proficiency levels as well as age groups make sure the applicability in literacy evaluation and also the speech-based educational tools.
+
+3.3 Customized Dataset for Misarticulation Detection
+For the purpose of misarticulation detection, we developed a customized dataset con- sisting of audio recordings from children aged 4 to 19 years. The dataset ensures a balanced representation by maintaining an equal distribution of boys and girls. Each child contributed nearly 250 audio samples, resulting in a extensive corpus suitable for a detailed speech analysis.
+   The recordings were assembled using a mobile recording system to assure avail- ability and the comfort. All samples are gathered in MP3 format, which is broad compatible with the standard speech-processing tools. The dataset involve a diverse
+
+
+6
+
+range of the utterances, such as sentences, words, paragraphs, stories, numerical sequences, as well as alphabets, allowing for the broad coverage of speech patterns.
+   To sustain linguistic related, the dataset exclusively "relevant Hindi language speech samples. The participants were organized into the two groups: (i) normal chil- dren with an typical speech development but occasional articulation errors, as well as (ii) children with hearing and speech disorders, who face both the auditory chal- lenges and the speech-related impairments. This categorization assures more specific examination of the misarticulation characteristics across various subject categories.
+   The dataset was selected from multiple sources, consisting speech therapy centers, government schools, and the schools for children with an speech as well as hear- ing impairments. especially, the recordings were collected from students of Autodory School and children suffering from the speech disorders in Dhule and Manmad. This structured as well as comprehensive design assists the development of the automated speech therapy tools as well as deliver a valuable resource for analyzing misarticulation in the real-world situation.
+
+3.4 Summary of Datasets
+The datasets possessing in this research offer a comprehensive establishment for the training, testing, and for an evaluating misarticulation identify models.Table 2 shows a Comparable summary of the datasets.
+
+
+Table 2: Summary of Speech Datasets Used in this Study
+
+DatasetLanguage(s)Age GroupSpeakersSamplesHindi Speech DatasetHindiAdults100600ASER DatasetHindi, Marathi, English6-14 years-81,330Custom Misarticulation DatasetHindi4-19 years10025,000
+
+4 Proposed Method
+4.1 System Architecture
+The proposed misarticulation detection system is planned as a multi-stage pipeline, combine signal processing techniques with the hybrid acoustic modeling to achieve reli- able acceptance of the speech errors in children. The system architecture is displayed in Fig. 2.
+
+4.1.1 Dataset Acquisition and Preprocessing
+Speech samples are gathered from the three major sources: (i) the Hindi Speech Dataset,(ii) the PRATHAM Dataset, as well as (iii) a Custom Misarticulation Dataset evolved for this research. The recordings include of sentences, isolated words, numbers, alphabets, as well as short stories to the capture both simple and complex utterances from children with and without articulation disorders. These three sources were cau- tiously combined to create a combined dataset, ensuring the balanced representation
+
+7
+
+across age groups, genders, and the speech disorder categories. This merging technique produced a through corpus suitable for training robust misarticulation identification models.
+1. Voice Activity Detection (VAD): Voice Activity Detection (VAD) is an fun- damental method in preprocessing speech signals, as it assist the recognition of voiced speech segments. By splitting the speech signal into the short segments as well as analyzing selective characteristics, VAD algorithms competently distinguish between speech and non-speech segments.
+
+
+2. 
+
+
+
+
+3. 
+
+
+
+
+4. 
+
+5. 
+
+
+
+
+4.1.2 Feature Extraction
+
+Feature extraction is a fundamental step in speech processing, aimed at transformingraw audio signals into a structured representation suitable for downstream analysis.This process is based on the salient features, where it minimizes redundant and noise-related components to improve model performance. The extracted features can work asInput for speech-related applications, such as automatic speech recognition. AutomaticSpeech Recognition and Speaker Verification systems.4.1.2.1 Mel-Frequency Cepstral Coefficients (MFCCs)
+
+MFCCs give a compact representation of the spectral characteristics of a speech.signal by modeling the rate of spectral variations across different frequency bands.The sign of a cepstral coefficient denotes spectral energy distribution. Positive valuesindicate concentration in lower frequencies, whereas negative values correspond tohigher frequency dominance. These coefficients are normally averaged and structuredinto feature vectors for machine learning models.MFCC Feature Extraction Process: The feature extraction process of MFCCfollows a structured pipeline composed of the following:
+
+
+8
+
+1. Framing: The input speech signal is segmented into overlapping short-duration frames to ensure stationarity within each frame.
+2. Windowing: A window function is applied to each frame, like the Hamming window to reduce spectral leakage.
+3. Discrete Fourier Transform (DFT) Computation: The N-point Fast Fourier Transform (FFT) is executed on each frame to obtain the frequency spectrum, forming the basis for the Short-Time Fourier Transform (STFT).
+4. Filter Bank Application: A chain of triangular filters, spaced according to the Mel scale, is implemented to extract Mel filter bank energies, mimicking human auditory perception.
+5. Logarithmic Scaling and Discrete Cosine Transform (DCT): The log of the filter bank energies is computed, followed by a DCT transformation to acquire the final MFCC representation.
+
+
+
+cn =
+
+X
+k=1
+
+
+log (Ek) · cos
+
+ np 
+
+
+
+k - 1
+
+
+,	n = 1, 2, . . . , N,	(1)
+
+where Ek denotes the Mel-filter bank energies, K is the total number of filters, and
+cn is the nth cepstral coefficient.
+
+Fig. 1: Before and after MFCC-based feature extraction of audio.
+
+
+4.1.2.2 Alternative Feature Extraction: Convolutional Neural Network (CNN)
+   As an alternative to handcrafted acoustic features, this research also investigates the efficacy of automatically learned representations using Convolutional Neural Net- works (CNNs). [? ]start Unlike MFCCs [? ], which are derived from signal processing heuristics, a CNN learns hierarchical features directly from a 2D representation of the audio signal.
+1. Input Representation: Mel-Spectrogram
+The CNN model does not operate on the raw time-domain signal or 1D feature vec- tors. Instead, the preprocessed audio is first converted into a 2D Mel-spectrogram. This representation maps time on one axis and Mel-scaled frequency on the other, with the amplitude of specific frequencies at a given time represented by pixel intensity. This image-like format is highly suitable for convolutional operations.
+
+9
+
+2. CNN Architecture for Feature Learning
+The CNN is employed purely as a feature extractor, learning high-level spectral- temporal representations from Mel-spectrograms. These CNN-derived embeddings serve as an alternative input to the DNN-HMM acoustic model, replacing MFCCs. The CNN does not perform classification independently but augments the acoustic modeling process.It consists of a series of stacked layers:
+• Convolutional Layers: These layers apply a set of learnable filters (kernels) that convolve across the time and frequency dimensions of the Mel-spectrogram. The filters learn to automatically detect salient, localized time-frequency pat- terns-such as formant shapes, onsets, or noise characteristics-without human supervision.
+• Pooling Layers: After the convolutional layers, pooling is done (for exam-
+ple,Max Pooling) are applied to downsample the feature maps. This reduces computational dimensionality and introduces invariance to minor shifts in time or frequency gives a much stronger representation of the feature.
+Through this hierarchical process, deeper layers of the network learn to combine Simple patterns into more complex and abstract representations that are highly discriminative for phonetic events.
+3. Feature Vector Generation
+The output from the final convolutional or pooling layer represents a high dimen- sional, abstract learned feature map. This map is then typically flattened into a one-dimensional vector ot,which is used as a learned feature representation of audio over a given frame or window. This CNN-derived feature vector ot is then used as a direct drop-in replacementfor the MFCC feature vector in the subsequent acoustic modeling stages.
+
+4.1.3 Acoustic and Language Modeling
+Two acoustic modeling frameworks are utilized:
+1. Gaussian Mixture Model - Hidden Markov Model (GMM-HMM): Serves as the benchmark statistical method for phoneme classification.
+2. 
+
+
+
+4.2 Methodology
+
+
+
+
+
+
+4.2.1 Model Training
+
+
+
+
+10
+
+
+
+
+
+
+
+Two different acoustic modeling approaches are trained:
+1. 
+                                        This is a generative statistical model well-suited to capture the temporal nature of speech signals.
+
+i.
+
+In this framework, each phoneme is modeled as an HMM, where each hidden state'sacoustic characteristics are represented by a Gaussian Mixture Model. The emissionprobability bs(ot)-the likelihood of observing an acoustic feature vector ot whilein state s-is computed as a weighted sum of Gaussian densities. This allows themodel to capture complex acoustic variations within a single phonemic state.
+bs(ot) = p(ot | qt = s)
+Ms
+
+= L w
+m=1
+
+
+s,m
+
+N (ot; µ
+
+
+s,m
+
+, Ss,m
+
+(2)
+),
+
+
+In this equation, Ms is the number of mixtures for state s, ws,m is the weight of the mth mixture, and N (·; µ, S) is a Gaussian density with mean µ and covariance S. The joint probability of an observation sequence O and a corresponding state sequence Q is computed to evaluate the likelihood of an entire utterance, connect- ing the initial state probability (pq1 ) with the subsequent transition (aqt-1qt ) and
+emission (bqt (ot)) probabilities over time.
+
+
+P (O, Q | ?) = pq1 bq1 (o1)
+
+×  aqt-1qt
+
+
+
+bqt
+
+
+(3)
+(ot),
+
+t=2
+
+11
+
+Training is performed via the Baum-Welch (EM) algorithm, which iteratively refines the model parameters (?). A key step in this algorithm is using the forward- backward variables at(i) and ßt(i) to compute the posterior probability ?t(i) of being in state i at time t given the full observation sequence. These posteriors are essential for updating the model parameters in the maximization step.
+
+at(i) ßt(i)
+
+?t(i) = P (qt = i | O, ?) = I:
+
+.	(4)
+a (j) ß (j)
+
+
+Mixture responsibilities ?t(i, m) are computed and used to update wi,m, µi,m and
+Si,m as standard EM M-steps.
+
+ii. GMM-HMM decision rule for misarticulation
+For a phoneme segment hypothesized to correspond to canonical phoneme p, define:
+• S+: HMM states modeling the canonical phoneme p,
+• S-: HMM states modeling likely misarticulations / alternative realizations for phoneme p (if defined).
+   To make a decision, we compute the segment log-likelihoods under both the canonical and misarticulated models. These equations aggregate the weighted log probabilities for the segment's observations under each competing model.
+
+L+(Oseg) = log P (Oseg | canonical model p)
+= L log? L ?˜ (s) b (o )? ,	(5)
+
+
+t?seg
+
+t
+s?S+
+
+s	t ?
+
+
+L-(Oseg) = log P (Oseg | misarticulation model p)
+= L log? L ?˜ (s) b (o )? .	(6)
+
+
+t?seg
+
+t
+s?S-
+
+s	t ?
+
+A simple likelihood-ratio test, a standard statistical method for hypothesis
+selection, is used to flag misarticulation by comparing the two log-likelihoods.
+
+                  ?(Oseg) = L-(Oseg) - L+(Oseg),	(7)
+and we decide misarticulation if ?(Oseg) > t , where threshold t is chosen to optimize the Maximum F1 Criterion (MFC) on a validation set.
+   To provide a more granular measure of error, a severity score is derived from the normalized likelihood ratio, using the logistic function s(·) to map the unbounded ratio to a value between 0 and 1.
+
+                 Severity(Oseg) = s(a ?(Oseg)) ? (0, 1),	(8) where s(·) is the logistic function and a is a scaling constant chosen empirically.
+
+12
+
+2. DNN-HMM Model: As a more advanced framework, this research employs a Deep Neural Network-Hidden Markov Model (DNN-HMM).
+
+
+
+
+
+
+
+
+
+
+
+i. DNN-HMM acoustic model (phoneme / misarticulation modeling)
+In the DNN-HMM framework, the deep neural network is trained to function as a highly effective acoustic model. Its primary role is to estimate the posterior proba- bilities of HMM states (often context-dependent states known as senones) given an acoustic input. The input to the DNN is typically not a single feature vector ot, but a context window of stacked frames (e.g., several frames preceding and following the current one), which provides the network with crucial temporal information. The final layer of the DNN uses a softmax activation function, which takes the raw out- put scores (logits) zi(ot) and transforms them into a valid probability distribution across all possible states, ensuring the outputs sum to one.
+exp (zi(ot) 
+
+p(qt = i | ot) =
+
+I: exp (z (o ) .	(9)
+
+
+   The HMM Viterbi decoder, however, requires emission likelihoods, p(ot|qt = i), not posterior probabilities, p(qt = i|ot). Using Bayes' rule, these posteriors are converted into scaled pseudo-likelihoods for use in decoding. This is achieved by
+dividing the posterior by the state prior probability p(q = i), which is estimated from the relative frequencies of each state in the training alignments. In the log domain, this conversion is expressed as:
+
+            log bi(ot) ˜ log p(qt = i | ot) - log p(qt = i) + C,	(10)
+
+where C is an arbitrary constant (log p(ot)) that does not affect the outcome of the decoding process (arg max) and is thus ignored.
+   The DNN is trained in a supervised manner using a frame-wise cross-entropy loss function. This requires a "ground truth" label for each acoustic frame. These labels are generated through a forced alignment process, typically using a pre- existing GMM-HMM model to determine the most probable HMM state sequence for the training data. The loss function then measures the divergence between the
+
+
+13
+
+DNN's predicted probability distribution and the true, one-hot encoded state label
+{yt(i)}.
+LCE = - L L yt(i) log p(qt = i | ot).	(11)
+t=1 i?S
+Optionally, after initial cross-entropy training, the model can be further refined using sequence-discriminative objectives (e.g., State-level Minimum Bayes Risk (sMBR) or Maximum Mutual Information (MMI)). These methods may be used to directly optimize sequence-level criteria that are more closely related to the ultimate goals of recognition and misarticulation detection.
+
+ii. DNN-HMM decision rule for misarticulation
+Leveraging the direct posterior outputs from the DNN allows for a more straight- forward decision rule compared to the likelihood-based method in the GMM-HMM. The core idea is to aggregate the posterior probability mass for the set of canonical
+states (S+) versus the set of misarticulated states (S-) over the duration of a given
+p	p
+phoneme segment. This is done by averaging the frame-level posterior probabilities
+for all states within each set across the segment.
+
+
+P +(O
+
+
+
+seg
+
+ 1 
+) =
+|seg|
+
+L p(qt
+
+
+= i | ot),	(12)
+
+t?seg i?S+
+
+P -(O
+
+
+seg
+
+ 1 
+) =
+|seg|
+
+L p(qt
+
+= i | ot).	(13)
+
+t?seg i?S-
+
+   A posterior-based decision can then be made by directly comparing these aggre- gated probabilities. If the average posterior mass for the misarticulated states exceeds that of the canonical states by a given threshold tp, the segment is flagged as a mispronunciation.
+
+   Decide misarticulated if  ?p(Oseg) = P -(Oseg) - P +(Oseg) > tp,   (14)
+with the threshold tp tuned on validation data to optimize performance. A severity score can also be defined intuitively from these posterior masses. It is computed as the proportion of the posterior probability attributed to misarticulated states relative to the total probability mass for all relevant states - both canonical and misarticulated, giving a normalized score of the model's confidence in the error.
+P -(Oseg)
+
+SeverityDNN(Oseg) =
+
+P +(O
+
+
+seg
+
+) + P -(O
+
+
+seg
+
+.	(15)
+)
+
+
+4.2.2 Application Development
+The application prototype acts as a speech therapy support tool, offering misar- ticulation scores, corrective feedback, and a gamified interface in order to increase engagement in children in therapy.
+
+14
+
+
+
+
+
+
+15
+
+5 Results and Discussion
+The results demonstrate that the proposed DNN-HMM model using MFCC features achieves superior performance compared to the traditional GMM-HMM approach.
+Optimization of the F1-score ensures a balanced detection system, effectively reduc-ing both false positives and false negatives. Detailed feature analysis confirms thatMFCC, formants, pitch, and rate of speech (ROS) provide strong discriminative powerfor detecting misarticulations. The application of the MFC criterion further enhancesoverall detection metrics, as shown in Table 4, while the case study illustrates thesystem's capability to identify specific phoneme-level errors (Table 6). Additionally,rule-based thresholds enable practical categorization for clinical or educational pur-poses, and the system's real-time application output demonstrates its usability inspeech therapy settings. Overall, these findings confirm the effectiveness of the pro-posed approach in accurately detecting misarticulations and providing actionablefeedback for supporting speech therapy interventions.
+
+
+
+                   Let dDTW(R, Oseg) denote the normalized DTW cost; then a combined severity score can be:
+
+
+Severitycombined = ß · SeverityDNN
++ (1 - ß) ·  1 - exp(-? d
+
+
+
+
+DTW
+
+
+
+(R, O
+
+
+
+
+seg
+
+)) ,	(16)
+
+
+with ß ? [0, 1] and scaling ? > 0 chosen on a validation set.
+
+5.1 Evaluation Metrics
+
+•
+•
+mispronunciations.
+•
+nunciations.
+•
+
+5.2 Model Performance Comparison
+
+Table 3 compares the performance of GMM-HMM, DNN-HMM (MFCC), and DNN-HMM (CNN) models optimized using the Maximum F1-Score Criterion (MFC). TheDNN-HMM models significantly outperform the traditional GMM-HMM baseline,demonstrating superior acoustic modeling and improved detection of misarticulations.
+
+16
+
+
+
+
+
+Table 3: Performance Metrics for Speech Misarticulation Detection Models
+
+ModelAccuracyPrecisionRecallF1-ScoreGMM-HMM + MFCC85%0.840.860.85DNN-HMM + MFCC89%0.880.900.89DNN-HMM + CNN Feature94.2 %0.940.950.94
+
+
+
+
+
+
+
+5.3 Confusion Matrix Analysis
+
+Figures 5 and 6 present the confusion matrices for the DNN-HMM model using MFCCand CNN-based Mel-spectrogram features, respectively. The MFCC-based model(Fig. 5) demonstrates effective classification of normal and misarticulated speech,with minimal false positives. However, the CNN-based model (Fig. 6) shows furtherimprovement, achieving higher true positive counts and fewer misclassifications. Thisenhancement highlights the CNN's capability to capture fine-grained spectral andtemporal cues, enabling more precise detection of subtle articulation errors. Overall,the CNN-enhanced DNN-HMM system provides superior discriminative performance
+
+
+
+
+17
+
+
+	
+
+
+Fig. 5: Confusion matrix for DNN- HMM with MFCC features (MFC optimized).
+
+Fig. 6: Confusion matrix for DNN- HMM with CNN Mel-spectrogram fea- tures.
+
+
+5.4 Feature Analysis
+
+
+
+
+
+
+
+
+
+
+
+
+
+5.5 DNN-HMM Training Performance
+
+Figures 9 and 10 illustrate the comparative training and validation curves for DNN-HMM models using MFCC and CNN-based Mel-spectrogram features over 100 epochs.Both models exhibit smooth convergence; however, the CNN-based model achievesfaster convergence and consistently higher accuracy with lower loss values.The MFCC-based DNN-HMM converges to a validation accuracy of approximately89%, whereas the CNN-based variant reaches 95% with reduced oscillations in loss,
+18
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+
+	
+
+
+
+5.6 F1-Score Optimization Using MFC
+
+
+
+
+
+
+5.7 Effect of MFC Criterion on F1 Score
+
+Applying MFC improves both precision and
+recall, resulting in a higher F1 score.
+
+
+
+
+19
+
+
+
+Fig. 11: F1-score optimization using Maximum F1 Score Criterion (MFC) during model training.
+
+
+Table 4: Effect of MFC Criterion on F1 Score (DNN- HMM)
+
+Criterion AppliedPrecisionRecallF1-ScoreWithout MFC85.6%86.1%85.8%With MFC88%90%89%
+
+5.8 Comparative Results: MFCC vs CNN Features
+Figure 12 illustrates the comparative performance of the DNN-HMM model using MFCC and CNN-based Mel-spectrogram features. The CNN-enhanced system achieves higher accuracy (+5.2%), improved F1-score, and significantly reduced val- idation loss due to its ability to capture spectral-temporal patterns more effectively than MFCC.
+
+Fig. 12: Comparison of MFCC vs CNN Feature Extraction in DNN-HMM
+
+
+20
+
+5.9 Rule-Based Threshold Classification
+Rule-based thresholding categorizes speech as:
+• Poor Pronunciation (Failure): Probability < 45
+• Acceptable Pronunciation (Pass): 45 = Probability < 65
+• Outstanding Pronunciation (Excellent): Probability = 75
+Table 5 shows the distribution of speech samples using this approach.
+
+
+Table 5: Rule-Based Classification Results of Speech Samples
+
+Pronunciation CategoryNumber of SamplesPercentagePoor (Failure)2,50010%Acceptable (Pass)17,50070%Outstanding (Excellent)5,00020%
+
+
+5.10 Case Study Example
+Table 6 presents a sample as misarticulation detection results for Hindi words.This demonstrates the system's ability to show specific pronunciation errors.
+
+
+Table 6: Misarticulation Detection Results for Sample Hindi Words
+
+Hindi WordChild PronunciationSystem OutputMisarticulation Detected?(R¯am)(/r/ ? /y/)Detected ? /r/ vs /y/Yes(Su¯raj)(/s/ ? //)Detected ? /s/ vs //Yes(Kit¯ab)(/k/ ? /t/)Detected ? /k/ vs /t/Yes(P¯an¯i)CorrectCorrect ? /p/No(Ghar)(omits /r/)Detected ? missing /r/Yes
+
+5.11 Prototype Evaluation (Real-Time Testing)
+A lightweight prototype was deployed for real time check alongside children in a school.environment. The response time, accuracy of feedback and user satisfaction of the system were measured to evaluate the usability of the hands on practice.Table 7 summarizes the prototype's performance.
+   The results validate the prototype's real time usability, responsiveness, and robust- ness, user acceptance, making it acceptable for deployment in school-based instead of home-based. speech therapy settings.
+
+5.12 Comparative Analysis with Existing Studies
+The effectiveness of the proposed Hindi misarticulation detection framework was com- pared with existing state-of-the-art studies to validate it on mispronunciation and
+
+
+21
+
+
+Table 7: Prototype Evaluation (Real-Time Testing)
+
+Evaluation MetricValueAverage Response Latency0.8 seconds per wordCorrect Feedback Delivery92% casesTherapist User Rating4.6 / 5 (positive adoption intent)PlatformAndroid mobile device (Snapdragon-870)
+
+misarticulation detection across various languages. Table 8 summarizes the method- ologies, input modalities, and performance metrics of prior tesearch also contrasts these along the proposed CNN-based DNN-HMM approach.
+   The analysis highlights that although prior models have seen phenomenal success,in Arabic, English, and Mandarin datasets using end-to-end or hybrid deep learning, the proposed framework uniquely targets Hindi speech and integrates both MFCC and CNN-based features through a hybrid DNN-HMM model. This design that allows for linguistically accurate and interpretable misarticulation detection. complex, low- resource setting.
+   In addition to the tabular comparison that was presented in Table 8, a graphical analysis was performed to illustrate the relative performance of the proposed Hindi misarticulation detection framework with respect to existing state-of-the-art models. Figure 13 which represents the comparative accuracies of different mispronunciations as well misarticulations detection systems across different languages.
+
+
+Table 8: Summary of Mispronunciation Detection Studies and Performance Met- rics
+
+Ref NoAuthorMethodologyAccuracy[10]Shahinwav2vec271%[11]C¸ alikTransformer (UniSpeech)94%[12]HuDNN & Logistic Regression92%[13]WeiSVM90%[14]WalleyCognitive Study70%[15]DuanFeature-based CNN90% (baseline + AEER improvement)[17]LinJoint Learning88% (baseline + F1 improvement)[18]LiMulti-distribution DNN88%
+
+   Comparative results clearly show that the proposed Hindi misarticulation detection framework achieves performance on par with or better than state-of-the-art systems developed for other languages. Particularly, even without sufficient annotated Hindi speech data, the CNN-based DNN-HMM model reached an accuracy of 94.2% and 89% F1-score-comparable to transformer-based systems such as UniSpeech [11] and outperforming classical DNN-HMM implementations [12]. Additionally, the incorpo- ration of rule-based scoring allows for interpretable output suitable for for real-time speech therapy feedback, an aspect missing in most of the existing literature.
+
+
+
+22
+
+
+
+Fig. 13: Comparative accuracy of mispronunciation and misarticulation detection models from several studies
+
+
+5.13 Analysis of Error and Limitation
+In the analysis of the confusion patterns, some phonemes still remain challenging for the model to distinguish. It can be seen from Table 10 that /r/, /y/ phonemes are often confused due to overlap in tongue placement and coarticulation effects. Similarly, confusion between /k/ and /t/ is due to their similar place of articulation,especially among inexperienced speakers. It also sometimes shows scattered omissions of /r/ and
+/s/, which can be attributed to the observed weak articulatory control in early speech development.
+
+
+Table 9: Common Phoneme Confusions and Likely Causes
+
+Confused PhonemesLikely Reason/r/ ? /y/Tongue placement overlap, coarticulation/k/ ? /t/Similar place of articulation for beginnersOmissions of /r/, /s/Weak articulatory control in early speech
+
+   Besides these promising results, several limitations have been noted. The perfor- mance of the system tends to degrade under high-noise recording conditions that obscure result in subtle acoustic cues necessary for accurate classification. Moreover, the dataset used for training presents a limited clinical demographic, mostly children between the ages of 5 and 12 years, which may limit the generalizability of the model to other age groups. groups. Lastly, the system has been evaluated only on isolated word pronunciations, and extending the framework to handle continuous speech remains a key direction for future work.
+
+
+
+23
+
+6 Conclusion
+The proposed research introduces a data-driven and clinically interpretable framework for Hybrid deep learning and probabilistic approaches to misarticulation detection in Hindi speech modeling. The proposed system effectively captures both spectral fea- tures by integrating MFCC and CNN-based Mel-spectrogram features into a unified DNN-HMM architecture. and temporal nuances of children's speech.
+
+
+                                              Experimental results show that the CNN enhanced DNN-HMM model achieves the best accuracy of (94.2%) and superior F1-score performance over conventional GMM-HMM baselines. Furthermore, the prototype mobile application confirms the feasibility of real-time and low latency misarticulation detection, hence encouraging accessibility, and personalized therapy delivery.
+   Future research will be related to the extension of the dataset for multilingual and continuous speech samples, integrating adaptive learning for personalized feedback. and developing a clinician-in-the-loop interface to enhance therapeutic outcomes.These promising results affirm that the proposed hybrid DNN-HMM framework can serve as a scalable intelligent foundation for next-generation digital speech therapy systems.
+
+Conflict of Interest
+The authors declare that no conflicts of interest exist regarding the publication of this study. The research received no specific grant or financial support from any funding agency or organization.
+
+Ethical Approval
+All experimental protocols and data collection methods complied with institu- tional ethical standards. Parental or guardian consent was obtained for every child participant.
+
+Data Availability
+Hindi Speech Dataset: Publicly available at https://www.openslr.org/.
+ASER Dataset: Available under academic research license from PRATHAM-ASER India initiative.
+Custom Misarticulation Dataset (CMD): Available on request from the corresponding author for research use only.
+
+
+
+
+
+
+
+24
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

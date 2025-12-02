@@ -1,0 +1,24 @@
+SPAM/PHISHING DETECTOR - TRAINING REPORT
+Generated: 2025-11-12 23:33:35
+================================================================================
+
+Training samples: 437,784
+Validation samples: 93,811
+Vocabulary size: 10,000
+
+VALIDATION METRICS
+================================================================================
+
+              precision    recall  f1-score   support
+
+         ham     0.9979    0.4828    0.6508     46521
+        spam     0.6626    0.9990    0.7967     47290
+
+    accuracy                         0.7430     93811
+   macro avg     0.8302    0.7409    0.7237     93811
+weighted avg     0.8288    0.7430    0.7243     93811
+
+ROC-AUC Score: 0.8566
+F1 Score: 0.7967
+Precision: 0.6626
+Recall: 0.9990

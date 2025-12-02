@@ -1,0 +1,26 @@
+{
+  "feature_columns": [
+    "has_url",
+    "url_count",
+    "has_ip_url",
+    "has_url_shortener",
+    "has_suspicious_tld",
+    "avg_domain_entropy",
+    "has_suspicious_pattern",
+    "has_https",
+    "has_non_standard_port",
+    "text_length",
+    "word_count",
+    "digit_ratio",
+    "uppercase_ratio",
+    "special_char_ratio",
+    "has_urgency",
+    "has_financial_keywords",
+    "has_verification_keywords",
+    "has_prize_keywords"
+  ],
+  "tfidf_vocab_size": 5000,
+  "total_features": 5018,
+  "model_type": "Logistic Regression (Generalized)",
+  "roc_auc": 0.9783502235361199
+}

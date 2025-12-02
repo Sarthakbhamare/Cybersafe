@@ -1,0 +1,17 @@
+text,label,category,reason,url_count,text_length,word_count,has_url,special_char_ratio,digit_ratio,uppercase_ratio,suspicious_keywords,has_ip_address,predicted,confidence,correct
+URGENT: Your Amazon order #12345 has been delayed. Click here to track: https://amazon.com/track,ham,legitimate_urgent,Real Amazon notification with urgency,1,96,13,True,0.1,0.05,0.05,0,False,ham,0.04202245307233951,True
+Important: Your bank account will be suspended. Please verify your information immediately at https://chase.com/verify,ham,legitimate_urgent,Legitimate bank communication (assuming real domain),1,118,14,True,0.1,0.05,0.05,0,False,spam,0.5957879899775451,False
+Your PayPal payment of $500 has been sent. View details: https://paypal.com/activity,ham,legitimate_notification,Real PayPal transaction notification,1,84,11,True,0.1,0.05,0.05,0,False,ham,0.04271094540408478,True
+Verify your account at https://paypa1.com/login (notice the 1 instead of l),spam,homograph_attack,Typosquatting with character substitution,1,75,11,True,0.1,0.05,0.05,0,False,spam,0.5912966588682074,True
+Reset password: http://аmazon.com/reset (Cyrillic а instead of Latin a),spam,homograph_attack,Internationalized domain name (IDN) homograph,1,71,9,True,0.1,0.05,0.05,0,False,ham,0.12716135614417529,False
+Click here: http://bit.ly/3x9kLm2 to claim your prize,spam,url_shortener,URL shortener hiding destination,1,53,7,True,0.1,0.05,0.05,0,False,ham,0.28913119882968097,False
+Urgent: https://www-paypal-security.com/login,spam,subdomain_trick,Fake subdomain mimicking legitimate domain,1,45,2,True,0.1,0.05,0.05,0,False,spam,0.9516442123153979,True
+Login here: http://192.168.1.100/paypal-login.php,spam,ip_address,Suspicious IP address instead of domain,1,49,3,True,0.1,0.05,0.05,0,True,ham,0.09392660760605731,False
+Verify account: http://123.456.789.012:8080/verify,spam,ip_address,Non-standard port on IP address,1,50,3,True,0.1,0.05,0.05,0,True,ham,0.38282493655510585,False
+"Hi John, here are the meeting notes from today. Let me know if you have questions!",ham,normal_message,Regular personal/work email,0,82,16,False,0.1,0.05,0.05,0,False,ham,0.4495047483954528,True
+Your OTP for transaction is 123456. Do not share with anyone.,ham,otp_message,Legitimate OTP SMS,0,61,11,False,0.1,0.05,0.05,0,False,ham,0.011772625068285913,True
+Thanks for subscribing! Visit https://newsletter.example.com to manage preferences,ham,subscription,Legitimate newsletter,1,82,8,True,0.1,0.05,0.05,0,False,ham,0.2344190016693395,True
+"Dear Customer, We noticed unusual activity. Please verify: https://secure-account-verification.net/confirm?ref=amazon",spam,sophisticated_phish,Professional tone + fake security domain,1,117,9,True,0.1,0.05,0.05,0,False,ham,0.49612853854634753,False
+You have received a secure message. View it at: https://docusign-documents.info/view?id=12345,spam,brand_impersonation,Fake DocuSign impersonation,1,93,10,True,0.1,0.05,0.05,0,False,spam,0.509240488015238,True
+https://github.com/openai/gpt-4,ham,url_only_legit,Legitimate GitHub URL only,1,31,1,True,0.1,0.05,0.05,0,False,spam,0.8903438884209438,False
+http://free-iphone-winner.xyz,spam,url_only_suspicious,Suspicious domain with giveaway keywords,1,29,1,True,0.1,0.05,0.05,0,False,spam,0.8748285403987783,True

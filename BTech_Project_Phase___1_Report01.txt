@@ -1,0 +1,919 @@
+A
+PROJECT PHASE - I REPORT ON
+CyberSafe AI -An AI-Powered Platform for Fraud Detection and Cybersecurity Training
+Submitted in partial fulfillment of the requirements for the degree of
+
+Bachelor of Technology in
+Information Technology
+
+By
+Sarthak Ravindra Bhamare (2254491246006) Pavanraj Ravindra Patil (2254491246044)) Gitesh Gokul Patil (2254491246038)
+Shivam Harish Shinde (2254491246056)
+
+Under the guidance of
+Prof. Sachin Kamble
+
+
+DEPARTMENT OF INFORMATION TECHNOLOGY
+SHRI VILE PARLE KELVANI MANDAL'S
+INSTITUTE OF TECHNOLOGY, DHULE
+Survey No. 499, Plot No. 02, Behind Gurudwara, Mumbai-Agra National Highway, Dhule- 424001, Maharashtra, India.
+Academic Year 2025-26
+
+CERTIFICATE
+
+SHRI VILE PARLE KELVANI MANDAL'S
+INSTITUTE OF TECHNOLOGY, DHULE
+Survey No. 499, Plot No. 02, Behind Gurudwara, Mumbai-Agra National Highway, Dhule- 424001, Maharashtra, India.
+Academic Year 2025-26
+
+This is to certify that the B.TECH. Project Entitled
+CyberSafe AI -An AI-Powered Platform for Fraud Detection and Cybersecurity Training
+Submitted by
+Sarthak Ravindra Bhamare (2254491246006) Pavanraj Ravindra Patil (2254491246044)) Gitesh Gokul Patil (2254491246038)
+Shivam Harish Shinde (2254491246056)
+is a record of bonafide work carried out by him, under our guidance, in partial fulfillment of the requirement for the award of Degree of Bachelors of Technology (Information Technology) at Shri Vile Parle Kelvani Mandal's Institute of Technol- ogy, Dhule under the Dr. Babasaheb Ambedkar Technological University, Lonere, Maharashtra. This work is done during Semester VII of Academic year 2025-26. Date:
+Place: SVKM's IOT, Dhule
+
+Prof. Sachin Kamble	Prof. Mangesh Balpande Dr. Bhushan Chaudhari Dr. Nilesh Salunke
+Project Guide	Project Coordinator	HOD IT	Principal
+
+Name and Sign with date	Name and Sign with date
+Examiner-1	Examiner-2
+
+DECLARATION
+
+We declare that this written submission represents my ideas in our own words and where others ideas or words have been included, we have adequately cited and referenced the sources. We also declare that we have adhered to all principles of academic honesty and integrity and have not misrepresented or fabricated or falsified any idea/data/fact/source in our submission. We understand that any violation of the above will cause disciplinary action by the Institute and can also evoke penal action from the sources which have thus not been properly cited or from whom proper permission has not been taken when needed.
+
+
+Signatures
+Sarthak Ravindra Bhamare (2254491246006) Pavanraj Ravindra Patil (2254491246044)) Gitesh Gokul Patil (2254491246038)
+Shivam Harish Shinde (2254491246056)
+
+ACKNOWLEDGMENTS
+
+We take this opportunity to express our sincere gratitude to our project guideProf. Sachin Kamble , for valuable guidance, constant encouragement, and insightful suggestions throughout the course of this project.
+We are also grateful to our project coordinator, Prof. Mangesh Balpande, for providing the necessary support and guidance during the different phases of the project.
+We express our heartfelt thanks to Dr. Bhushan Chaudhari, Head of the Department of Information Technology, for motivation and for providing the facilities required to carry out this work.
+We are deeply grateful to our principal, Dr. Nilesh Salunke, for creating a conducive learning environment and for continuing encouragement to academic and project- related activities.
+We also wish to express our appreciation to all the non-teaching staff and support staff of the department for their cooperation and assistance whenever required.
+Lastly, we would like to thank Almighty God, our parents, family, and friends for their constant support, encouragement, and inspiration that kept us motivated to complete this project successfully.
+
+Names of Team Members:
+1. Sarthak Ravindra Bhamare (2254491246006)
+2. Pavanraj Ravindra Patil (2254491246044))
+3. Gitesh Gokul Patil (2254491246038)
+4. Shivam Harish Shinde (2254491246056)
+
+ABSTRACT
+
+   This project focuses on the development of an intelligent and risk-aware cyberse- curity enablement platform CyberSafe AI combining real-time fraud detection with guided defensive training for diverse user groups. The system is designed to identify, contextualize, and respond helpfully to potentially malicious text content, suspicious number patterns, and emerging scam indicators while coaching users through in- teractive phishing and SMS simulators, adaptive quizzes, certification paths, and a supportive cybersecurity chatbot. It leverages a lightweight TF-IDF + Logistic Regression classifier for rapid scam assessment and integrates explanation tooling (feature weight displays and exemplar highlights) to elevate user trust and learning retention. The backend is implemented using Express and complementary FastAPI microservices, supporting modular APIs for classification, interpretability, progress tracking, and persona-specific guidance. Preprocessing steps include token nor- malization, pattern extraction, and risk term aggregation to ensure consistent fraud signal inference. The system undergoes validation using staged user interaction scenarios, where it reliably flags high-risk phrases and guides corrective learning flows with minimal latency. Phase-1 implementation validated the core detection + training loop, confirming stable performance and smooth UI/API integration across typical usage patterns. The platform demonstrates strong potential for real-world application in proactive scam mitigation and continuous security habit formation. It lays a foundation for future development involving multilingual expansion, adaptive difficulty tuning, real-time threat feed enrichment, progressive chatbot coaching, and escalation pathways linked to emerging anomaly signals.
+
+
+   Keywords : Fraud Detection, Cybersecurity Training, Logistic Regression, TF IDF, Explainable AI, LIME, React, Express, FastAPI, MongoDB, User Awareness, Real Time Classification
+
+LIST OF ABBREVIATIONS
+
+
+
+AbbreviationDescriptionTF-IDFTerm Frequency-Inverse Document FrequencyLRLogistic RegressionNLPNatural Language Processing
+
+
+
+
+TABLE OF CONTENTS
+
+
+Title	Page No.
+CERTIFICATE	. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .	i
+
+DECLARATION	ii
+ACKNOWLEDGMENTS	iii
+ABSTRACT	iv
+LIST OF ABBREVIATIONS	v
+TABLE OF CONTENTS	vi
+LIST OF TABLES	ix
+LIST OF FIGURES	x
+CHAPTER 1	INTRODUCTION	1
+1.1 Introduction	1
+1.2 Motivation	2
+1.3 Problem Statement and Objective	2
+1.3.1 Problem Statement	2
+1.3.2 Objective	2
+1.4 Scope	3
+1.5 Organization of Report	3
+1.6 Summary	4
+CHAPTER 2	Literature Survey	5
+2.1 Survey of Existing Systems	5
+2.2 Limitations of Existing Systems and Research Gaps	6
+2.3 Summary	8
+CHAPTER 3	Methodology	10
+3.1 Methodology	10
+3.2 System Design Architecture	14
+3.3 Hardware and Software specifications	16
+3.3.1 Hardware Requirements	16
+3.3.2 Software Requirements	16
+CHAPTER 4	Proposed System Architecture	18
+4.1 System Architecture:	18
+4.2 System Design Architecture	18
+4.2.1 Presentation Layer (Frontend)	18
+4.2.2 Application Layer (Backend / API Gateway)	19
+4.2.3 Inference Layer (AI Engine)	19
+4.2.4 Data Layer (Persistence)	20
+4.3 Mathematical Model and Core Algorithms	20
+4.3.1 Preprocessing and Text Normalization	20
+4.3.2 TF-IDF Feature Space Construction	20
+4.3.3 Logistic Regression Classification	21
+4.3.4 Risk Scoring and Thresholding	21
+CHAPTER 5	Feasibility Study	22
+5.1 Introduction: Employing and Enabling Digital Safety Inclusion	22
+5.2 Technical Feasibility: Scalable and Robust Architecture	23
+5.3 Behavioral Feasibility: Trust, Inclusion, and Adoption	25
+5.4 Resource Feasibility: Team, Tools, and Infrastructure	26
+5.5 Consolidated Feasibility Statement	27
+CHAPTER 6	Experimentation and Results	28
+6.1 Experimental Setup	28
+6.1.1 Environment Configuration	28
+6.1.2 Dataset and Input Sources	28
+6.1.3 Model Architecture & API Workflow	29
+6.2 System Features and UI Implementation	29
+
+
+6.2.1Feature 1:Real-Time Scam Detection Engine  . . . . . . . . .296.2.2Feature 2:Community Scam Feed & Redaction System	. . .316.2.3Feature 3:Personal Analytics & Gamification Dashboard . . .316.2.4Feature 4:Gamified Cybersecurity Education Module . . . . .326.2.5Feature 5:Anonymous Reporting & Threat Analysis Engine .336.2.6Feature 6:Multi-Language Accessibility & Localization	. . .346.3 Results and Discussion	36
+6.3.1 Component Testing and Evaluation	36
+6.3.2 Real-World Robustness Analysis (Generalization Gap)	36
+6.4 Comparative Analysis	37
+6.5 Summary	37
+CHAPTER 7	Conclusion and Future Scope	38
+7.1 Conclusion	38
+7.2 Future Scope	38
+REFERENCES	39
+
+
+
+LIST OF TABLES
+
+
+2.1 Literature Review	9
+
+6.1 Component Emotion Detection Results	36
+6.2 Comparison of Detection Approaches	37
+
+
+
+
+
+LIST OF FIGURES
+3.1 Architecture of System	10
+4.1 Architecture of System	18
+6.1 CyberSafe Input Interface	30
+6.2 Community Feed with Redacted Stories	31
+6.3 CyberSafe Gamified Quiz Module Interface	33
+6.4 CyberSafe Anonymous Reporting Interface	34
+6.5 Fig 6.5. Multi-Language Support Hindi/Regional Language	35
+
+  CHAPTER 1 INTRODUCTION
+1.1 Introduction
+   Fraud and social engineering through the web have become ubiquitous in a digital economy that is highly connected with email, SMS, and instant messaging systems becoming the means of managing personal finances, identity, and communication in everyday interactions. Consumers and small businesses are exposed to phishing links, credential harvesting warnings, counterfeit payment alerts, and impersonation attempts which are exploiting more and more on urgency signals, localized words, and partial personal data. Many users do not have constant and context-sensitive reinforcement that can convert one-time training into habitual defensive measures, despite already having awareness campaigns and simple filtering tools [1]. Tra- ditional methods tend to separate detection and education: the automatic scanners indicate the risk without follow-up pedagogy, and the static training portals provide the user with a lesson on the risk that is no longer available in real-time and is not adapted to the individual threat. CyberSafe AI fills this gap with a combina- tion of real-time scams detection, interactive training, and explainable feedback that exists in a single web platform. Assessment of risk in texts and number patterns using a lightweight TF IDF-based Logistic Regression model can produce a score in less than a millisecond, which can be faster than most common phishing and scam websites. The educational simulators that are surrounding this core include phishing email rehearsal, SMS scam scenario practice, adaptive quizzes, certifica- tion progression, and a supporting chatbot, which reinforces concepts and points in the remedial learning directions. Interpretability tooling Global feature weight exposition and exemplar highlight panels, explain why tokens like urgent, verify, claim, or limited increase classification risk, and decrease user skepticism and pro- mote reflective correction [2]. Its modular architecture (react single page application (engagement and persona tailoring), express backend (authentication, progression state, content routing), fastapi microservices (model inference, explanation services)) is also extensible to multilingual and more sophisticated models. The early work is based on English textual data and scalar phone number heuristics with stable inference latency, unified UI-API coordination, and native security controls (JWT, hashed credentials, hardened headers, scoped CORS) [3]. This simulated method focuses on a 70 percent base feature set of core detection, core interpretation, and
+
+core training loops, with advanced components (multilingual expansion, anomaly streaming, proactive threat feed integration, adaptive difficulty calibration, escalation triggers) being designated as future work phases [4].
+
+1.2 Motivation
+   The desire to create the CyberSafe AI, a combined fraud detection and cyber- security training system, is premised on the growing demand to have an accessible, practical, and reliable digital safety support. Numerous users are afraid of taking action when they realize something has raised suspicion because of lack of knowl- edge, overwhelming amounts of information, irregular previous training or lack of immediate contextual cues thus leading to a tendency to make habitual risky clicks and revelation of personal information. The awareness method of traditional one offs has very low chances of turning into defensive behavior and standalone filters gen- erate alerts without education so there remains a constant gap between detection and meaningful learning by users. Through the production of a platform that provides real time scam content and number pattern verification as well as interactive phish- ing and SMS simulators, adaptive quizzes, certification progression, and a helpful guidance chatbot, users can interact with protective practices in a low friction space they are already familiar with. Personalized and confidence building interaction is made possible in the integration of AI based textual risk scoring, interpretability (highlighting of risk terms, examples), and persona tailored coaching [5].
+
+1.3 Problem Statement and Objective
+1.3.1 Problem Statement
+   Most users are bombarded with spam and links that are not safe to visit day in day out and they do not have the immediate, safe, and easy to learn interface as to why the content in those links is dangerous. Such a lack of context, real- time educational support results in redundant unsafe clicks, disclosing a credential, and losing trust in online platforms. It is mandatory that a common platform is needed, which does not only identify high-risk messages in real-time but converts those warning signs into practice-based, confidence-building learning and explainable instructions so consumers can understand when and how to act.
+
+1.3.2 Objective
+
+fraudulent text and malicious web addresses using quick, and trustworthy risk rating to provide prompt user interventions
+
+• Offer phishing/SMS simulator/adaptive quiz and brief remediation instructions to establish enduring defensive practice.
+• Clear descriptions of flagged risk terms and model patterns should be given, and a safe, modular way to multilingual and adaptive expansion in the future must be laid down...
+
+1.4 Scope
+   This project is based on the development of a scam message and malicious URL awareness platform powered by AI, and integrated, which is aimed at delivering an active detection and embedded defensive training via web interactions.	It is dedicated to detecting textual patterns that are risky and suspicious links in English by a lightweight machine learning (TF IDF + Logistic Regression) and a highlighting mechanism that can be explained to allow understanding the results by the user[1].
+   The main architecture used in this project is a modular application that consists of a React Single Page Application to interact with the user, an Express back- end to perform authentication and progression, as well as microservices based on the FastAPI framework to perform inference and interpretability services and coordinate training[2] . It focuses on backend and model integration pipelines such as preprocessing (token normalization, URL parsing) and weighting risk terms and the generation of artifacts (feature importance and exemplar rationale).
+   The scope in concept is currently design, design in the detection loop, inter- pretability layer, and interactions based training modules (phishing/SMS simulators, adaptive quizzes, certification). This site will support high risk scam phrases and malicious URL indicators with low latency and explanatory feedback. Future exten- sions Multilingual support: The system will have the capacity to support multiple languages, providing adaptive difficulty options, and external threat feeds. Anomaly- aware escalation mechanisms: The system will have the capability to support multi- ple languages, with adaptive difficulty options, and external threat feeds[3]. Potential extension towards transformer-based text models: The system can support various languages, with adaptive difficulty options, and external threat feeds.
+
+1.5 Organization of Report
+Chapter 1: Introduces and describes the project along with its motivation, objectives, and scope.
+Chapter 2: is the literature review and associated research on emotion-sensitive and multilingual chatbots.
+
+Chapter 3 : Determines the suggested system architecture, approach, and module descriptions.
+Chapter 4 : Presents experimentation, testing and findings of the conducted Phase-1 modules.
+Chapter 5: This contains the end of the project and also places out the future scope of development of Phase-2.
+
+1.6 Summary
+Chapter 1 is the introduction, motivation and scope of the project.
+Chapter 2 offers the literature review associated with the gaps in system and re- search.
+
+CHAPTER 2
+Literature Survey
+
+2.1 Survey of Existing Systems
+1. Commercial protection and reputation services:
+   Many large providers (browser vendors, search engines, mail providers) use multi-layered systems to protect users from scams: URL reputation databases, do- main blocklists, sender reputation, heuristics, and ML-based content classifiers. These systems are tuned for extremely high scale and rely heavily on telemetry and feedback loops (user reports, click/fraud signals). They prioritize precision for high- risk cases and often use blacklist/whitelist fallbacks to keep false positives low[4].
+
+2. Email/SMS spam filters and telecom solutions:
+   Production spam filters combine header analysis, sender history, content features and user feedback. Telecom operators also use pattern detection to flag malicious SMS/voice campaigns. These systems often blend rule-based blocks with ML mod- els trained on domain-specific corpora[5].
+
+3. Social-platform moderation pipelines:
+   Social networks use hybrid approaches: automated classifiers (for initial triage), heuristic rules (e.g., message frequency, presence of phone/URL), and human mod- eration for complex or high-impact decisions. Models flag potential scam posts and route them for review; human feedback is used to retrain and improve models[6].
+
+4. Academic approaches - classical ML and feature engineering:
+   Speech- Early research applied bag-of-words/TF-IDF with linear classifiers (lo- gistic regression, SVM, Naive Bayes). These methods are fast, interpretable, and effective when lexical features differ strongly between classes (spam vs legitimate). Feature engineering (presence of phone numbers, punctuation, unusual tokens) is common to improve signal.
+
+5. Ensemble and tree-based models:
+   Gradient-boosted trees and random forests are used when combining many en- gineered features (text-derived and metadata). They often yield strong baselines and provide feature importance metrics useful for analysis.
+
+6. Sequence models and deep learning:
+   LSTMs, CNNs over text, and other sequence models capture context better than simple bag-of-words. They reduce manual feature engineering requirements but need more labeled data and compute.
+
+7. Transformer-based and transfer learning approaches:
+   Recent work favors transformer models (BERT, RoBERTa, DistilBERT) fine- tuned for classification. These models capture semantic nuance, improving detection of more subtle scams or context-dependent malicious content. Transfer learning helps when labeled data are limited[7].
+
+8. Explainability tools in practice:
+   Methods like LIME and SHAP are used to produce local explanations for model outputs. Explainability is increasingly adopted in security applications to justify flagged content to users and moderators.
+9. Datasets and benchmarks:
+   Common public datasets include the SMS Spam Collection, Enron emails, phish- ing URL datasets, and curated social-media scam datasets. However, many are small, domain-specific, or outdated. Domain-specific datasets (language or medium- specific) show that generalization across channels is a key challenge.
+
+10. Chatbots and conversational assistants for security guidance:
+   Earlier chatbots were rule-based or retrieval-based (safe, predictable). LLMs (large language models) provide fluent, flexible responses but introduce hallucination and safety risks[8]. Current practice for safety-critical guidance is to combine LLMs with guardrails: prompt constraints, safety filters, and human-in-the-loop moderation.
+11. Integratedindustrial patterns:
+   Multi-stage detection pipelines are common: a lightweight fast model triages most inputs; uncertain/high-risk items are escalated to heavier models or human review. This balances throughput and accuracy. Human feedback loops and online learning are used to adapt models to evolving threats.
+
+
+2.2 Limitations of Existing Systems and Research Gaps
+1. Fragmented Detection and Education:
+   Many anti-phishing or scam filtering tools flag threats but do not convert those moments into structured learning. Separate awareness portals lack real-time rele-
+
+vance. This gap leaves users with alerts but little behavioral reinforcement[13].
+
+2. Limited Multilingual Localized Coverage:
+   Existing classifiers often center on English; region-specific linguistic patterns (code-mixed phrases, local financial slang) are underrepresented, reducing recall in non-English contexts and delaying inclusive expansion[14].
+
+3. Sparse User-Centric Explainability:
+   Traditional solutions expose technical scores (spam confidence, blacklist hits) without intuitive rationale (e.g., highlighted risky terms, phrase patterns). The ab- sence of accessible explanation diminishes trust and impedes self-correction.
+
+4. Insufficient Adaptive Training Loops:
+   Awareness modules are frequently static (fixed quizzes, generic tips). Few sys- tems tailor difficulty, scenario variability, or remediation to individual performance trends, limiting long-term retention.
+
+5. Weak Fusion of Text and URL Signal Layers:
+   Tools may treat message body and URL risk heuristics separately (reputation, lexical analysis) without joint modeling. Lack of integrated feature fusion can miss composite scams (clean prose with obfuscated redirect links )
+
+6. Limited Resilience to Evolving Scam Tactics:
+   Static keyword lists and periodically retrained models lag behind rapid template mutations (URL token churn, homograph attacks, emoji obfuscation). Continuous drift monitoring and fast incremental updates remain underutilized [15].
+
+7. High False Positive Friction:
+   Overly aggressive pattern matching creates alert fatigue, causing users to ig- nore genuine warnings. Most platforms do not optimize precision-recall trade-offs through contextual thresholds or personalized risk calibration.
+
+8. Minimal Longitudinal User Risk Profiling:
+   Many systems evaluate messages in isolation instead of building an evolving risk profile for each user (e.g., repeated engagement with borderline content). The absence of longitudinal scoring undermines early detection of vulnerability patterns.
+
+9. Lack of Integrated Threat Intelligence Streams:
+Consumer-facing training tools rarely ingest open-source threat feeds in real time
+
+(phishing domain blacklists, emerging TTP advisories). This limits exposure to the most current attack patterns.
+
+10. Underutilized Behavioral Feedback Metrics:
+   Evaluation often focuses on model accuracy rather than user behavior post- intervention-such as reduced click-through, faster reporting, or improved simulator performance. Few platforms rigorously track these learning outcome KPIs
+
+11. Limited Privacy and Data Minimization Practices:
+   Some solutions store full message content for analytics without adequate anonymiza- tion, retention governance, or user transparency dashboards, increasing privacy ex- posure.
+
+12. Weak Integration of Explainable AI Artifacts:
+   Explainability tools (LIME, feature attribution visualizations) typically remain research prototypes and are not embedded into training workflows. Users rarely re- ceive interactive explanations (e.g., "why this was flagged") that could feed adaptive quizzes[9].
+13. Absence of Persona-Specific Pedagogy:
+   Generic guidance ignores differences in cognitive load, terminology familiarity, and attack exposure across students, professionals, seniors, or small businesses. Lack of personalization reduces learning relevance.
+Table 2.1 contains literature Review from reference papers.
+
+2.3 Summary
+Chapter 2 was about literature survey done for project.
+Chapter 3 was about Methodology and details about hardware and software
+
+Table 2.1: Literature Review
+
+Sr. NoPaper TitleSeed Idea / Work DescriptionResearch Gap1Fette, S., Sadeh, N., & Tomasic, A. (2007), "Learning to Detect Phishing Websites"Presents a machine learning frame- work for detecting phishing sites using URL, HTML and hosting fea- tures; evaluates performance against heuristics and blacklists.Focuses mainly on webpage-based features; CyberSafe requires multimodal text+URL detection[10].2Wei,  J.  &  Zou,
+K. (2019), "EDA:
+Easy Data Aug- mentation Tech- niques for Text Classification"Introduces simple augmentation methods: synonym replacement, in- sertion, deletion and swapping to expand datasets[11].May create unrealis- tic/noisy text; Cyber- Safe needs domain- specific augmentation.3Ratner, A. et al. (2017), "Snorkel: Rapid   Training
+Data Creation with Weak Super- vision"Introduces weak supervision us- ing labeling functions to accelerate dataset creation[12].Requires conflict han- dling and calibration; CyberSafe can use it to scale scam-data label- ing.4Guidotti, R. et al. (2018), "A Survey of Methods for Explaining Black Box Models"Surveys major explainability tech- niques such as LIME, SHAP, rule- based and surrogate models.Lacks real-time mul- tilingual or emotion- aware explanations needed by Cyber- Safe[12].5Wallace, E. et al.  (2019), "Uni-
+versal Adversarial Triggers for NLP Models"Shows that small text perturbations can drastically change NLP predic- tions.Shows brittleness of NLP models; Cyber- Safe needs adversarial robustness.6Bender, E. M. et al. (2021), "On the Dangers of Stochastic Par- rots"Discusses safety, ethics, dataset bias, and risk in large language models[13].CyberSafe must include strong guardrails, pri- vacy and safety filters.7Gehrmann, S., Strobelt, H., & Rush,  A. (2019),
+"GLTR: Detecting Generated Text"Uses statistical token likelihood to detect machine-generated text.Fails on modern LLMs; CyberSafe needs com- bined detection + prove- nance checks[13].8Garera, S. et al. (2007),  "Frame-
+work for Detec- tion and Measure- ment of Phishing Attacks"Uses URL, HTML and hosting- based features for phishing detec- tion[14].Only website-focused; CyberSafe must detect SMS, chat scams, and textual fraud.
+CHAPTER 3
+Methodology
+
+3.1 Methodology
+   The CyberSafe Scam Detection System suggested is based on a logical scheme that includes the collection of user inputs, the safe data preprocessing, feature engi- neering, machine learning-driven classification, and demographics-sensitive advisory. The system combines a community reporting platform and real-time inference en- gine to give comprehensive protection against online fraud. Fig. 3.1 Data flow The project shows the sequential flow of suspected information in the user interface through the analysis pipeline to the actionable response
+
+
+
+Figure 3.1: Architecture of System
+
+User Input & Sign-up:
+   The system commences with user interaction with secure web interface. It gathers some basic profile data, such as name, gender, and target demographic (e.g., Student, Senior Citizen or Rural Resident) to personalize the safety advice.  To
+
+guarantee the accessibility of the platform to a heterogeneous group of people, the platform enables multilingual communication (English, Hindi, Marathi, etc.) through in-built translation functionalities.
+User Content Ingestion:
+   Description: The flow initiates as soon as the user adds or copies suspicious text, snippets of emails, SMSs, URLs, or metadata of the attachments into the web interface of the CyberSafe AI. Objective: Record raw communication artifacts without any hitch. Primary Interactions:
+• Text/URL is typed in an input field that is secure.
+
+• Metadata on attachments (filename, size, extension) mined on the client.
+
+ERP is used by Logistics and Supply Chain Management (Samson, 2010).  It is identified that Logistics and Supply Chain Management involve the following aspects:¡-human-¿1. Logistics and Supply Chain Management involves session token (JWT) attached to the request to ensure authentication (Samson, 2010). The result of this module is taken to emotion detecting and screening element.
+Preprocessing Normalization
+   Description: The backend normalizes the content entered into it through lower- casing, Unicode normalization, tokenization, stop-word removal, and URL parsing (host, path, query tokens). Purpose:
+• Token Pipeline: Text is broken down into units of lexicon, tracking param- eters are removed, suspicious sub strings (e.g., verify-now, homoglyph do- mains). Pattern Expansion: Recognizes the obfuscation variants (e.g., paypa1, micr0soft).
+• Feature Staging: Preparation of intermediate features (term frequencies, n- grams, risk flags, keyword intensity).
+Encoding raw messages which are heterogeneous into feature vectors. Key Actions:
+Vectorization Feature Engineering :
+   Description: The TF-IDF vectorizer processes normalized tokens and is fed with engineered binary/continuous features like domain age, SSL presence (when available) URL length, entropy, and character level anomalies. Objective: Create a higher discriminatory feature space to do quick and accurate classification. Critical Activities:
+• TF-IDF Transformation: TF-IDF-vectorizer.joblib.
+
+• Augmented Feature Merge: Adds the numeric risk indicators (suspicious TLDs, excessive digits).
+
+• Confidence Banding: Classifies the outcomes into Low, Medium or High risk.
+
+• Integrity Check: Guarantees dimensional consistency to the requirements of the input to a mode
+5. Primary Classification (Risk Scoring) :
+   Description: The chance that the content is fraudulent is calculated by a Logistic Regression model (scam detector model.joblib). Objective: Produce risk scores and classification labels which are calibrated. Key Actions:
+• Sigmoid Evaluation: P(y=1-x).
+
+• Application Threshold: Dynamic threshold 0.5 (adaptive to drift).
+
+• Confidence Banding: Classifies the outcomes into Low, Medium or High risk.
+
+• Explainability Layer Attribution Layer.
+
+Explainability Attribution Layer :
+   Description: Identifies the most significant features (both positive and negative) and may produce a LIME-based explanation. Objective: Develop trust by being able to reason clearly and understandably. Key Actions:
+• Global Weights Lookup: Underlines influential tokens (e.g., "urgent", "ver- ify").
+• LIME (On Demand): This generates local visualizations in HTML. • Advisory Synthesis: Introduces humanly intelligible information (e.g., "Payout keywords and mismatch with domain found).
+Adaptive Training Feedback Loop :
+   Description: When a user indicates that a classification is wrong or ambiguous, the event of a feedback is automatically recorded. Objective: Drift signals and incremental retraining triggers can be used to support continuous improvement.
+Key Actions: The feedback capture and context logging.
+
+• Drift signal correction (frequency shift KL divergence).
+
+• Recalibration of candidate threshold in instances of drift that is beyond set thresholds..
+Perseverance analytics records. :
+   Description: The results are all stored in MongoDB: risk scores, feature snap- shots, latency metrics, and the anonymized metadata. Objective: Ensure longitudinal visibility, analytics ability and audit compliance. Key Actions:
+
+• Information in insertion into analysis logs.
+
+• The aggregate metrics (average latency, detecting amount per day) are updated.
+
+• The use of privacy measures (PII deletion and hashed identifiers).
+
+Response Delivery :
+   Description: StructuredJSON is sent to frontend with label of risk, score, top features, advisory, LIME artifact link and training recommendations. Purpose: Give a practical and real-time advice to the user. Key Actions:
+• UI rendering (expandable panels, color-coded badges).
+
+• Action prompts: Simulate Similar Scam, Learn More, Report.
+
+• Supporting multiple sessions in a single authentication.
+
+Session Closure Archival :
+   Description: At the completion of the session, temporary caches are deleted and long term records are stored according to retention policies.
+Objective: Provide safe dismantling and system maintenance. Key Actions:
+• Default invalidation of tokens.
+
+• This is accomplished by clearing temporary objects of vectors and processing
+
+• Anomaly identification on audit.
+
+3.2 System Design Architecture
+   Through an all-encompassing approach to solution innovation, a new platform by the name of the CyberSafe AI Scam Detection and Adaptive Training Platform has been developed to help tackle the long-standing challenges of identifying and addressing various patterns of online fraud activities amongst different user groups with differing demographic characters. It incorporates the modern technology such as real-time text classification with machine-learning powered by real time and demographic-sensitive interface customization, explainable risk-scoring, and guided learning simulation to timely and context-specifically offer protection advice. The architecture can be easily used in the environments of educational institutions, small and medium enterprises, community centers, rural kiosks of digital service points, and mobile-based use at home. The integrated web application interface provides the user with real-time screening of suspicious messages, organized advisory advice as well as gradual learning channels and does not need special equipment or customized setups.
+Overview of System
+   The platform is made up of interconnected parts, each of which has a specific part of the protection and learning process. It starts with safe user registration and optional anonymous post-story application, is followed by a series of steps of preprocessing (normalization, token cleaning, feature transformation), after which the risk is classified by a simple statistical model pipeline, and concludes with interpretability overlays that uncover salient lexical signals. These outputs drive an adaptive advisory layer that tracks remediation actions based on demographic profile, which records anonymized metrics of interactions to be refined. These functionali- ties work together in providing almost real-time scam-likelihood ratings, situational clarification, and authoritative micro-learning lessons to strengthen retention and the development of proactive digital safety behaviours.
+Technology Stack
+   The platform has a unified technology ecosystem merging several complementary tools and frameworks: • React + Vite: Provides a dynamic single-page application that allows the interface to be responsive and supports dynamic screening and sim- ulation workflow, multilingual content, and tracking certification progress. • Express (Node.js): RESTful API that supports authentication and community story retrieval, reputation requests and advisory requests, and tokens validation. Hosts the machine- learning inference service, and loads the TF-IDF vectorizer and Logistic Regression classifier to support sub-150 ms of text-based risk scoring. • MongoDB: Indexed document structures store user metadata (minimized), anonymized scam narratives, advisory templates, certification progress and interactions logs. • TF-IDF Feature
+
+Extraction: Transforms normalized text into the sparse weighted vectors, which rep- resent high-signal scam phrases and linguistic patterns. • Logistic Regression Clas- sifier: Produces probabilistic scam scores, the coefficients of which are interpretable, making calibration of a threshold and providing educational feedback easier. JWT Security: This is an authentication system that offers stateless authentication, secure password hashing, and controlled access to features in the platform. • Tailwind CSS: Imposes consistency in design tokens, typography, spacing and accessibility with demographic responsive UI changes. • Simulation Engine: Drives interactive phishing and SMS-based training modules by adding simulated risk signals and training recognition abilities with instant feedback.
+
+3.3 Hardware and Software specifications
+3.3.1 Hardware Requirements
+1) CPU:
+   Multi-core processor 64 bit (Intel i5/Ryzen 5 or above). The sporadic requests of a busy Express API as well as FastApi inference and TF-IDF preprocess and au- tomated maintenance (pruning logs and regular model inspection) are required. The support of multi-core reduces the latency spikes when the workload is simultaneous detector as well as story-submission.
+   2) Memory (RAM): Minimum of 8 GB; suggested 16 GB in the case of staging and 32 GB in the case of multi-tenant production. Has simultaneous Node.js worker support, Python inference service residency (vectorizer + model in memory), caching advisory templates, and temporary feature matrices without being overly garbage-collected.
+   3) Storage: SSD (256 GB minimum). Needs to store MongoDB collections (users, stories, advisories, certification records, interaction metrics), model artifacts in a form of serial form, log archives, and frontend build assets. SSD enhances performance of queries and model loading time is minimized. . 4) Network Interface: Uninterrupted connection to the Internet with the speed of at least 50 Mbps downstream and at least 10 Mbps upstream, allowing it to make external reputation determinations, remote deployments, and multiple users. Minimal packet loss guarantees the consistency in inference response times.
+   5) GPU (Optional/Future Use): Unnecessary to the present Logistic Regression pipeline. A graphics card with 8GB or more VRAM (e.g. RTX 3060) is now of interest in future upgrades to transformer-based multilingual models, adversarial training, or batched explainability.
+   6) Operating System: Ubuntu 22.04 LTS or Windows 11 Pro. Linux known as container orchestration (Docker) authorized, systemd service administration, and reverse-proxy hardening.
+   7) Backup and Redundancy: Snapshot mechanism (external or cloud-based, e.g. daily MongoDB dumps, weekly archives of model artifacts) to ensure that data are not lost and can be rolled back in the event of threshold misconfiguration or model drift.
+
+3.3.2 Software Requirements
+1) Programming Languages:
+
+• JavaScript/TypeScript (JavaScript frontend React elements, backend Express routes)
+
+• Python 3.11 (FastAPI inference service, evaluation scripts, explainability tool- ing)
+
+2) Frameworks and Runtimes:
+
+• React 18 (SPA structure and dynamic UI updates)
+
+• Vite (fast build system and module bundling)
+
+• Express (REST API and middleware pipeline; open-source web framework)
+
+• FastAPI (ASGI inference endpoint using Pydantic validation; simple and pow- erful API framework)
+• Uvicorn (ASGI server runtime)
+
+3) Core Libraries and Packages:
+
+• Detection & ML: scikit-learn, joblib, numpy, pandas, LIME (SHAP planned)
+
+• Frontend Services: React, Redux, React Router, TailwindCSS, Axios/Fetch, i18next, Chart.js/Recharts
+• Security & Privacy: PII redaction using regex, input sanitization (pending), rate limiting (planned), token expiry scheduler, password policy validator
+• Data & Persistence: MongoDB CE with optional replica set; user email, timestamps, tags and certification status indices; optional Redis caching
+• Tooling: ESLint, Prettier, Jest/Vitest, PyTest, Git, CI pipelines for linting, testing, and container builds
+• Deployment/Infrastructure: Docker (separate service containers), Nginx reverse proxy, environment-level secrets, horizontal scaling options
+• Monitoring & Analytics (Planned): ELK stack or lightweight logging; Prometheus
++ Grafana for latency/throughput; drift monitor (KL divergence metrics)
+
+4) Optional/Future Modules:
+
+• Multilingual classifier (Hugging Face transformers)
+
+• Messaging queue (RabbitMQ or Redis Streams) for async loads
+
+• Real-time updates using WebSockets
+
+CHAPTER 4
+Proposed System Architecture
+
+4.1 System Architecture:
+
+
+
+Figure 4.1: Architecture of System
+
+
+4.2 System Design Architecture
+   CyberSafe follows a microservices-based architecture divided into four loosely coupled layers. This stratified design improves scalability, maintainability, and security by separating user interface, business logic, AI processing, and data storage.
+
+4.2.1 Presentation Layer (Frontend)
+   The Presentation Layer is responsible for user interaction and rendering the interface.
+Technology Stack: React.js, Vite, Tailwind CSS.
+
+• User Interface: Provides a responsive and accessible interface that allows users to submit suspicious messages, URLs, or screenshots.
+• Real-Time Feedback: Retrieves risk scores asynchronously from the backend and presents them using color-coded indicators (green = safe, red = critical).
+
+• Dashboard & Education:	Includes CyberSafe Feed, community-reported scam stories, and an Analytics Dashboard for visualization of safety insights.
+• Client-Side Validation: Performs basic checks (e.g., non-empty text input) to reduce server load.
+
+4.2.2 Application Layer (Backend / API Gateway)
+Technology Stack: Express.js, Node.js.
+   This layer acts as the security controller and handles request routing, authenti- cation, and communication between other services.
+
+• API Gateway: Forwards frontend requests to appropriate microservices (e.g., authentication, scanning, AI engine).
+• Security & Authentication: Enforces secure access using JSON Web Tokens (JWT), session control, and route protection.
+• Privacy & Redaction: Implements sanitization to remove Personally Identifi- able Information (PII) such as phone numbers and emails before processing.
+• Community Content Handling: Manages posting, upvoting, and retrieving community scam reports.
+
+4.2.3 Inference Layer (AI Engine)
+Technology Stack: Python, FastAPI, Scikit-learn, Joblib.
+This is the "brain" of CyberSafe and performs all machine learning computations.
+
+• Model Hosting: Loads the trained Logistic Regression model (scam detector model.jo
+and TF-IDF vectorizer into memory for fast inference.
+
+• Text Processing Pipeline: Cleans, normalizes, and converts raw text into numerical features.
+• Prediction Logic: Computes scam probability and detects threat indicators such as urgency keywords and suspicious domains.
+• Isolation: Heavy AI computations run separately from the Node.js server to ensure frontend responsiveness.
+
+4.2.4 Data Layer (Persistence)
+Technology Stack: MongoDB (NoSQL).
+This layer handles secure storage and retrieval of system-wide data.
+
+• User Profiles: Stores hashed passwords and user-specific configurations.
+
+• Scan Logs: Saves redacted text, risk scores, and analysis metadata; useful for retraining.
+• Community Content: Holds scam reports, comments, and user reaction statis- tics.
+• System Metrics: Records performance indicators such as API latency and detection accuracy.
+
+4.3 Mathematical Model and Core Algorithms
+   CyberSafe relies on Natural Language Processing (NLP) and statistical learning. The core pipeline includes preprocessing, TF-IDF feature extraction, classification, and risk scoring.
+
+4.3.1 Preprocessing and Text Normalization
+Raw user text undergoes a sequential transformation:
+
+• Lowercasing: Converts all characters to lowercase.
+
+• URL Abstraction: Replaces URLs with a sentinel token URL.
+• Noise Removal: Removes non-alphanumeric characters except essential punc- tuation.
+
+4.3.2 TF-IDF Feature Space Construction
+   TF-IDF converts text into machine-readable numerical features. The weight of term t in document d is:
+
+
+
+
+where:
+
+w(t,d) = tf (t, d) × idf (t)
+
+
+idf (t) = log		N	
+1 + df (t)
+
+N = total number of documents, df (t) = number of documents containing term t.
+
+   This produces a sparse matrix where scam-indicative words receive higher weights.
+
+4.3.3 Logistic Regression Classification
+   Logistic Regression is chosen for its speed, interpretability, and ability to handle high-dimensional text data.
+The model estimates:
+
+1
+P (y = 1 | x) = s(z) =
+1 + e-z
+where:
+
+                     z = ß0 + ß1x1 + ß2x2 + · · · + ßkxk ß0 = bias term, ß1, . . . , ßk = learned feature weights.
+4.3.4 Risk Scoring and Thresholding
+The model output c = P (y = 1 | x) is mapped to user-friendly risk categories:
+• Critical Risk: c = 0.85
+• High Risk: 0.70 = c < 0.85
+• Moderate Risk: 0.55 = c < 0.70
+• Safe: c < 0.55
+
+   A secondary Lexical Guardrail raises warnings when high-risk keywords (e.g., "OTP", "CVV", "expire") appear, even if model probability is moderate.
+
+CHAPTER 5
+Feasibility Study
+
+5.1 Introduction: Employing and Enabling Digital Safety Inclu- sion
+   CyberSafe is designed for users experiencing increasing rates of online fraud, deceptive social engineering, emotionally manipulative language, and crisis-oriented scams. The system integrates six interrelated capability pillars to eliminate the need for fragmented tools such as separate scanners, self-tests, or help links. These pillars include:
+
+1. Scam and fraud detection (TF-IDF + linear baseline; future transformer up- grades)
+2. Emotion and distress analysis (DistilRoBERTa embeddings, optional audio channel)
+3. Structured mental-health self-screening (PHQ-9, GAD-7 with informed con- sent)
+4. Crisis-term detection (hybrid lexicon + machine learning)
+
+5. Contextual explanation of risk signals
+
+6. Guided escalation and moderated support
+
+   CyberSafe delivers these capabilities as a unified, accessible, and adaptive guid- ance system. The platform evolves by updating scam vocabulary through retraining, adapting content for specific demographics (students, professionals, seniors), and presenting multi-sensory confidence cues (risk scores, rationale markers) to reduce user anxiety and improve decision-making.
+
+Assumptions and Boundaries
+1. CPU-only inference supports baseline classifiers (TF-IDF <50ms; emotion model <400ms). GPU acceleration is considered only when latency breaches SLA.
+2. Screening results reflect self-reporting and are not diagnostic evaluations.
+
+3. Crisis lexicon flags complement, not replace, professional judgment; moderator review prevents false positives.
+4. Educational content provides certificates but not formal accreditation.
+
+5. Audio/image analysis will be introduced in later phases for simplicity.
+
+Feasibility Drivers
+• Cost-efficient model engineering using existing artifacts (scam-detector-model.jobli vectorizer.joblib).
+• Polyglot separation (Python inference + Node.js orchestration) enables inde- pendent development and isolation of risk.
+• Modular pipeline architecture (Input ? Preprocess ? Detect ? Screen ?
+Route ? Support/Escalate ? Audit).
+• Open standards (HTTPS/TLS, JWT, REST/JSON) support interoperability with helpline registries and notification gateways.
+
+5.2 Technical Feasibility: Scalable and Robust Architecture
+Layered Architecture Alignment
+• Presentation Layer: Adaptive component density per demographic; Reac- t/Vite SPA; TailwindCSS; internationalization.
+• Application Layer: Node.js/Express for authentication, rate limiting, routing, decision orchestration, and moderation.
+• Inference Layer: Python FastAPI hosting scam classifier and emotion model; versioned endpoints (e.g., /v1/detect, /v1/emotion).
+• Data Layer:	MongoDB collections for users, screening results, emotion scores, escalation alerts, audit logs, and certifications.
+
+Algorithmic Core
+• Scam Detection: TF-IDF + Logistic Regression/SGD; interpretable feature weights displayed to users.
+• Emotion Analysis: DistilRoBERTa embeddings with threshold-based classifi- cation.
+
+• Crisis Detection: Aho-Corasick trie-based scan (O(n + z)) with multilingual lexicons fused with severity logic.
+• Screening Scorer: Deterministic scoring mapped to severity indexes.
+
+• Decision Routing: Fusion of 81 scam features + emotion scores + crisis flags
++ severity index; override rules handle hard crisis cases.
+
+Performance Metrics
+• Median end-to-end latency: < 400 ms
+
+• 95th percentile latency: < 800 ms
+
+• Batch mode amortizes multi-message reviews
+
+• Stateless containers support horizontal scaling; Redis available for ephemeral session caching
+
+Security and Privacy
+• HTTPS/TLS, HSTS, Helmet headers, and input normalization
+
+• Data minimization: only hashed input + scores + rationale stored
+
+• RBAC with moderator roles on sensitive actions
+
+• Audit trails include model versions, hashed inputs, fused scores, and times- tamps
+
+Maintainability and Extensibility
+• Artifact swapping preserves predict proba interface
+
+• Crisis lexicon updates regenerate trie automaton without API change
+
+• Modular inference container enables model isolation
+
+• Versioned curriculum files (e.g., curriculum v1.2.json) allow rollbacks
+
+Future Upgrade Paths
+• Quantized/distilled multilingual transformers to reduce false negatives
+
+• LIME-based explainability overlays for token importance
+
+• Adaptive risk weighting based on moderator feedback loops
+
+Technical Risks and Mitigation
+• Vocabulary Drift: Quarterly retraining and lexicon refresh
+
+• Emotion Misclassification: Confidence calibration + dual-signal escalation
+
+• Latency Spikes: ONNX conversion and model quantization for speed
+
+• Data Security: Hashing, role isolation, and continuous secret rotation
+
+5.3 Behavioral Feasibility: Trust, Inclusion, and Adoption
+User-Centered Accessibility
+• Seniors/low-vision: adjustable font size, contrast, spacing
+
+• General users: simple risk disclosure
+
+• Professionals: detailed analysis panels
+
+• Supportive, non-judgmental language reduces psychological friction
+
+Independence and Confidence
+   Users can detect scams, perform optional screenings, and escalate concerns in a single, uninterrupted flow. Integrated helpline guidance improves autonomy while preventing over-reliance on algorithmic outcomes.
+
+Personalization and Adaptive Learning
+• Adaptive simulator that adjusts difficulty based on user performance
+
+• Mastery-based progression across scam categories (e.g., phishing, investment fraud)
+• Weak areas re-tested in certification modules
+
+Social Inclusion and Ethical Safeguards
+• Community reputation system reduces spam and encourages meaningful re- porting
+• Mental-health statements remain advisory, not diagnostic
+
+• Ethical confirmation flows ensure informed external notifications
+
+Training, Support, and Feedback
+• Onboarding wizard explaining data use and consent scopes
+
+• Hover-text explanations of risk scores
+
+• Moderator interface with rationale breakdown
+
+• User-provided labels for false positives/negatives to improve models
+
+Behavioral Risks and Mitigation
+• Over-reliance on automated scores mitigated by disclaimers and education
+
+• Moderator overload mitigated by queue batching and severity scoring
+
+• Screening hesitation reduced by anonymous pre-screen flows
+
+5.4 Resource Feasibility: Team, Tools, and Infrastructure
+Human Roles
+• Full-Stack Developer (React/Node.js)
+
+• Machine Learning Engineer (training, drift handling)
+
+• UX/Accessibility Specialist
+
+• Data Curator (lexicon management)
+
+• DevOps/SRE (deployment, observability, incident response)
+
+• Moderators (policy responses, content review)
+
+Tooling and Automation
+• GitHub Actions for CI: Python tests, frontend tests (Vitest/Jest), ESLint, Pret- tier, safety checks
+• Monthly cron job generating retraining metrics report (Model/reports/metrics.json)
+• Optional infrastructure-as-code via Terraform
+
+Data Assets and Growth
+• Base 20k scam dataset + diversification scripts
+
+• Crowdsourced labeled submissions (post-moderation)
+
+• Forecasted storage: < 5 GB in first year
+
+Sustainability and Maintainability
+• Modular directory structure (backend/controllers, NLP models, Model/arti- facts)
+• Automated documentation updates in MODEL AUDIT.md
+
+• Semantic versioning for curriculum content
+
+• Quarterly dependency audit for package hygiene
+
+Resource Risks and Mitigation
+• ML engineer bottleneck mitigated by cross-training
+
+• Moderator backlog mitigated by priority scoring and auto-triage
+
+• Content-authoring delays reduced via templates and parallel workflows
+
+5.5 Consolidated Feasibility Statement
+   CyberSafe exhibits high feasibility across technical, behavioral, and resource dimensions. Its modular architecture is scalable, cost-efficient, and supports progres- sive upgrades without re-architecture. Behavioral adoption is strengthened through accessible design, adaptive learning, and supportive communication. Resource plan- ning balances specialization with cross-training.
+
+Risk Snapshot (Illustrative)
+• Technical (Latency): Medium probability - mitigated via quantization and canary deployments.
+• Data/Lexicon Drift: High probability - mitigated through quarterly reviews and moderator feedback.
+• Behavioral (Over-Reliance): Medium probability - mitigated through dis- claimers and educational aids.
+• Security Risks: Low probability - mitigated through TLS, hashing, RBAC.
+
+• Resource (Moderator Capacity): Medium - mitigated through batching and triage.
+
+   Overall, CyberSafe can be effectively implemented, maintained, and continuously improved over time while retaining user trust and ensuring long-term applicability.
+
+CHAPTER 6
+Experimentation and Results
+
+   This chapter presents the experimental setup, implementation environment, model CyberSafe: AI-Powered Scam Detection and Cybersecurity Training System. The goal of this chapter is to describe how the system was tested, what datasets were used, and how effectively the machine learning model performs in real-world scam detection scenarios.
+
+6.1 Experimental Setup
+6.1.1 Environment Configuration
+   The hybrid microservices architecture was used to implement the project titled CyberSafe: AI-Powered Scam Detection and Cybersecurity Training. The high- performance inference components (machine learning models) are built using the FastAPI framework in Python (v3.10). The API gateway and application logic are implemented using Node.js (v18) with Express.js, and the frontend interface is developed using React.js and Vite.
+Core Tools and Libraries:
+• Machine Learning: Scikit-learn (TF-IDF, Logistic Regression), Joblib, NumPy, Pandas.
+• Backend Services: FastAPI (Python), Uvicorn, Express.js (Node.js), Mon- goose.
+• Database: MongoDB Atlas (Cloud-based document storage).
+
+• Frontend: React, Tailwind CSS, Axios, i18next (supports multi-language).
+
+6.1.2 Dataset and Input Sources
+The model was trained using a consolidated dataset named unified ml dataset train.cs
+containing approximately 200,000 labelled samples. This dataset integrates several real-life sources:
+1. SMS Spam Collection: Contains SMS messages labelled as ham (legitimate) or spam.
+2. Phishing URL Database: A collection of malicious and safe URLs.
+
+3. Generated Obfuscated Text: Synthetic samples mimicking typical scam mes- sages such as "Urgent Action Required" or "Verify your account".
+
+Data Split:
+
+• Training Set (80%): Used to train the Logistic Regression model and learn the TF-IDF vocabulary.
+• Validation Set (20%): Used for hyperparameter tuning (Regularization strength
+C = 2.0) and internal performance measurement.
+
+6.1.3 Model Architecture & API Workflow
+The CyberSafe inference engine follows a structured NLP pipeline:
+
+1. Preprocessing: Text normalization including lowercasing and URL normal- ization.
+2. Vectorization: TF-IDF (Term Frequency-Inverse Document Frequency) using character n-grams (1-4) to capture subword patterns.
+3. Classification: Logistic Regression with balanced class weights to address class imbalance between safe and scam messages.
+
+6.2 System Features and UI Implementation
+   This section outlines the main functional modules of the CyberSafe web appli- cation, highlighting the user interface design, interaction flow, and technical capa- bilities.
+
+6.2.1 Feature 1: Real-Time Scam Detection Engine
+   The primary interface of CyberSafe is designed for rapid threat assessment. It serves as the entry point to the machine learning inference pipeline. Users submit text or URLs, after which the system processes the content through the backend inference engine to generate scam probability scores and risk explanations.
+
+
+
+Figure 6.1: CyberSafe Input Interface
+
+   Description: As illustrated in Fig 6.1, the interface features a prominent, distraction-free input area capable of accepting multi-format data (plain text, URLs, or SMS content). Upon clicking the "Analyze" button, the frontend initiates an asynchronous API call to the inference engine.
+• Visual Feedback: The system employs a traffic-light color coding sys- tem-Red for Critical Risk (¿85% probability), Orange for Moderate Risk, and Green for Safe content-to provide immediate cognitive cues to the user.
+
+• Granular Analysis: Beyond a simple binary verdict, the result card displays a precise Confidence Score (e.g., "98.5% Confidence") and itemizes specific Threat Flags such as "Urgency Keywords Detected" (e.g., 'act now', 'expire') or "Suspicious Link Pattern" (e.g., IP-based URLs), offering explainable AI insights.
+
+6.2.2 Feature 2: Community Scam Feed & Redaction System
+   To combat the isolation often felt by fraud victims, the platform integrates a social "CyberSafe Feed" that crowdsources threat intelligence.
+
+Figure 6.2: Community Feed with Redacted Stories
+
+   Description: Fig 6.2 depicts the community interaction module. This feature allows users to anonymously share their encounters with scams.
+• Automated Privacy Protection: A key technical innovation here is the PII Redaction Middleware. Before any story is persisted to the database, the back- end automatically detects and masks sensitive entities (Phone Numbers, Email Addresses, Credit Card patterns) with placeholders like [REDACTED PHONE]. This ensures that the platform remains a safe space for sharing without com- promising user privacy.
+• Emotional Engagement: The feed supports an emotional reaction system (Angry, Sad, Wow, Like), fostering a supportive community environment and validating the experiences of victims.
+
+6.2.3 Feature 3: Personal Analytics & Gamification Dashboard
+   To encourage long-term engagement and proactive security habits, CyberSafe includes a personalized analytics suite. Description: The dashboard, shown in Fig
+
+6.3 , visualizes the user's safety journey using interactive charts powered by the user's scan history. • Key Metrics: It tracks critical KPIs such as "Total Scans Performed", "Potential Scams Avoided", and a "Community Contribution Score" based on feed activity. • Behavioral Reinforcement: By quantifying the user's vigilance (e.g., "You have avoided 15 phishing attempts this month"), the system gamifies cybersecurity, transforming it from a passive background task into an active, rewarding habit. This module also provides tailored recommendations based on the user's most frequently encountered threat types.
+
+6.2.4 Feature 4: Gamified Cybersecurity Education Module
+   To transform cybersecurity awareness from a passive learning experience into an active, engaging process, the system includes an Enhanced Quiz Game mod- ule. This feature leverages gamification principles-points, streaks, badges, and leaderboards-to incentivize continuous learning.
+Key Features & Logic:
+
+• Multiple Game Modes: The module supports three distinct gameplay styles: Daily Challenge: A set of 5 curated questions refreshed every 24 hours. It tracks user streaks (consecutive days played) to build habit-forming behav- ior. Speed Run: A time-attack mode where users must answer as many questions as possible within 60 seconds. The scoring algorithm includes a calculateSpeedBonus function that awards extra points for rapid correct answers. Survival Mode: A high-stakes mode where the user starts with 3 "lives." Incorrect answers deplete lives, and the game ends when lives reach zero.
+• Dynamic Scoring System: The scoring logic is not linear. It calculates a total score based on base points per question plus a time-weighted bonus:
+
+Score =	(BasePoints + TimeRemaining × MaxBonus)
+T otalTime
+• Badge & Achievement System: Users unlock visual badges (e.g., "Speed Demon," "Streak Master") upon meeting specific criteria, such as maintaining a 7-day streak or achieving 100% accuracy in Survival Mode.
+
+   UI Implementation: The interface uses a card-based layout with a progress bar indicating the current question number relative to the total. Visual cues (green for correct, red for incorrect) provide immediate feedback. A "Lives" counter (represented by heart icons) is displayed prominently in Survival Mode to add tension.
+
+
+Figure 6.3: CyberSafe Gamified Quiz Module Interface
+
+6.2.5 Feature 5: Anonymous Reporting & Threat Analysis Engine
+   The Anonymous Reporting feature allows users to share their experiences with scams without fear of judgment or exposure. This module is critical for gathering real-world threat intelligence that feeds back into the system's detection models.
+Privacy & Security Architecture:
+
+• Client-Side PII Redaction: Before a story is submitted to the server, a local pre-processing script scans the text for Personally Identifiable Information (PII) such as phone numbers, email addresses, and credit card numbers. These are
+replaced with generic placeholders (e.g., [REDACTEDP HONE])toensureuserprivacy.
+
+• AI-Powered Risk Scoring: As users type their story, an embedded analysis engine (analyzeStoryThreat) evaluates the content in real-time. It assigns a Risk Score (0-100) based on keyword density (e.g., "OTP," "urgent," "processing fee") and behavioral patterns.
+- High Risk (¿80): Triggers an "Immediate Alert" tag.
+- Medium Risk (60-80): Marked as "High Caution."
+
+• Community Validation: Submitted stories enter a community feed where other users can "Upvote" helpful warnings or "Verify" the scam if they have encountered a similar threat. This crowdsourced validation helps filter out false positives.
+   UI Implementation: The reporting interface features a clean, distraction-free writing area. As the user types, a dynamic "Threat Level" indicator changes color (Green ? Yellow ? Red) based on the detected risk score. Tags like #OTP, #JobScam, or #Phishing are automatically suggested based on the text content.
+
+
+Figure 6.4: CyberSafe Anonymous Reporting Interface
+
+6.2.6 Feature 6: Multi-Language Accessibility & Localization
+   Recognizing that cyber threats affect users globally, the system incorporates a ro- bust Internationalization (i18n) layer. This ensures that critical alerts and educational content are accessible to non-English speakers, particularly vulnerable demographics like the elderly who may prefer their native language.
+Technical Implementation:
+
+• Language Detection: The system automatically detects the user's browser language preference upon first load.
+• Dynamic Translation: Using the i18next framework, the application can instantly toggle between supported languages (e.g., English, Hindi, Spanish, French).
+• Context-Aware Content: Crucial terminology (like "Phishing" or "Ran- somware") is translated with context to ensure the technical meaning is pre- served, rather than a literal translation that might be confusing.
+   UI Implementation: A floating language selector widget is accessible on every screen. When a language is switched, the entire UI - including navigation menus, alert cards, and quiz questions - updates instantly without requiring a page reload.
+
+
+
+Figure 6.5: Fig 6.5. Multi-Language Support Hindi/Regional Language
+
+6.3 Results and Discussion
+6.3.1 Component Testing and Evaluation
+   A series of test cases were executed to validate the pipeline's ability to correctly distinguish between legitimate messages and different categories of fraud. The results of the tests are summarized in Table 6.1.
+Table 6.1: Component Emotion Detection Results
+
+Input TypeSample ContentDetected La-
+belConfidenceResultPhishing SMS"URGENT: Your bank account
+is locked. Click bit.ly/verify to unlock."Scam0.99PassSafe Email"Hey mom, I'll be home for
+dinner around 7 PM."Safe0.02PassLottery Scam"CONGRATS! You won $1000.
+Call now to claim prize."Scam0.94PassObfuscated Text"P@yPal security alert. V3rify
+now."Scam0.65Low
+Conf
+
+6.3.2 Real-World Robustness Analysis (Generalization Gap)
+   While the model performs exceptionally well on standard datasets (Validation Accuracy: ~98%), experiments with unseen real-world data revealed some limita- tions.
+
+The Unseen Data Challenge
+During live environment testing, the following weaknesses were observed:
+
+1. Novel Obfuscations: Attackers often use "L33t Speak" or obfuscated char- acter patterns (e.g., writing "Amazon" as "Am@z0n"). These patterns may bypass the TF-IDF vectorizer if not present in the training dataset.
+2. Contextual Ambiguity: Messages with urgency but legitimate intent (e.g., "Urgent: Meeting rescheduled") sometimes trigger false positives due to over- lapping linguistic patterns with scam messages.
+
+   These findings highlight the need for continuous dataset expansion and improved contextual modeling to reduce the generalization gap.
+
+3. Zero-Day Domains
+   Zero-Day Domains: Newly registered phishing domains that do not yet have a "bad reputation" pattern may slip through if the text content is neutral.
+   Mitigation Strategy: To address this, we implemented a "Generalized Model" (v2) that incorporates Domain Entropy and Keyword Heuristics alongside the ML model. As shown in the "Obfuscated" example in Table 6.1, the confidence score drops (0.65), but the system still correctly flags it as a scam due to the secondary "Threat Indicators" logic (e.g., detecting the presence of a URL shortener combined with financial keywords).
+
+6.4 Comparative Analysis
+We compared the CyberSafe approach against traditional methods.
+
+Table 6.2: Comparison of Detection Approaches
+
+ApproachAccuracy (Known Patterns)Accuracy (Unseen Data)LatencyRule-Based	(Key- words)HighVery LowVery LowBlacklist Matching100%0% (Fails on new links)LowCyberSafe	(ML	+ Heuristics)98%75-80%Low (¡ 200ms)Large Language Mod- els (GPT)99%95%High (Slow)
+   Discussion: While Large Language Models (LLMs) offer better generalization on unseen data, they are too slow and expensive for real-time scanning. CyberSafe strikes an optimal balance, offering 98% accuracy on known patterns and acceptable robustness on unseen data, with a latency suitable for real-time web usage.
+
+6.5 Summary
+• Chapter 6 was about tests performed and their results.
+
+• Chapter 7 is the conclusion of project.
+
+CHAPTER 7
+Conclusion and Future Scope
+
+7.1 Conclusion
+   In this report, the design and phase-1 implementation of CyberSafe, an all- encompassing cybersecurity awareness and scam detection tool, is presented and utilizes machine learning and community-based intelligence to fight cyber fraud. The suggested system will combine a web interface based on the MERN stack architecture and a real-time threat analysis microservice based on FastAPI, the use of TF-IDF vectorization, and the Logistic Regression to efficiently classify the scam. Moreover, the real-time text and URL detection modules, the anonymous report- ing system with PII redacting, and the gamified educational quizzes were proven to be effective in terms of proactive digital safety, which is a critical requirement in the community-driven defense modules as well. CyberSafe combines anonymity in reporting and crowdsourcing in verification to build a dynamic threatintelligence network, which is more agile than the traditional, static blocklists. The gamified learning is integrated in such a way that users are not only secured by the soft- ware but also trained to be up skilled to be able to identify social engineering tricks. Finally, the project creates a generalizable structure of the digital literacy that proves that a mixed system of AI identification and human consciousness is the
+most sustainable solution to the contemporary cybersecurity issues.
+
+7.2 Future Scope
+   The sphere of AI-based cybersecurity protection has tremendous future expan- sion. Phase-2 Interaction with rural users will involve the full integration of deep lin- guistic models to support full vernacular languages, such that voice-based interaction can be used to eliminate the digital literacy gap. Other future developments might involve making model predictions more accurate by training Contextual Transformer models (such as BERT) on large datasets of scam instance to close the generalization gap on unseen data. The other option available to do in future is implementation of the platform as mobile application and browser extension that will be cross-platform and will provide scalable, comprehensive and credible protection against emerging cyber threats to a wide range of different user groups.
+
+REFERENCES
+
+[1] B. Borade and R. R. Deshmukh. Emotional Speech Recognition for Marathi Language.
+[2] S. Dharshini, S. A. Raj A, and R. Venkatesan. "MindMate: AI-Powered Multilingual Mental Health Chatbot with Personalized Voice and Text Support with Rasa and Streamlit". In: Proceedings of the International Conference on Intelligent Computing and Control Systems (ICICCS 2025). IEEE, 2025,
+pp. 1104-1109. DOI: 10.1109/ICICCS65191.2025.10985281.
+[3] V. Sanh, L. Debut, J. Chaumond, and T. Wolf. DistilBERT, a distilled version of BERT: smaller, faster, cheaper and lighter. http://arxiv.org/abs/ 1910.01108. 2020.
+[4] S. Elwahsh, N. Stern, A. Singh, and A. Ayobi. "Linguistic Diversity and Men- tal Well-Being: Co-Designing Custom AI Chatbots with Multilingual Moth- ers". In: Proceedings of the 2025 ACM Conference on Conversational User Interfaces (CUI 2025). ACM, 2025. DOI: 10.1145/3719160.3736615.
+[5] J. Fernandes, A. Antunes, J. Campos, J. Dias, and P. A. Santos. "FlexiDi- alogue: Integrating Dialogue Trees for Mental Health with Large Language Models". In: International Conference on Information and Communication Technologies for Ageing Well and e-Health (ICT4AWE). SciTePress, 2025,
+pp. 268-275. DOI: 10.5220/0013286900003938.
+[6] S. Halder. "Developing Mental Health Support Chatbots in India: Challenges and Insights". In: Annals of Indian Psychiatry 9.1 (Jan. 2025), pp. 99-101. DOI: 10.4103/aip.aip_187_24.
+[7] V. K. Harini, R. M. Bhavadharini, C. Upreti, and L. Alex. "Mental Health Chatbot". In: 2024 IEEE Students Conference on Engineering and Systems (SCES 2024). IEEE, 2024. DOI: 10.1109/SCES61914.2024.10652390.
+[8] G. M. S. Himel, M. S. Hasan, U. S. Salsabil, and M. M. Islam. "MedLingua: A conceptual framework for a multilingual medical conversational agent". In: MethodsX 12 (2024). DOI: 10.1016/j.mex.2024.102614.
+[9] J. Gala et al. IndicTrans2: Towards High-Quality and Accessible Machine Translation Models for all 22 Scheduled Indian Languages. https : / / openreview.net/forum?id=vfT4YuzAYA. Online.
+
+[10] C. Lang. "Reconfiguring Psy Expertise in the Digital Age: Two Cases from India". In: Med Anthropol Theory 12.1 (Mar. 2025), pp. 1-24. DOI: 10. 17157/mat.12.1.9060.
+[11] P. Shedge, S. Kamalkar, and D. Gupta. "Hate Speech Detection in Marathi Tweets using Stacked Deep Learning models". In: 2024 15th International Conference on Computing Communication and Networking Technologies (IC- CCNT). IEEE, 2024. DOI: 10.1109/ICCCNT61001.2024.10724157.
+[12] S. M K, A. Mohammed, S. Pattanayak, D. Paswan, and Y. Dadhich. "Multilin- gual Chatbot Development Using Pre-Trained Language Models: A Survey". In: Indian Journal of Computer Science and Technology (Apr. 2025), pp. 152-
+160. DOI: 10.59256/indjcst.20250401023.
+[13] M. Ravanelli et al. SpeechBrain: A General-Purpose Speech Toolkit. http:
+//arxiv.org/abs/2106.04624.  2021.
+[14] O. Taiwo and B. Al-Bander. "Emotion-aware psychological first aid: Inte- grating BERT-based emotional distress detection with PFA-GPT chatbot for mental health support". In: Cognitive Computation and Systems 7.1 (Jan. 2025). DOI: 10.1049/ccs2.12116.
+
+
+
+
