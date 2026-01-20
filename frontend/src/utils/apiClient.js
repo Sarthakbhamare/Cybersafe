@@ -1,7 +1,7 @@
 // Simple API client wrapper with auth + JSON handling
-// Prefer relative /api when proxy is configured (development) to avoid CORS
-// Fallback to explicit backend URL if provided.
-const API_BASE = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/$/, '');
+// Production URL for GitHub Pages deployment
+const PRODUCTION_API_URL = "https://cybersafe-sfoz.onrender.com/api";
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || PRODUCTION_API_URL).replace(/\/$/, '');
 
 export const apiClient = async (path, { method = 'GET', headers = {}, body, auth = true } = {}) => {
   const finalHeaders = { 'Content-Type': 'application/json', ...headers };

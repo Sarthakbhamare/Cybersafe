@@ -728,8 +728,11 @@ function Anonymous() {
         return;
       }
 
+      // Production API URL for GitHub Pages
+      const API_BASE = import.meta.env.VITE_API_BASE_URL || "https://cybersafe-sfoz.onrender.com/api";
+
       // Call backend API with ML scam detection
-      const response = await fetch("/api/stories", {
+      const response = await fetch(`${API_BASE}/stories`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

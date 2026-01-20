@@ -276,7 +276,8 @@ const CybersecurityChatbot = () => {
 
   const callGeminiAPI = async (prompt) => {
     // Call backend which proxies to Gemini API
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    // Use production URL for GitHub Pages deployment
+    const API_URL = import.meta.env.VITE_API_URL || 'https://cybersafe-sfoz.onrender.com';
     
     try {
       const response = await fetch(`${API_URL}/api/chat`, {
