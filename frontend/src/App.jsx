@@ -5,6 +5,9 @@ import { AuthProvider, useAuth } from "./context/AuthContext.jsx";
 import { LoadingProvider, useLoading } from "./context/LoadingContext.jsx";
 import GlobalLoader from "./components/GlobalLoader.jsx";
 
+// Get basename for GitHub Pages deployment
+const basename = import.meta.env.BASE_URL;
+
 import Navbar from "./components/Navbar";
 import HeroSection from "./components/HeroSection";
 import TailoredSolutions from "./components/TailoredSolutions";
@@ -168,8 +171,8 @@ function App() {
   return (
     <AuthProvider>
       <LoadingProvider>
-        {/* Use root base path so dev server works at http://localhost:5173 */}
-        <BrowserRouter>
+        {/* Use basename for GitHub Pages deployment with /Cybersafe/ path */}
+        <BrowserRouter basename={basename}>
           <AppInner />
         </BrowserRouter>
       </LoadingProvider>
