@@ -21,10 +21,11 @@ app.use(helmet());
 const isProd = process.env.NODE_ENV === 'production';
 const allowedOriginEnv = process.env.CLIENT_URL; // e.g., https://yourapp.com
 const lanPatterns = [
-  /^http:\/\/(localhost|127\.0\.0\.1)(:\\d+)?$/,
-  /^http:\/\/192\.168\.\d+\.\d+(?::\\d+)?$/,
-  /^http:\/\/10\.\d+\.\d+\.\d+(?::\\d+)?$/,
-  /^http:\/\/172\.(1[6-9]|2\\d|3[0-1])\.\d+\.\d+(?::\\d+)?$/
+  /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/,
+  /^http:\/\/192\.168\.\d+\.\d+(?::\d+)?$/,
+  /^http:\/\/10\.\d+\.\d+\.\d+(?::\d+)?$/,
+  /^http:\/\/172\.(1[6-9]|2\d|3[0-1])\.\d+\.\d+(?::\d+)?$/,
+  /^https:\/\/.*\.github\.io$/  // Allow all GitHub Pages origins
 ];
 
 const corsOptions = {
@@ -32,6 +33,7 @@ const corsOptions = {
     if (!origin) return callback(null, true);
     if (!isProd) return callback(null, true); // reflect any origin in development
     if (allowedOriginEnv && origin === allowedOriginEnv) return callback(null, true);
+    if (allowedOriginEnv && origin.startsWith(allowedOriginEnv)) return callback(null, true);
     if (lanPatterns.some((re) => re.test(origin))) return callback(null, true);
     return callback(new Error('Not allowed by CORS'));
   },
