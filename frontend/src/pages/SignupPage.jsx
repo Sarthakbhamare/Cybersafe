@@ -58,6 +58,7 @@ const SignupPage = () => {
   const [formErrors, setFormErrors] = useState({});
   const [touchedFields, setTouchedFields] = useState({});
   const [errorMessage, setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const passwordStrength = useMemo(
     () => evaluatePasswordStrength(formData.password),
@@ -126,14 +127,23 @@ const SignupPage = () => {
 
     setFormErrors({});
     setErrorMessage("");
+    setIsLoading(true);
 
     try {
       const API_BASE = (import.meta.env.VITE_API_BASE_URL || "/api").replace(/\/$/, "");
+      
+      // Add timeout controller for slow server wakeup (Render free tier sleeps)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+      
       const response = await fetch(`${API_BASE}/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
+        signal: controller.signal,
       });
+      
+      clearTimeout(timeoutId);
 
       const data = await response.json();
 
@@ -145,7 +155,13 @@ const SignupPage = () => {
       navigate("/login");
     } catch (error) {
       console.error("Error signing up:", error);
-      setErrorMessage("Failed to connect to server. Please try again.");
+      if (error.name === 'AbortError') {
+        setErrorMessage("Server is waking up. Please try again in a few seconds.");
+      } else {
+        setErrorMessage("Failed to connect to server. Please try again.");
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 

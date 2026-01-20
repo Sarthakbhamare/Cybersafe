@@ -1,7 +1,10 @@
 /**
  * CyberSafe Chatbot Controller
  * Uses Google Gemini API with strict cyber safety constraints
+ * Saves chat history per user in MongoDB
  */
+
+import ChatHistory from '../models/ChatHistory.js';
 
 // System prompt to constrain Gemini to cyber safety topics only
 const SYSTEM_PROMPT = `You are CyberSafe Assistant, a cyber safety guide for Indian users.
@@ -29,6 +32,7 @@ STRICT RULES:
 export const chatWithGemini = async (req, res) => {
   try {
     const { message } = req.body;
+    const userId = req.user?.id; // From auth middleware
     
     if (!message || typeof message !== 'string' || message.trim().length === 0) {
       return res.status(400).json({ error: 'Message is required' });
@@ -102,6 +106,32 @@ export const chatWithGemini = async (req, res) => {
       return res.status(500).json({ error: 'Empty response from AI' });
     }
 
+    // Save chat history if user is authenticated
+    if (userId) {
+      try {
+        let chatHistory = await ChatHistory.findOne({ userId });
+        if (!chatHistory) {
+          chatHistory = new ChatHistory({ userId, messages: [] });
+        }
+        
+        // Add user message and assistant response
+        chatHistory.messages.push(
+          { role: 'user', content: message.trim() },
+          { role: 'assistant', content: text }
+        );
+        
+        // Keep only last 50 messages to prevent unlimited growth
+        if (chatHistory.messages.length > 50) {
+          chatHistory.messages = chatHistory.messages.slice(-50);
+        }
+        
+        await chatHistory.save();
+      } catch (historyError) {
+        console.error('Error saving chat history:', historyError);
+        // Don't fail the request if history save fails
+      }
+    }
+
     res.json({ 
       response: text,
       timestamp: new Date().toISOString()
@@ -113,5 +143,40 @@ export const chatWithGemini = async (req, res) => {
       error: 'Chat service error',
       message: error.message 
     });
+  }
+};
+
+// Get chat history for the logged in user
+export const getChatHistory = async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const chatHistory = await ChatHistory.findOne({ userId });
+    res.json({ 
+      messages: chatHistory?.messages || [],
+      updatedAt: chatHistory?.updatedAt || null
+    });
+  } catch (error) {
+    console.error('Error fetching chat history:', error);
+    res.status(500).json({ error: 'Failed to fetch chat history' });
+  }
+};
+
+// Clear chat history for the logged in user
+export const clearChatHistory = async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    await ChatHistory.findOneAndDelete({ userId });
+    res.json({ message: 'Chat history cleared' });
+  } catch (error) {
+    console.error('Error clearing chat history:', error);
+    res.status(500).json({ error: 'Failed to clear chat history' });
   }
 };

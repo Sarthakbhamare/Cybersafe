@@ -55,6 +55,7 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [formErrors, setFormErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
   const [touchedFields, setTouchedFields] = useState({
     emailOrPhone: false,
     password: false,
@@ -113,8 +114,15 @@ const LoginPage = () => {
 
     setFormErrors({});
 
+    setIsLoading(true);
+    
     try {
       const API_BASE = (import.meta.env.VITE_API_BASE_URL || "/api").replace(/\/$/, "");
+      
+      // Add timeout controller for slow server wakeup (Render free tier sleeps)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+      
       const response = await fetch(`${API_BASE}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -122,7 +130,10 @@ const LoginPage = () => {
           email: formData.emailOrPhone,
           password: formData.password,
         }),
+        signal: controller.signal,
       });
+      
+      clearTimeout(timeoutId);
 
       const data = await response.json();
 
@@ -148,9 +159,13 @@ const LoginPage = () => {
       navigate(redirectPath);
     } catch (error) {
       console.error("Login error:", error);
-      setErrorMessage(
-        "Failed to connect to server. Please check your network."
-      );
+      if (error.name === 'AbortError') {
+        setErrorMessage("Server is waking up. Please try again in a few seconds.");
+      } else {
+        setErrorMessage("Failed to connect to server. Please check your network.");
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
