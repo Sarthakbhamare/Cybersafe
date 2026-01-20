@@ -1,0 +1,7 @@
+{
+  "sms": 0.5,
+  "email": 0.6,
+  "whatsapp": 0.55,
+  "mobile_app": 0.58,
+  "general": 0.6
+}

@@ -170,9 +170,9 @@ try:
     model = joblib.load(os.path.join(artifacts_dir, "scam_detector_generalized.joblib"))
     vectorizer = joblib.load(os.path.join(artifacts_dir, "tfidf_vectorizer_generalized.joblib"))
     scaler = joblib.load(os.path.join(artifacts_dir, "feature_scaler_generalized.joblib"))
-    print("✓ Generalized model loaded successfully!")
+    print("[OK] Generalized model loaded successfully!")
 except Exception as e:
-    print(f"❌ Error loading model: {e}")
+    print(f"[ERROR] Error loading model: {e}")
     model = None
     vectorizer = None
     scaler = None
@@ -237,6 +237,6 @@ async def health():
 
 if __name__ == "__main__":
     print("="*80)
-    print("🚀 Generalized Scam Detection API v3.0 - Pattern-based")
+    print("[START] Generalized Scam Detection API v3.0 - Pattern-based")
     print("="*80)
     uvicorn.run(app, host="0.0.0.0", port=8004)

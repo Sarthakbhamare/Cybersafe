@@ -1,6 +1,109 @@
 ﻿import React, { useState, useEffect, useRef } from 'react';
 
+// ============ CYBER SAFETY CHATBOT CONFIGURATION ============
+
+// System prompt to constrain the AI to cyber safety topics only
+const SYSTEM_PROMPT = `You are CyberSafe Assistant, a cyber safety guide. 
+
+SCOPE (ONLY answer these topics):
+- How to identify scam/phishing red flags
+- Safe online practices and digital hygiene
+- Password security and 2FA guidance
+- How to report cyber crimes in India (cybercrime.gov.in, 1930)
+- Protecting personal data and privacy
+- Safe banking and UPI practices
+- Social engineering awareness
+- Device and app security tips
+
+STRICT RULES:
+1. NEVER classify or judge if a specific message/URL is "scam" or "safe" - redirect users to our Scam Scanner tool
+2. NEVER answer questions unrelated to cyber safety (coding, math, general knowledge, etc.)
+3. Keep answers concise (2-4 paragraphs max)
+4. Be helpful and actionable
+5. If asked to classify a message, say: "I can't classify specific messages. Please use our Scam Scanner tool for that. Here are general red flags to watch for..."
+6. For off-topic questions, politely say: "I'm specialized in cyber safety topics only. I can help you with online security, scam awareness, and safe digital practices."`;
+
+// Keywords that indicate user wants message classification (should be blocked)
+const CLASSIFICATION_KEYWORDS = [
+  'is this scam', 'is this safe', 'is this legit', 'is this legitimate',
+  'check this message', 'analyze this', 'is this fraud', 'is this real',
+  'scam or not', 'safe or not', 'is it safe', 'is it scam',
+  'verify this', 'is this fake', 'real or fake', 'tell me if this is',
+  'can you check', 'is this phishing', 'this message safe'
+];
+
+// Keywords that indicate cyber safety topics (allowed)
+const CYBER_SAFETY_KEYWORDS = [
+  'phishing', 'scam', 'fraud', 'password', 'security', 'privacy', 'hack',
+  'malware', 'virus', 'spam', 'otp', 'bank', 'upi', 'online', 'cyber',
+  'protect', 'safe', 'report', 'suspicious', 'link', 'email', 'sms',
+  'whatsapp', 'call', 'identity', 'theft', 'data', 'breach', 'secure',
+  '2fa', 'two factor', 'authentication', 'vpn', 'encrypt', 'backup',
+  'cybercrime', 'digital', 'internet', 'social media', 'account',
+  'red flag', 'warning', 'urgent', 'lottery', 'prize', 'kyc', 'block'
+];
+
+// Check if user is asking to classify a specific message
+const isClassificationRequest = (text) => {
+  const lower = text.toLowerCase();
+  return CLASSIFICATION_KEYWORDS.some(keyword => lower.includes(keyword));
+};
+
+// Check if the question is related to cyber safety
+const isCyberSafetyTopic = (text) => {
+  const lower = text.toLowerCase();
+  return CYBER_SAFETY_KEYWORDS.some(keyword => lower.includes(keyword));
+};
+
+// Pre-built responses for common scenarios
+const RESPONSES = {
+  classification: `I can't classify or verify specific messages, URLs, or texts. For that, please use our **Scam Scanner** tool which uses AI to analyze messages.
+
+**General Red Flags to Watch For:**
+• Urgency or threats ("Act NOW or account blocked!")
+• Requests for OTP, PIN, or passwords
+• Suspicious links (shortened URLs, misspelled domains)
+• Too-good-to-be-true offers (lottery wins, free gifts)
+• Unknown senders claiming to be banks/govt
+
+**What to do:**
+1. Don't click any links
+2. Don't share OTP or personal info
+3. Verify directly with the official source
+4. Report at cybercrime.gov.in or call 1930`,
+
+  offTopic: `I'm CyberSafe Assistant, specialized in **cyber safety and online security** topics only.
+
+I can help you with:
+• Identifying scam/phishing red flags
+• Safe online practices
+• Password and account security
+• Reporting cyber crimes
+• Protecting personal data
+• Safe banking tips
+
+Please ask me something related to these topics!`,
+
+  greeting: `Hello! I'm CyberSafe Assistant, your guide to staying safe online.
+
+I can help you with:
+🛡️ **Scam Awareness** - How to spot fraud attempts
+🔐 **Security Tips** - Passwords, 2FA, safe practices
+📱 **Digital Safety** - Protecting your devices and data
+🚨 **Reporting** - How to report cyber crimes
+
+What would you like to know about cyber safety?`
+};
+
 const SUGGESTED_PROMPTS = [
+  {
+    icon: (
+      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+      </svg>
+    ),
+    text: "What are common scam red flags?"
+  },
   {
     icon: (
       <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -12,26 +115,18 @@ const SUGGESTED_PROMPTS = [
   {
     icon: (
       <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-      </svg>
-    ),
-    text: "Is this website safe to use?"
-  },
-  {
-    icon: (
-      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-      </svg>
-    ),
-    text: "How do I report a scam?"
-  },
-  {
-    icon: (
-      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
       </svg>
     ),
-    text: "Tips to protect my personal data"
+    text: "Tips for strong passwords"
+  },
+  {
+    icon: (
+      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    ),
+    text: "How to report cyber crime in India?"
   }
 ];
 
@@ -151,14 +246,66 @@ const CybersecurityChatbot = () => {
     }
   };
 
+  // Process user input and generate appropriate response
+  const processUserInput = async (prompt) => {
+    const trimmed = prompt.trim();
+    const lower = trimmed.toLowerCase();
+    
+    // Check for greetings
+    if (['hi', 'hello', 'hey', 'hii', 'helo', 'namaste', 'good morning', 'good evening'].some(g => lower === g || lower.startsWith(g + ' '))) {
+      await new Promise(resolve => setTimeout(resolve, 800));
+      return RESPONSES.greeting;
+    }
+    
+    // Block classification requests - redirect to Scam Scanner tool
+    if (isClassificationRequest(trimmed)) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      return RESPONSES.classification;
+    }
+    
+    // Check if it's a cyber safety topic
+    if (!isCyberSafetyTopic(trimmed) && trimmed.split(' ').length > 3) {
+      // Longer message that doesn't match cyber safety keywords
+      await new Promise(resolve => setTimeout(resolve, 800));
+      return RESPONSES.offTopic;
+    }
+    
+    // For valid cyber safety questions, call the API
+    return await callGeminiAPI(trimmed);
+  };
+
   const callGeminiAPI = async (prompt) => {
-    console.warn("Gemini API call skipped while backend access is disabled.");
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    return `I'm currently in offline mode, but here's a quick cybersecurity tip: Always verify sender identities before clicking links or sharing information. Stay vigilant! 
+    // Call backend which proxies to Gemini API
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    
+    try {
+      const response = await fetch(`${API_URL}/api/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: prompt }),
+      });
 
-You asked: "${prompt}"
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to get response');
+      }
 
-For comprehensive guidance, please try again when the service is online.`;
+      const data = await response.json();
+      return data.response;
+    } catch (error) {
+      console.error('Gemini API error:', error);
+      // Fallback to basic response if API fails
+      return `I'm having trouble connecting right now. Here's a quick tip:
+
+**Stay Safe Online:**
+• Never share OTP or passwords with anyone
+• Verify sender before clicking links
+• Report suspicious activity at cybercrime.gov.in or call 1930
+
+Please try again in a moment!`;
+    }
   };
 
   const sendMessage = async (promptText = null) => {
@@ -191,7 +338,8 @@ For comprehensive guidance, please try again when the service is online.`;
     setIsLoading(true);
 
     try {
-      const response = await callGeminiAPI(messageText);
+      // Use processUserInput for filtering and response generation
+      const response = await processUserInput(messageText);
       
       const botMessage = {
         id: Date.now() + 1,

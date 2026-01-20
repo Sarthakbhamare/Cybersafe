@@ -22,6 +22,15 @@ const StorySchema = new mongoose.Schema({
     telegram: { type: Number, default: 0 },
     instagram: { type: Number, default: 0 },
     copy: { type: Number, default: 0 }
+  },
+  // ML Scam Detection Fields
+  mlScamDetection: {
+    isScam: { type: Boolean, default: false },
+    scamProbability: { type: Number, default: 0 },
+    riskLevel: { type: String, enum: ['low', 'medium', 'high'], default: 'low' },
+    confidence: { type: String, enum: ['low', 'medium', 'high'], default: 'low' },
+    channel: { type: String, default: 'general' },
+    analyzedAt: { type: Date, default: Date.now }
   }
 });
 

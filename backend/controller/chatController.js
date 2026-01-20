@@ -1,0 +1,117 @@
+/**
+ * CyberSafe Chatbot Controller
+ * Uses Google Gemini API with strict cyber safety constraints
+ */
+
+// System prompt to constrain Gemini to cyber safety topics only
+const SYSTEM_PROMPT = `You are CyberSafe Assistant, a cyber safety guide for Indian users.
+
+SCOPE (ONLY answer these topics):
+- How to identify scam/phishing red flags
+- Safe online practices and digital hygiene
+- Password security and 2FA guidance
+- How to report cyber crimes in India (cybercrime.gov.in, 1930)
+- Protecting personal data and privacy
+- Safe banking and UPI practices
+- Social engineering awareness
+- Device and app security tips
+
+STRICT RULES:
+1. NEVER classify or judge if a specific message/URL is "scam" or "safe" - tell users to use the Scam Detector tool
+2. NEVER answer questions unrelated to cyber safety (coding, math, general knowledge, recipes, etc.)
+3. Keep answers concise (2-4 short paragraphs max, use bullet points)
+4. Be helpful and actionable with practical tips
+5. If asked to classify a message, say: "I can't classify specific messages. Please use our Scam Detector tool for that. Here are general red flags to watch for..."
+6. For off-topic questions, say: "I'm specialized in cyber safety topics only. I can help with online security, scam awareness, and safe digital practices. Please ask about those!"
+7. Always mention cybercrime.gov.in or 1930 helpline when discussing reporting
+8. Use simple English, avoid jargon`;
+
+export const chatWithGemini = async (req, res) => {
+  try {
+    const { message } = req.body;
+    
+    if (!message || typeof message !== 'string' || message.trim().length === 0) {
+      return res.status(400).json({ error: 'Message is required' });
+    }
+
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      console.error('GEMINI_API_KEY not found in environment');
+      return res.status(500).json({ error: 'Chat service not configured' });
+    }
+
+    // Call Gemini API
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: 'user',
+              parts: [
+                { text: SYSTEM_PROMPT + '\n\nUser question: ' + message.trim() }
+              ]
+            }
+          ],
+          generationConfig: {
+            temperature: 0.7,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 1024,
+          },
+          safetySettings: [
+            { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+            { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+            { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+            { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+          ]
+        })
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error('Gemini API error:', response.status, errorData);
+      
+      // If quota exceeded (429), provide a helpful fallback response
+      if (response.status === 429) {
+        return res.json({
+          response: `I'm temporarily unavailable due to high demand. Here are quick cyber safety tips:\n\n**Strong Passwords:** Use 12+ characters with uppercase, lowercase, numbers, and symbols. Never reuse passwords.\n\n**Avoid Phishing:** Don't click suspicious links. Check sender email addresses carefully.\n\n**Enable 2FA:** Turn on two-factor authentication for all important accounts.\n\n**Report Scams:** File complaints at cybercrime.gov.in or call 1930.\n\nPlease try again in a minute for personalized answers!`,
+          timestamp: new Date().toISOString(),
+          fallback: true
+        });
+      }
+      
+      return res.status(500).json({ 
+        error: 'Failed to get response from AI',
+        details: errorData.error?.message || 'Unknown error'
+      });
+    }
+
+    const data = await response.json();
+    
+    // Extract text from Gemini response
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    
+    if (!text) {
+      console.error('No text in Gemini response:', data);
+      return res.status(500).json({ error: 'Empty response from AI' });
+    }
+
+    res.json({ 
+      response: text,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('Chat error:', error);
+    res.status(500).json({ 
+      error: 'Chat service error',
+      message: error.message 
+    });
+  }
+};

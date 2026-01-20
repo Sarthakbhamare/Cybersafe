@@ -233,6 +233,40 @@ const StoryCard = ({ story, onSelect, onUpvote, onReport }) => {
           </div>
         </div>
 
+        {/* ML Scam Detection Badge */}
+        {story.mlScamDetection && (
+          <div className={`mb-4 p-3 rounded-lg border-2 ${
+            story.mlScamDetection.isScam 
+              ? 'bg-red-50 border-red-200' 
+              : 'bg-green-50 border-green-200'
+          }`}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">
+                  {story.mlScamDetection.isScam ? '🚨' : '✅'}
+                </span>
+                <div>
+                  <div className="font-semibold text-sm">
+                    {story.mlScamDetection.isScam ? 'SCAM DETECTED' : 'Safe Content'}
+                  </div>
+                  <div className="text-xs text-gray-600">
+                    AI Confidence: {(story.mlScamDetection.scamProbability * 100).toFixed(1)}%
+                  </div>
+                </div>
+              </div>
+              <span className={`text-xs font-medium px-2 py-1 rounded-full ${
+                story.mlScamDetection.riskLevel === 'high' 
+                  ? 'bg-red-200 text-red-800' 
+                  : story.mlScamDetection.riskLevel === 'medium'
+                  ? 'bg-yellow-200 text-yellow-800'
+                  : 'bg-green-200 text-green-800'
+              }`}>
+                {story.mlScamDetection.riskLevel.toUpperCase()}
+              </span>
+            </div>
+          </div>
+        )}
+
         {/* Story Title & Content */}
         <div className="mb-4">
           <h3 className="font-semibold text-slate-900 mb-2 group-hover:text-cyan-700 transition-colors cursor-pointer line-clamp-2">
@@ -686,12 +720,21 @@ function Anonymous() {
 
     setCreating(true);
     try {
-      // Backend story creation call skipped while API access is offline.
-      /*
-      const response = await fetch(`${API_BASE}/stories`, {
+      // Get auth token from localStorage
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Please log in to create a story");
+        setCreating(false);
+        return;
+      }
+
+      // Call backend API with ML scam detection
+      const response = await fetch("/api/stories", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+          "x-auth-token": token,
         },
         body: JSON.stringify({
           text: newStory,
@@ -701,30 +744,37 @@ function Anonymous() {
 
       if (response.ok) {
         const newStoryData = await response.json();
-        setStories((prev) => [newStoryData, ...prev]);
+        
+        // Enrich with ML analysis for display
+        const enrichedStory = {
+          ...newStoryData,
+          mlScamDetection: newStoryData.mlScamDetection || {
+            isScam: false,
+            scamProbability: 0,
+            riskLevel: "low",
+            confidence: "low",
+            channel: "general"
+          }
+        };
+        
+        setAllStories((prev) => [enrichedStory, ...prev]);
         setNewStory("");
         setNewStoryTags([]);
         setShowCreateForm(false);
+        
+        // Show ML detection result to user
+        if (enrichedStory.mlScamDetection.isScam) {
+          alert(`⚠️ SCAM DETECTED\n\nRisk Level: ${enrichedStory.mlScamDetection.riskLevel}\nProbability: ${(enrichedStory.mlScamDetection.scamProbability * 100).toFixed(1)}%`);
+        } else {
+          alert("✅ Story created successfully! ML analysis complete.");
+        }
       } else {
         const error = await response.json();
         alert(error.error || "Failed to create story");
       }
-      */
-      const trimmedStory = newStory.trim();
-      const createdAt = new Date().toISOString();
-      const createdStory = {
-        _id: `local-story-${Date.now()}`,
-        text: trimmedStory,
-        textRedacted: trimmedStory,
-        tags: newStoryTags,
-        createdAt,
-        upvotes: 0,
-        comments: [],
-      };
-  setAllStories((prev) => [createdStory, ...prev]);
-      setNewStory("");
-      setNewStoryTags([]);
-      setShowCreateForm(false);
+    } catch (error) {
+      console.error("Error creating story:", error);
+      alert("Network error. Please try again.");
     } finally {
       setCreating(false);
     }

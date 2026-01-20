@@ -1,0 +1,21 @@
+{
+  "model_type": "XGBoost",
+  "architecture": "Non-linear decision trees (fixes harsh truth issues)",
+  "training_accuracy": 1.0,
+  "testing_accuracy": 1.0,
+  "roc_auc": 0.9999999999999999,
+  "f1_score": 1.0,
+  "false_positive_rate": 0.0,
+  "false_negative_rate": 0.0,
+  "adversarial_robustness": 100.0,
+  "total_samples": 50000,
+  "training_samples": 40000,
+  "testing_samples": 10000,
+  "total_features": 510,
+  "confusion_matrix": {
+    "true_negatives": 5000,
+    "false_positives": 0,
+    "false_negatives": 0,
+    "true_positives": 5000
+  }
+}

@@ -2,6 +2,7 @@
 import mongoose from "mongoose";
 import Story from "../models/Story.js";
 import Comment from "../models/Comment.js";
+import axios from "axios";
 import {
   redactPII,
   rateLimit,
@@ -9,6 +10,85 @@ import {
   ensureTextQuality,
   VALID_TAGS,
 } from "../utils/helper.js";
+
+// ML Service configuration - uses FastAPI service on port 8004
+const ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'http://localhost:8004';
+
+// Call ML prediction service
+async function detectScam(text, channel = 'general') {
+  try {
+    const response = await axios.post(`${ML_SERVICE_URL}/predict-scam`, {
+      text,
+      channel
+    }, { timeout: 5000 });
+    return response.data;
+  } catch (error) {
+    console.error('ML service error:', error.message);
+    // Return safe default if ML service fails
+    return {
+      isScam: false,
+      scamProbability: 0,
+      riskLevel: 'low',
+      confidence: 'low',
+      channel
+    };
+  }
+}
+
+// Public detector endpoint (no auth) to analyze arbitrary text via ML service
+export const analyzeText = async (req, res) => {
+  try {
+    const { text = '', channel = 'general' } = req.body || {};
+    const payload = (text || '').trim();
+    if (payload.length < 4) {
+      return res.status(400).json({ error: 'Provide at least 4 characters to analyze.' });
+    }
+
+    const result = await detectScam(payload, channel);
+
+    // Normalize properties from ML Service
+    const isScam = result.is_scam === true || result.prediction === 'scam';
+    let probability = result.scam_probability ?? result.scamProbability;
+    
+    // Fallback probability calculation if not provided explicitly
+    if (probability === undefined) {
+        if (result.prediction === 'scam') {
+            probability = result.confidence || 0;
+        } else if (result.prediction === 'legit') { // Assuming 'legit' for non-scam
+             // If confident it's legit, scam probability is low
+            probability = 1 - (result.confidence || 0);
+             // Clamp to 0
+            if (probability < 0) probability = 0;
+        } else {
+            probability = 0;
+        }
+    }
+
+    // Determine Risk Level if not provided
+    let risk = result.risk_level ?? result.riskLevel;
+    if (!risk) {
+        if (probability > 0.8) risk = 'high';
+        else if (probability > 0.5) risk = 'moderate';
+        else risk = 'low';
+    }
+
+    const response = {
+      isScam: isScam,
+      scamProbability: probability,
+      riskLevel: risk,
+      confidence: result.confidence ?? 0,
+      channel: result.channel ?? channel,
+      analyzedAt: new Date().toISOString(),
+      modelVersion: result.model_version ?? result.modelVersion ?? '3.0',
+      raw: result,
+    };
+
+    return res.json(response);
+  } catch (error) {
+    console.error('Analyze error:', error.message);
+    return res.status(500).json({ error: 'Failed to analyze text' });
+  }
+};
 
 // Create a new story
 export const createStory = async (req, res) => {
@@ -25,11 +105,23 @@ export const createStory = async (req, res) => {
     if (!chk.ok) return res.status(400).json({ error: chk.reason });
 
     const textRedacted = redactPII(text);
+    
+    // ML Scam Detection
+    const scamAnalysis = await detectScam(text, 'general');
+    
     const doc = await Story.create({
       userId: req.user.id,
       textOriginal: text,
       textRedacted,
       tags: sanitizeTags(tags),
+      mlScamDetection: {
+        isScam: scamAnalysis.is_scam || scamAnalysis.isScam,
+        scamProbability: scamAnalysis.scam_probability || scamAnalysis.scamProbability,
+        riskLevel: scamAnalysis.risk_level || scamAnalysis.riskLevel,
+        confidence: scamAnalysis.confidence,
+        channel: scamAnalysis.channel,
+        analyzedAt: new Date()
+      }
     });
     return res.status(201).json({
       _id: doc._id,
@@ -40,6 +132,7 @@ export const createStory = async (req, res) => {
       userId: doc.userId,
       reactions: doc.reactions,
       shares: doc.shares,
+      mlScamDetection: doc.mlScamDetection,
     });
   } catch (e) {
     console.error(e);

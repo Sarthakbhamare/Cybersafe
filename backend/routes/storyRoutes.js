@@ -9,6 +9,7 @@ import {
   reactStory,
   shareStory,
   reactComment,
+  analyzeText,
 } from "../controller/storyController.js";
 import auth from "../middleware/auth.js";
 
@@ -19,6 +20,9 @@ router.get("/mine/list", auth, (req, res, next) => {
   req.query.user = "me";
   return getStories(req, res, next);
 });
+
+// Public ML detector endpoint
+router.post("/detect", analyzeText);
 
 router.post("/", auth, createStory);
 router.get("/", getStories);

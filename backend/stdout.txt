@@ -1,0 +1,3 @@
+Server running on port 5000
+MongoDB connected (mongodb://127.0.0.1:27017/cybersafe)
+POST /api/stories/detect 200 245 - 19.229 ms

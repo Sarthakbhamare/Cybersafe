@@ -207,7 +207,7 @@ const StudentHero = () => {
                   size="lg"
                   className="border-white text-white hover:bg-white/10 border-2"
                 >
-                  🔍 Try Threat Detector
+                  🔍 Try Scam Scanner
                 </Button>
               </Link>
             </div>

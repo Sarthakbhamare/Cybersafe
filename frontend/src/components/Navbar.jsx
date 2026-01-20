@@ -13,7 +13,7 @@ const NAV_LINKS = [
   { label: "Anonymous", to: "/anonymous" },
   { label: "Community", to: "/community-reputation" },
   { label: "Chatbot", to: "/chatbot" },
-  { label: "Detector", to: "/api-tool" },
+  { label: "Scam Scanner", to: "/api-tool" },
 ];
 
 const Navbar = () => {

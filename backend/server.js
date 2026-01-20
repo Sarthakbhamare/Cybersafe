@@ -8,6 +8,7 @@ import "dotenv/config";
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import storyRoutes from "./routes/storyRoutes.js";
+import chatRoutes from "./routes/chatRoutes.js";
 
 const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -46,7 +47,8 @@ app.use(morgan("tiny"));
 connectDB();
 
 app.use("/api/auth", authRoutes); 
-app.use("/api/stories", storyRoutes); 
+app.use("/api/stories", storyRoutes);
+app.use("/api/chat", chatRoutes); 
 
 
 app.get("/", (req, res) => res.send({ ok: true, message: "CyberSafe API" }));
@@ -54,9 +56,9 @@ app.get("/", (req, res) => res.send({ ok: true, message: "CyberSafe API" }));
 // Health check endpoint
 app.get("/health", (req, res) => res.send({ ok: true, status: "healthy" }));
 
-// For Vercel serverless
-if (process.env.VERCEL) {
-  export default app;
-} else {
+// For Vercel serverless / local dev
+if (!process.env.VERCEL) {
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 }
+
+export default app;

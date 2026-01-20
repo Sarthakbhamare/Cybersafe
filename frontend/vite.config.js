@@ -10,13 +10,12 @@ export default defineConfig(({ mode }) => ({
     port: 5173,
     open: false,
     proxy: {
-      // Allow frontend to call /api without hardcoding backend origin
-      '/api': {
+      // Allow frontend to call /api/ without hardcoding backend origin
+      // Use /api/ (with trailing slash) to avoid matching /api-tool route
+      '/api/': {
         target: process.env.VITE_BACKEND_URL || 'http://localhost:5000',
         changeOrigin: true,
         secure: false,
-        // If backend already prefixes /api, avoid duplicating
-        // rewrite: (path) => path.replace(/^\/api/, '/api')
       },
     },
   },

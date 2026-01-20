@@ -62,10 +62,35 @@ const AppInner = () => {
         />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
-        <Route path="/cybersafe-feed" element={<CyberSafeFeed />} />
-        <Route path="/anonymous" element={<Anonymous />} />
-        <Route path="/community-reputation" element={<CommunityReputationPage />} />
-        <Route path="/student-dashboard" element={<StudentPage />} />
+        <Route
+          path="/cybersafe-feed"
+          element={
+            <ProtectedRoute>
+              <CyberSafeFeed />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/anonymous"
+          element={
+            <ProtectedRoute>
+              <Anonymous />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/community-reputation"
+          element={
+            <ProtectedRoute>
+              <CommunityReputationPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/student-dashboard" element={
+            <ProtectedRoute>
+              <StudentPage />
+            </ProtectedRoute>
+          } />
         <Route
           path="/professional-dashboard"
           element={
@@ -98,13 +123,41 @@ const AppInner = () => {
             </ProtectedRoute>
           }
         />
-        <Route path="/chatbot" element={<CybersecurityChatbot />} />
-        <Route path="/api-tool" element={<APIToolPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/phishing-simulator" element={<PhishingEmailSimulator />} />
-        <Route path="/sms-simulator" element={<SMSScamSimulator />} />
-        <Route path="/certification-exam" element={<CertificationExam />} />
-        <Route path="/my-certificate" element={<CertificatePage />} />
+        <Route path="/chatbot" element={
+            <ProtectedRoute>
+              <CybersecurityChatbot />
+            </ProtectedRoute>
+          } />
+        <Route path="/api-tool" element={
+            <ProtectedRoute>
+              <APIToolPage />
+            </ProtectedRoute>
+          } />
+        <Route path="/profile" element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          } />
+        <Route path="/phishing-simulator" element={
+            <ProtectedRoute>
+              <PhishingEmailSimulator />
+            </ProtectedRoute>
+          } />
+        <Route path="/sms-simulator" element={
+            <ProtectedRoute>
+              <SMSScamSimulator />
+            </ProtectedRoute>
+          } />
+        <Route path="/certification-exam" element={
+            <ProtectedRoute>
+              <CertificationExam />
+            </ProtectedRoute>
+          } />
+        <Route path="/my-certificate" element={
+            <ProtectedRoute>
+              <CertificatePage />
+            </ProtectedRoute>
+          } />
       </Routes>
       <Footer />
     </>
@@ -115,7 +168,8 @@ function App() {
   return (
     <AuthProvider>
       <LoadingProvider>
-        <BrowserRouter basename="/Cybersafe">
+        {/* Use root base path so dev server works at http://localhost:5173 */}
+        <BrowserRouter>
           <AppInner />
         </BrowserRouter>
       </LoadingProvider>
