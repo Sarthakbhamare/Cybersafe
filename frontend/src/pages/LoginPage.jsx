@@ -117,7 +117,8 @@ const LoginPage = () => {
     setIsLoading(true);
     
     try {
-      const API_BASE = (import.meta.env.VITE_API_BASE_URL || "/api").replace(/\/$/, "");
+      // Use production URL for GitHub Pages deployment
+      const API_BASE = import.meta.env.VITE_API_BASE_URL || "https://cybersafe-sfoz.onrender.com/api";
       
       // Add timeout controller for slow server wakeup (Render free tier sleeps)
       const controller = new AbortController();
