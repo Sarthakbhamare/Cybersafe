@@ -101,7 +101,7 @@ const DetailModal = ({ story, isOpen, onClose }) => {
             <button onClick={onClose} className="text-gray-500 hover:text-gray-700 text-xl">✕</button>
           </div>
           <div className="flex items-center gap-2 mb-4">
-            <Badge variant="purple">{story.demographic}</Badge>
+            <Badge variant="secondary">{story.demographic}</Badge>
             <Badge variant="warning">{story.severity}</Badge>
             <span className="text-sm text-gray-500">{story.location} • {story.timeAgo}</span>
           </div>
@@ -374,8 +374,8 @@ const CyberSafeFeed = () => {
         {filteredStories.length === 0 && !isLoading && (
           <div className="py-16 text-center">
             <div className="mb-4 text-6xl">🔍</div>
-            <h3 className="mb-2 text-lg font-semibold text-slate-900">{t('feed.noStoriesFound')}</h3>
-            <p className="text-slate-600">{t('feed.tryDifferentCategory')}</p>
+            <h3 className="mb-2 text-lg font-semibold text-slate-900">No stories found</h3>
+            <p className="text-slate-600">Try a different category or location.</p>
           </div>
         )}
       </div>

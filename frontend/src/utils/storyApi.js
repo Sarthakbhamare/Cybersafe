@@ -1,7 +1,7 @@
 import { get, post } from './apiClient';
 
-export const listStories = (params = {}) => get('/stories', params);
-export const getMyStories = (params = {}) => get('/stories/mine/list', params);
+export const listStories = (params = {}) => get('/stories', { params });
+export const getMyStories = (params = {}) => get('/stories/mine/list', { params });
 export const getStoryById = (id) => get(`/stories/${id}`);
 
 export const reactStory = (id, reaction) => post(`/stories/${id}/react`, { reaction });

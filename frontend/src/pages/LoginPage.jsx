@@ -117,8 +117,8 @@ const LoginPage = () => {
     setIsLoading(true);
     
     try {
-      // Use production URL for GitHub Pages deployment
-      const API_BASE = import.meta.env.VITE_API_BASE_URL || "https://cybersafe-sfoz.onrender.com/api";
+      // Use relative path so Vite proxy handles it, or fallback to local backend
+      const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
       
       // Add timeout controller for slow server wakeup (Render free tier sleeps)
       const controller = new AbortController();

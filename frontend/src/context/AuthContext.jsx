@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { get } from "../utils/apiClient";
+import { keyFor, ensureScopedMigration } from "../utils/userScopedStorage";
 
 const AuthContext = createContext({
   user: null,
@@ -16,6 +17,31 @@ export const AuthProvider = ({ children }) => {
     try {
       const data = await get("/auth/me");
       setUser(data);
+
+      // Sync backend progress into scoped local storage for UI counters.
+      ensureScopedMigration();
+      if (typeof data?.xp === "number") {
+        localStorage.setItem(keyFor("serverXP"), String(Math.max(0, Math.round(data.xp))));
+      }
+
+      if (data?.certification && typeof data.certification === "object") {
+        const cert = data.certification;
+        const attempts = Array.isArray(cert.attempts) ? cert.attempts : [];
+        localStorage.setItem(keyFor("certificationAttempts"), JSON.stringify(attempts));
+
+        if (cert.isCertified && cert.certificateId) {
+          const cachedCertificate = {
+            id: cert.certificateId,
+            holderName: localStorage.getItem("userName") || "CyberSafe User",
+            issueDate: cert.issuedAt || new Date().toISOString(),
+            expiryDate: cert.expiryDate || new Date().toISOString(),
+            score: cert.score || 0,
+            attemptNumber: attempts.length || 1,
+            verificationUrl: `https://cybersafe.app/verify/${cert.certificateId}`,
+          };
+          localStorage.setItem(keyFor("certificate"), JSON.stringify(cachedCertificate));
+        }
+      }
     } catch (_) {
       setUser(null);
     } finally {
@@ -55,6 +81,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.removeItem("userId");
       localStorage.removeItem(`certificate_${uid}`);
       localStorage.removeItem(`certificationAttempts_${uid}`);
+      localStorage.removeItem(`serverXP_${uid}`);
     } catch (_) {}
     setUser(null);
   };

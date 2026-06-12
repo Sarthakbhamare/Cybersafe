@@ -18,10 +18,13 @@ const LEGACY_KEYS = [
   'totalXP',
   'xpHistory',
   'earnedAchievements',
+  'earnedBadges',
   'quizHistory',
   'currentStreak',
   'loginStreak',
   'lastLoginDate',
+  'lastCompletedDate',
+  'todayScore',
   'threatsReadList',
   'threatsRead',
   'completedSimulations',
@@ -30,7 +33,10 @@ const LEGACY_KEYS = [
   'shareHistory',
   'earlyMorningQuizzes',
   'lateNightQuizzes',
-  'perfectScores'
+  'perfectScores',
+  'speedQuizzes',
+  'survivalQuestions',
+  'leaderboard'
 ];
 
 export const ensureScopedMigration = () => {
@@ -42,6 +48,8 @@ export const ensureScopedMigration = () => {
       const legacyVal = localStorage.getItem(k);
       if (!hasScoped && legacyVal !== null) {
         localStorage.setItem(scopedK, legacyVal);
+        // Move instead of copy so old global values do not leak to other users.
+        localStorage.removeItem(k);
       }
     });
   } catch (_) {}

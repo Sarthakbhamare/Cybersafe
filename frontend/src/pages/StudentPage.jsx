@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import EnhancedQuizGame from "../components/EnhancedQuizGame";
 import { Link } from "react-router-dom";
-import { trackThreatRead } from "../utils/gamification";
+import { trackThreatRead, getGamificationStats } from "../utils/gamification";
 import { getCertificationStatus, CERTIFICATION_CONFIG } from "../utils/certification";
+import { QUESTION_BANK, getDailyQuestions, getRandomQuestions } from "../utils/questionBank";
 import StudentHero from "../components/student/StudentHero";
 import ThreatCard from "../components/student/ThreatCard";
 import QuickTips from "../components/student/QuickTips";
@@ -485,11 +486,18 @@ const CertificationCard = () => {
             </div>
           </div>
           <div>
-            <Link to="/my-certificate">
-              <Button size="lg" className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg">
-                View Certificate 🎓
-              </Button>
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Link to="/my-certificate">
+                <Button size="lg" className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg">
+                  View Certificate 🎓
+                </Button>
+              </Link>
+              <Link to="/certification-exam">
+                <Button size="lg" variant="outline" className="border-indigo-300 text-indigo-700 hover:bg-indigo-50">
+                  Take Exam Again
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </Card>
@@ -568,9 +576,40 @@ const CertificationCard = () => {
 
 // Main StudentPage Component
 const StudentPage = () => {
+  const [xpStats, setXpStats] = useState(null);
+
+  useEffect(() => {
+    setXpStats(getGamificationStats());
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-blue-50">
       <StudentHero />
+
+      {xpStats && (
+        <section className="container mx-auto px-4 pt-8 max-w-7xl">
+          <Card className="p-5 bg-white shadow-lg border-indigo-100">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <div className="text-sm text-slate-500">Your Security Progress</div>
+                <div className="text-2xl font-bold text-slate-900">
+                  {xpStats.currentLevel.badge} {xpStats.currentLevel.name}
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-sm text-slate-500">Total XP</div>
+                <div className="text-2xl font-bold text-indigo-700">{xpStats.totalXP.toLocaleString()}</div>
+              </div>
+            </div>
+            <div className="mt-4 bg-slate-200 rounded-full h-2.5 overflow-hidden">
+              <div
+                className="h-2.5 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-300"
+                style={{ width: `${xpStats.progress}%` }}
+              />
+            </div>
+          </Card>
+        </section>
+      )}
 
       <section id="learning-section" className="container mx-auto px-4 py-16 max-w-7xl scroll-mt-20">
         <Tabs defaultValue="game" className="space-y-8">

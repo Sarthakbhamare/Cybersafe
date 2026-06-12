@@ -16,6 +16,14 @@ const NAV_LINKS = [
   { label: "Scam Scanner", to: "/api-tool" },
 ];
 
+const getTimeGreeting = () => {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  if (hour < 22) return "Good evening";
+  return "Good night";
+};
+
 const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -26,13 +34,20 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [streak, setStreak] = useState(0);
   const [xpStats, setXpStats] = useState(null);
+  const [userName, setUserName] = useState("");
+  const [userEmail, setUserEmail] = useState("");
+  const [timeGreeting, setTimeGreeting] = useState(getTimeGreeting());
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     const demographic = localStorage.getItem("demographic");
+    const storedName = localStorage.getItem("userName") || "";
+    const storedEmail = localStorage.getItem("userEmail") || "";
 
     setIsLoggedIn(Boolean(token));
     setDashboardPath(token && demographic ? `/${demographic}-dashboard` : "/");
+    setUserName(storedName);
+    setUserEmail(storedEmail);
     
     // Update streak count (per user)
     ensureScopedMigration();
@@ -49,6 +64,14 @@ const Navbar = () => {
     handleScroll();
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeGreeting(getTimeGreeting());
+    }, 60 * 1000);
+
+    return () => clearInterval(timer);
   }, []);
 
   useEffect(() => {
@@ -143,6 +166,14 @@ const Navbar = () => {
           <div className="hidden items-center gap-3 lg:flex">
             {isLoggedIn ? (
               <>
+                <Link
+                  to="/profile"
+                  className="max-w-[220px] rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 leading-tight transition-colors hover:bg-slate-100"
+                  title={userEmail || "Manage account"}
+                >
+                  <div className="truncate text-xs text-slate-500">{timeGreeting}</div>
+                  <div className="truncate text-sm font-semibold text-slate-800">{userName || "CyberSafe User"}</div>
+                </Link>
                 {xpStats && (
                   <Link
                     to="/profile"
@@ -237,6 +268,11 @@ const Navbar = () => {
             <div className="mt-4 flex flex-col gap-2 border-t border-slate-200 pt-4">
               {isLoggedIn ? (
                 <>
+                  <div className="rounded-lg bg-slate-50 px-4 py-3 border border-slate-200">
+                    <div className="text-xs text-slate-500">{timeGreeting}</div>
+                    <div className="text-sm font-semibold text-slate-800 truncate">{userName || "CyberSafe User"}</div>
+                    {userEmail && <div className="text-xs text-slate-500 truncate">{userEmail}</div>}
+                  </div>
                   <Link
                     to={dashboardPath}
                     className="rounded-lg bg-slate-900 px-4 py-3 text-center text-base font-semibold text-white"

@@ -4,22 +4,34 @@ import {
   generateCertificationExam,
   evaluateCertificationExam,
   saveCertificationResult,
-  CERTIFICATION_CONFIG
+  CERTIFICATION_CONFIG,
+  getCertificationStatus
 } from "../utils/certification";
-import { addXP } from "../utils/gamification";
 
 const CertificationExam = () => {
   const navigate = useNavigate();
-  const [examState, setExamState] = useState('loading'); // loading, instructions, exam, submitted
+  const [examState, setExamState] = useState('loading'); // loading, instructions, exam, submitted, locked, error
   const [questions, setQuestions] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [timeRemaining, setTimeRemaining] = useState(CERTIFICATION_CONFIG.TIME_LIMIT);
   const [results, setResults] = useState(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showQuitModal, setShowQuitModal] = useState(false);
+  const [lockMeta, setLockMeta] = useState({ attempts: 0, maxAttempts: CERTIFICATION_CONFIG.MAX_ATTEMPTS });
 
   useEffect(() => {
     try {
+      const certStatus = getCertificationStatus();
+      if (!certStatus.canRetake && certStatus.status === 'max_attempts_reached') {
+        setLockMeta({
+          attempts: certStatus.attempts?.length || CERTIFICATION_CONFIG.MAX_ATTEMPTS,
+          maxAttempts: CERTIFICATION_CONFIG.MAX_ATTEMPTS
+        });
+        setExamState('locked');
+        return;
+      }
+
       console.log('Generating certification exam...');
       const exam = generateCertificationExam();
       console.log('Exam generated:', exam.length, 'questions');
@@ -35,6 +47,17 @@ const CertificationExam = () => {
       setExamState('error');
     }
   }, []);
+
+  useEffect(() => {
+    const beforeUnloadHandler = (event) => {
+      if (examState !== 'exam') return;
+      event.preventDefault();
+      event.returnValue = '';
+    };
+
+    window.addEventListener('beforeunload', beforeUnloadHandler);
+    return () => window.removeEventListener('beforeunload', beforeUnloadHandler);
+  }, [examState]);
 
   // Timer countdown
   useEffect(() => {
@@ -60,7 +83,21 @@ const CertificationExam = () => {
   };
 
   const handleStartExam = () => {
+    const certStatus = getCertificationStatus();
+    if (!certStatus.canRetake && certStatus.status === 'max_attempts_reached') {
+      setLockMeta({
+        attempts: certStatus.attempts?.length || CERTIFICATION_CONFIG.MAX_ATTEMPTS,
+        maxAttempts: CERTIFICATION_CONFIG.MAX_ATTEMPTS
+      });
+      setExamState('locked');
+      return;
+    }
     setExamState('exam');
+  };
+
+  const handleQuitExam = () => {
+    setShowQuitModal(false);
+    navigate('/student-dashboard');
   };
 
   const handleSelectAnswer = (questionId, optionIndex) => {
@@ -159,6 +196,29 @@ const CertificationExam = () => {
         <div className="text-center">
           <div className="text-6xl mb-4">📝</div>
           <p className="text-xl text-gray-700">Preparing your certification exam...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (examState === 'locked') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-100 via-orange-50 to-yellow-100 p-4">
+        <div className="text-center max-w-xl p-8 bg-white rounded-2xl shadow-2xl">
+          <div className="text-6xl mb-4">🛑</div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-3">Exam Attempts Exhausted</h2>
+          <p className="text-gray-700 mb-4">
+            You have used all certification attempts for this account.
+          </p>
+          <div className="mb-6 text-sm text-gray-600">
+            Attempts used: <strong>{lockMeta.attempts}/{lockMeta.maxAttempts}</strong>
+          </div>
+          <button
+            onClick={() => navigate('/student-dashboard')}
+            className="px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-all"
+          >
+            ← Back to Dashboard
+          </button>
         </div>
       </div>
     );
@@ -411,6 +471,12 @@ const CertificationExam = () => {
             >
               Submit Exam
             </button>
+            <button
+              onClick={() => setShowQuitModal(true)}
+              className="px-6 py-3 bg-white text-gray-700 border border-gray-300 rounded-lg font-semibold hover:bg-gray-50 transition-all"
+            >
+              Quit Exam
+            </button>
           </div>
         </div>
 
@@ -541,6 +607,34 @@ const CertificationExam = () => {
                 className="flex-1 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-bold hover:from-indigo-700 hover:to-purple-700 transition-all"
               >
                 Submit
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showQuitModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full">
+            <div className="text-center mb-6">
+              <div className="text-6xl mb-4">🚪</div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">Quit Exam?</h3>
+              <p className="text-gray-600">
+                You can quit now and return later. This attempt will not be counted until you submit.
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowQuitModal(false)}
+                className="flex-1 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition-all"
+              >
+                Continue Exam
+              </button>
+              <button
+                onClick={handleQuitExam}
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-red-600 to-orange-600 text-white rounded-lg font-bold hover:from-red-700 hover:to-orange-700 transition-all"
+              >
+                Quit Now
               </button>
             </div>
           </div>

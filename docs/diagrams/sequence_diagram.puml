@@ -1,0 +1,45 @@
+@startuml
+title CyberSafe - Core Sequence Flow
+
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam backgroundColor #FCFCFC
+skinparam ArrowColor #374151
+skinparam ParticipantBorderColor #3A3A3A
+skinparam ParticipantBackgroundColor #EEF2FF
+skinparam ActorBorderColor #1D4ED8
+skinparam ActorBackgroundColor #DBEAFE
+skinparam SequenceLifeLineBorderColor #9CA3AF
+skinparam SequenceLifeLineBackgroundColor #F9FAFB
+skinparam SequenceBoxBorderColor #9CA3AF
+skinparam SequenceBoxBackgroundColor #F3F4F6
+skinparam SequenceArrowThickness 2
+
+autonumber
+
+actor User
+participant Frontend
+participant "Backend API" as API
+participant "ML Service" as ML
+participant "Chatbot" as BOT
+database MongoDB
+
+User -> Frontend : Enter suspicious text
+Frontend -> API : Analyze request
+API -> ML : Predict risk
+ML --> API : Risk score
+API -> MongoDB : Save scan result
+API --> Frontend : Risk result
+Frontend --> User : Show result
+
+opt User asks for help
+  User -> Frontend : Ask chatbot question
+  Frontend -> API : Chat request
+  API -> BOT : Generate guidance
+  BOT -> MongoDB : Save chat history
+  BOT --> API : Safe response
+  API --> Frontend : Chat response
+  Frontend --> User : Show guidance
+end
+
+@enduml

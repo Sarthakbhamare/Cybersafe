@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { getGamificationStats, getCurrentLevel, getLevelProgress, ACHIEVEMENTS } from "../utils/gamification";
 import { getUserStats } from "../utils/quizUtils";
 import AnalyticsDashboard from "../components/AnalyticsDashboard";
+import { get, put } from "../utils/apiClient";
+import { useAuth } from "../context/AuthContext";
 
 const Card = ({ children, className = "" }) => (
   <div className={`border border-gray-200 rounded-xl ${className}`}>{children}</div>
@@ -21,9 +23,21 @@ const Badge = ({ children, variant = "default", className = "" }) => {
 };
 
 const ProfilePage = () => {
+  const { user, setAuth } = useAuth();
   const [stats, setStats] = useState(null);
   const [quizStats, setQuizStats] = useState(null);
   const [selectedTab, setSelectedTab] = useState('overview');
+  const [profileForm, setProfileForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    gender: "",
+    demographic: "",
+  });
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [profileError, setProfileError] = useState("");
+  const [profileSuccess, setProfileSuccess] = useState("");
 
   useEffect(() => {
     const gamificationStats = getGamificationStats();
@@ -31,6 +45,84 @@ const ProfilePage = () => {
     setStats(gamificationStats);
     setQuizStats(userQuizStats);
   }, []);
+
+  useEffect(() => {
+    const hydrateProfileForm = (profile) => {
+      setProfileForm({
+        name: profile?.name || "",
+        email: profile?.email || "",
+        phone: profile?.phone || "",
+        gender: profile?.gender || "",
+        demographic: profile?.demographic || "",
+      });
+    };
+
+    if (user) {
+      hydrateProfileForm(user);
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const fetchProfile = async () => {
+      try {
+        setProfileLoading(true);
+        const me = await get("/auth/me");
+        hydrateProfileForm(me);
+      } catch (_) {
+        // Ignore; auth interceptor handles invalid sessions.
+      } finally {
+        setProfileLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, [user]);
+
+  const handleProfileChange = (field, value) => {
+    setProfileForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleProfileSave = async (event) => {
+    event.preventDefault();
+    setProfileError("");
+    setProfileSuccess("");
+
+    try {
+      setSavingProfile(true);
+      const payload = {
+        name: profileForm.name.trim(),
+        email: profileForm.email.trim(),
+        phone: profileForm.phone.trim(),
+        gender: profileForm.gender.trim(),
+        demographic: profileForm.demographic.trim(),
+      };
+
+      const updated = await put("/auth/me", payload);
+
+      setProfileForm({
+        name: updated?.name || "",
+        email: updated?.email || "",
+        phone: updated?.phone || "",
+        gender: updated?.gender || "",
+        demographic: updated?.demographic || "",
+      });
+
+      setAuth({
+        name: updated?.name,
+        email: updated?.email,
+        demographic: updated?.demographic,
+        userId: updated?._id,
+      });
+
+      setProfileSuccess("Profile updated successfully.");
+    } catch (error) {
+      setProfileError(error?.message || "Failed to update profile.");
+    } finally {
+      setSavingProfile(false);
+    }
+  };
 
   if (!stats || !quizStats) {
     return (
@@ -44,6 +136,7 @@ const ProfilePage = () => {
   }
 
   const { currentLevel, nextLevel, progress, totalXP, xpToNextLevel, achievements, achievementCount, totalAchievements } = stats;
+  const displayName = profileForm.name || user?.name || localStorage.getItem("userName") || "Cyber Guardian";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-blue-50">
@@ -58,8 +151,12 @@ const ProfilePage = () => {
                   <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-white/20 to-white/10 flex items-center justify-center text-5xl border-4 border-white/30">
                     {currentLevel.badge}
                   </div>
-                  <h2 className="text-2xl font-bold mb-1">Cyber Guardian</h2>
+                  <h2 className="text-2xl font-bold mb-1">{displayName}</h2>
                   <Badge className="bg-white/20 text-white border-white/30">{currentLevel.name}</Badge>
+                  <div className="mt-3 text-xs text-white/80 space-y-1">
+                    <div>{profileForm.email || user?.email || "No email on file"}</div>
+                    <div className="capitalize">{(profileForm.demographic || user?.demographic || "general").replace('-', ' ')}</div>
+                  </div>
                 </div>
 
                 <div className="space-y-4">
@@ -139,7 +236,7 @@ const ProfilePage = () => {
       {/* Tabs Section */}
       <section className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="flex gap-2 mb-6 overflow-x-auto">
-          {['overview', 'analytics', 'achievements', 'history'].map((tab) => (
+          {['overview', 'account', 'analytics', 'achievements', 'history'].map((tab) => (
             <button
               key={tab}
               onClick={() => setSelectedTab(tab)}
@@ -150,12 +247,117 @@ const ProfilePage = () => {
               }`}
             >
               {tab === 'overview' && '📊 Overview'}
+              {tab === 'account' && '👤 Account Settings'}
               {tab === 'analytics' && '📈 Analytics'}
               {tab === 'achievements' && '🏆 Achievements'}
               {tab === 'history' && '� History'}
             </button>
           ))}
         </div>
+
+        {/* Account Tab */}
+        {selectedTab === 'account' && (
+          <Card className="p-6 bg-white shadow-lg">
+            <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
+              <span>👤</span>
+              <span>Manage Your Account</span>
+            </h3>
+            <p className="text-sm text-gray-600 mb-6">
+              Update your profile details. These values are shown across your dashboard.
+            </p>
+
+            {profileLoading && (
+              <div className="mb-4 text-sm text-gray-500">Loading account details...</div>
+            )}
+            {profileError && (
+              <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                {profileError}
+              </div>
+            )}
+            {profileSuccess && (
+              <div className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+                {profileSuccess}
+              </div>
+            )}
+
+            <form onSubmit={handleProfileSave} className="grid md:grid-cols-2 gap-4">
+              <label className="block">
+                <span className="mb-1 block text-sm font-medium text-gray-700">Full Name</span>
+                <input
+                  type="text"
+                  value={profileForm.name}
+                  onChange={(e) => handleProfileChange("name", e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  required
+                />
+              </label>
+
+              <label className="block">
+                <span className="mb-1 block text-sm font-medium text-gray-700">Email</span>
+                <input
+                  type="email"
+                  value={profileForm.email}
+                  onChange={(e) => handleProfileChange("email", e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  required
+                />
+              </label>
+
+              <label className="block">
+                <span className="mb-1 block text-sm font-medium text-gray-700">Phone</span>
+                <input
+                  type="tel"
+                  value={profileForm.phone}
+                  onChange={(e) => handleProfileChange("phone", e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  placeholder="10 to 13 digits"
+                  required
+                />
+              </label>
+
+              <label className="block">
+                <span className="mb-1 block text-sm font-medium text-gray-700">Gender</span>
+                <input
+                  type="text"
+                  value={profileForm.gender}
+                  onChange={(e) => handleProfileChange("gender", e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  required
+                />
+              </label>
+
+              <label className="block md:col-span-2">
+                <span className="mb-1 block text-sm font-medium text-gray-700">Dashboard Type</span>
+                <select
+                  value={profileForm.demographic}
+                  onChange={(e) => handleProfileChange("demographic", e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  required
+                >
+                  <option value="">Select your dashboard</option>
+                  <option value="student">Student</option>
+                  <option value="professional">Professional</option>
+                  <option value="senior-citizen">Senior Citizen</option>
+                  <option value="homemaker">Homemaker</option>
+                  <option value="rural">Rural User</option>
+                  {profileForm.demographic && !['student', 'professional', 'senior-citizen', 'homemaker', 'rural'].includes(profileForm.demographic) && (
+                    <option value={profileForm.demographic}>{profileForm.demographic}</option>
+                  )}
+                </select>
+              </label>
+
+              <div className="md:col-span-2 flex justify-end pt-2">
+                <button
+                  type="submit"
+                  disabled={savingProfile || profileLoading}
+                  className="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {savingProfile ? "Saving..." : "Save Profile"}
+                </button>
+              </div>
+            </form>
+          </Card>
+        )}
 
         {/* Overview Tab */}
         {selectedTab === 'overview' && (

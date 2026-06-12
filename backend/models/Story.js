@@ -36,6 +36,7 @@ const StorySchema = new mongoose.Schema({
 
 StorySchema.index({ userId: 1, createdAt: -1 });
 StorySchema.index({ createdAt: -1 });
+StorySchema.index({ tags: 1, createdAt: -1 });
 
 const Story = mongoose.model("Story", StorySchema);
 

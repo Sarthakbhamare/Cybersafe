@@ -2,6 +2,7 @@
 import mongoose from "mongoose";
 import Story from "../models/Story.js";
 import Comment from "../models/Comment.js";
+import User from "../models/User.js";
 import axios from "axios";
 import {
   redactPII,
@@ -13,13 +14,16 @@ import {
 
 // ML Service configuration - uses FastAPI service on port 8004
 const ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'http://localhost:8004';
+const NEW_USER_ACCOUNT_DAYS = 14;
+const NEW_USER_STORY_WINDOW_DAYS = 10;
 
 // Call ML prediction service
-async function detectScam(text, channel = 'general') {
+async function detectScam(text, channel = 'general', modelTier = 'standard') {
   try {
     const response = await axios.post(`${ML_SERVICE_URL}/predict-scam`, {
       text,
-      channel
+      channel,
+      modelTier,
     }, { timeout: 5000 });
     return response.data;
   } catch (error) {
@@ -29,8 +33,9 @@ async function detectScam(text, channel = 'general') {
       isScam: false,
       scamProbability: 0,
       riskLevel: 'low',
-      confidence: 'low',
-      channel
+      confidence: 0,
+      channel,
+      modelTier,
     };
   }
 }
@@ -38,31 +43,39 @@ async function detectScam(text, channel = 'general') {
 // Public detector endpoint (no auth) to analyze arbitrary text via ML service
 export const analyzeText = async (req, res) => {
   try {
-    const { text = '', channel = 'general' } = req.body || {};
+    const { text = '', channel = 'general', modelTier: requestedModelTier = 'standard' } = req.body || {};
     const payload = (text || '').trim();
     if (payload.length < 4) {
       return res.status(400).json({ error: 'Provide at least 4 characters to analyze.' });
     }
 
-    const result = await detectScam(payload, channel);
+    const modelTier = requestedModelTier === 'latest' ? 'latest' : 'standard';
 
-    // Normalize properties from ML Service
-    const isScam = result.is_scam === true || result.prediction === 'scam';
-    let probability = result.scam_probability ?? result.scamProbability;
+    const result = await detectScam(payload, channel, modelTier);
+
+    // Normalize properties from ML Service.
+    const predictionLabel = String(result.prediction || '').toLowerCase().trim();
+    const isPredictionScam = ["scam", "fraud", "phishing", "malicious"].some(
+      (token) => predictionLabel === token || predictionLabel.startsWith(`${token} `)
+    );
+    const isScam = result.is_scam === true || result.isScam === true || isPredictionScam;
+
+    let probability = result.scam_probability ?? result.scamProbability ?? result.probability;
     
     // Fallback probability calculation if not provided explicitly
     if (probability === undefined) {
-        if (result.prediction === 'scam') {
-            probability = result.confidence || 0;
-        } else if (result.prediction === 'legit') { // Assuming 'legit' for non-scam
-             // If confident it's legit, scam probability is low
-            probability = 1 - (result.confidence || 0);
-             // Clamp to 0
-            if (probability < 0) probability = 0;
-        } else {
-            probability = 0;
-        }
+      const confidence = Number(result.confidence);
+      if (Number.isFinite(confidence)) {
+        probability = isScam ? confidence : 1 - confidence;
+      } else {
+        probability = 0;
+      }
     }
+
+    probability = Number(probability);
+    if (!Number.isFinite(probability)) probability = 0;
+    if (probability > 1 && probability <= 100) probability = probability / 100;
+    probability = Math.min(1, Math.max(0, probability));
 
     // Determine Risk Level if not provided
     let risk = result.risk_level ?? result.riskLevel;
@@ -79,7 +92,9 @@ export const analyzeText = async (req, res) => {
       confidence: result.confidence ?? 0,
       channel: result.channel ?? channel,
       analyzedAt: new Date().toISOString(),
+      modelName: result.model_name ?? result.model ?? 'generalized',
       modelVersion: result.model_version ?? result.modelVersion ?? '3.0',
+      modelTierUsed: result.model_tier ?? result.modelTier ?? modelTier,
       raw: result,
     };
 
@@ -116,7 +131,7 @@ export const createStory = async (req, res) => {
       tags: sanitizeTags(tags),
       mlScamDetection: {
         isScam: scamAnalysis.is_scam || scamAnalysis.isScam,
-        scamProbability: scamAnalysis.scam_probability || scamAnalysis.scamProbability,
+        scamProbability: scamAnalysis.scam_probability ?? scamAnalysis.scamProbability ?? 0,
         riskLevel: scamAnalysis.risk_level || scamAnalysis.riskLevel,
         confidence: scamAnalysis.confidence,
         channel: scamAnalysis.channel,
@@ -146,6 +161,21 @@ export const getStories = async (req, res) => {
     const { page = 1, limit = 10, tag, user } = req.query;
     const q = {};
     if (tag && VALID_TAGS.has(String(tag))) q.tags = String(tag);
+
+    // For new users, keep timeline focused on recent stories (last 10 days).
+    if (!user && req.user?.id) {
+      const viewer = await User.findById(req.user.id).select('createdAt').lean();
+      if (viewer?.createdAt) {
+        const ageMs = Date.now() - new Date(viewer.createdAt).getTime();
+        const isNewUser = ageMs <= NEW_USER_ACCOUNT_DAYS * 24 * 60 * 60 * 1000;
+        if (isNewUser) {
+          q.createdAt = {
+            $gte: new Date(Date.now() - NEW_USER_STORY_WINDOW_DAYS * 24 * 60 * 60 * 1000),
+          };
+        }
+      }
+    }
+
     if (user) {
       if (user === "me") {
         if (!req.user || !req.user.id) {

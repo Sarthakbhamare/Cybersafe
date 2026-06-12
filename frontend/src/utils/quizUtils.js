@@ -316,7 +316,8 @@ export const saveQuizResult = (result) => {
 
 // Leaderboard management
 export const updateLeaderboard = (username, score, mode) => {
-  const leaderboard = JSON.parse(localStorage.getItem('leaderboard') || '{}');
+  ensureScopedMigration();
+  const leaderboard = JSON.parse(localStorage.getItem(keyFor('leaderboard')) || '{}');
   
   if (!leaderboard[mode]) {
     leaderboard[mode] = [];
@@ -341,13 +342,14 @@ export const updateLeaderboard = (username, score, mode) => {
   leaderboard[mode].sort((a, b) => b.score - a.score);
   leaderboard[mode] = leaderboard[mode].slice(0, 10);
   
-  localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+  localStorage.setItem(keyFor('leaderboard'), JSON.stringify(leaderboard));
   
   return leaderboard[mode];
 };
 
 export const getLeaderboard = (mode = 'all') => {
-  const leaderboard = JSON.parse(localStorage.getItem('leaderboard') || '{}');
+  ensureScopedMigration();
+  const leaderboard = JSON.parse(localStorage.getItem(keyFor('leaderboard')) || '{}');
   
   if (mode === 'all') {
     // Combine all modes and rank by total score

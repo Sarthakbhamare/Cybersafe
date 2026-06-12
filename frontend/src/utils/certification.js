@@ -2,6 +2,30 @@
 
 import { QUESTION_BANK, getRandomQuestions } from './questionBank';
 import { addXP } from './gamification';
+import { keyFor, ensureScopedMigration } from './userScopedStorage';
+
+const PRODUCTION_API_URL = "https://cybersafe-sfoz.onrender.com/api";
+const DEFAULT_API_URL = import.meta.env.DEV ? "/api" : PRODUCTION_API_URL;
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || DEFAULT_API_URL).replace(/\/$/, "");
+
+const syncCertificationToServer = async (payload) => {
+  const token = localStorage.getItem('token');
+  if (!token) return;
+
+  try {
+    await fetch(`${API_BASE}/auth/certification`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+        'x-auth-token': token,
+      },
+      body: JSON.stringify({ certification: payload }),
+    });
+  } catch (_) {
+    // Keep local state even when network sync fails.
+  }
+};
 
 // Certification Configuration
 export const CERTIFICATION_CONFIG = {
@@ -108,12 +132,8 @@ export const generateCertificateId = () => {
 /**
  * Save certification result
  */
-const keyFor = (base) => {
-  const uid = (typeof localStorage !== 'undefined' && (localStorage.getItem('userId') || localStorage.getItem('userEmail'))) || 'anon';
-  return `${base}_${uid}`;
-};
-
 export const saveCertificationResult = (result, timeTaken) => {
+  ensureScopedMigration();
   // Migrate legacy keys to user-scoped if needed
   try {
     const legacyCert = localStorage.getItem('certificate');
@@ -170,11 +190,31 @@ export const saveCertificationResult = (result, timeTaken) => {
 
     localStorage.setItem(certKey, JSON.stringify(certificate));
 
+    void syncCertificationToServer({
+      status: 'certified',
+      isCertified: true,
+      certificateId: certificate.id,
+      score: result.score,
+      issuedAt: certificate.issueDate,
+      expiryDate: certificate.expiryDate,
+      attempts,
+    });
+
     // Award XP for pass
     addXP(CERTIFICATION_CONFIG.XP_REWARD, 'Earned CyberSafe Certification');
 
     return { success: true, certificate };
   }
+
+  void syncCertificationToServer({
+    status: attempts.length >= CERTIFICATION_CONFIG.MAX_ATTEMPTS ? 'max_attempts_reached' : 'not_attempted',
+    isCertified: false,
+    certificateId: null,
+    score: result.score,
+    issuedAt: null,
+    expiryDate: null,
+    attempts,
+  });
 
   return { success: result.passed, attemptData };
 };
@@ -183,6 +223,7 @@ export const saveCertificationResult = (result, timeTaken) => {
  * Get certification status
  */
 export const getCertificationStatus = () => {
+  ensureScopedMigration();
   const certificate = JSON.parse(localStorage.getItem(keyFor('certificate')) || 'null');
   const attempts = JSON.parse(localStorage.getItem(keyFor('certificationAttempts')) || '[]');
   
@@ -213,6 +254,7 @@ export const getCertificationStatus = () => {
  * Get best attempt
  */
 export const getBestAttempt = () => {
+  ensureScopedMigration();
   const attempts = JSON.parse(localStorage.getItem(keyFor('certificationAttempts')) || '[]');
   
   if (attempts.length === 0) return null;
@@ -226,6 +268,7 @@ export const getBestAttempt = () => {
  * Generate certificate data for display/download
  */
 export const getCertificateData = () => {
+  ensureScopedMigration();
   const certificate = JSON.parse(localStorage.getItem(keyFor('certificate')) || 'null');
   const attempts = JSON.parse(localStorage.getItem(keyFor('certificationAttempts')) || '[]');
   

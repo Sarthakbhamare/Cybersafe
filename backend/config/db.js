@@ -8,7 +8,7 @@ const connectDB = async () => {
     console.warn(`[db] MONGODB_URI not set; falling back to ${DEFAULT_URI}`);
   }
   try {
-    await mongoose.connect(uri, { autoIndex: true });
+    await mongoose.connect(uri, { autoIndex: process.env.NODE_ENV !== "production" });
     console.log(`MongoDB connected (${uri})`);
   } catch (error) {
     console.error("MongoDB connection error:", error.message);

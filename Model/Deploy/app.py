@@ -1,6 +1,7 @@
 import os
 import re
 import math
+import sys
 import joblib
 import numpy as np
 import pandas as pd
@@ -12,6 +13,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uvicorn
 import tldextract
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
 
 # --- Configuration ---
 app = FastAPI(
@@ -45,12 +51,17 @@ SUSPICIOUS_TLDS = {
 # --- Data Models ---
 class TextRequest(BaseModel):
     text: str
+    channel: str | None = "general"
+    modelTier: str | None = "standard"
 
 class ScamPredictionResponse(BaseModel):
     input_text: str
     prediction: str
     confidence: float
     threat_indicators: dict
+    model_name: str
+    model_version: str
+    model_tier: str
 
 # --- Helper Functions ---
 def is_ip_address(domain):
@@ -162,24 +173,162 @@ def preprocess(text):
     t = re.sub(r'[^a-z0-9\s]', ' ', t)
     return re.sub(r'\s+', ' ', t).strip()
 
+def detect_takeover_patterns(text):
+    txt = str(text or "")
+    txt_l = txt.lower()
+
+    safe_education_context = bool(
+        re.search(r"\b(do not|don't|never|avoid)\s+share\s+(the\s+)?otp\b", txt_l)
+    )
+
+    otp_share_request = bool(
+        re.search(
+            r"\b(share|send|tell|provide|give|forward)\b.{0,24}\b(otp|code|pin)\b|"
+            r"\b(otp|code|pin)\b.{0,24}\b(share|send|tell|provide|give|forward)\b",
+            txt_l,
+        )
+    ) and not safe_education_context
+
+    account_block_threat = bool(
+        re.search(
+            r"\b(account|wallet|bank|upi|sim|number)\b.{0,35}"
+            r"\b(block|blocked|suspend|suspended|lock|locked|deactivate|disabled|freeze|frozen)\b",
+            txt_l,
+        )
+    )
+
+    urgent_time_pressure = bool(
+        re.search(
+            r"\b(urgent|immediately|right now|asap|within\s+\d+\s*"
+            r"(minute|minutes|min|mins|hour|hours))\b",
+            txt_l,
+        )
+    )
+
+    support_impersonation = bool(
+        re.search(r"\b(support|customer care|helpline|bank team|official team)\b", txt_l)
+    )
+
+    takeover_combo = int(otp_share_request) + int(account_block_threat) + int(urgent_time_pressure) + int(support_impersonation)
+
+    should_override = otp_share_request and (account_block_threat or urgent_time_pressure)
+
+    return {
+        "otp_share_request": otp_share_request,
+        "account_block_threat": account_block_threat,
+        "urgent_time_pressure": urgent_time_pressure,
+        "support_impersonation": support_impersonation,
+        "takeover_combo": takeover_combo,
+        "should_override": should_override,
+    }
+
+def is_low_context_identifier(text):
+    txt = str(text or "").strip()
+    if not txt:
+        return False
+
+    txt_l = txt.lower()
+    scam_keywords = [
+        "otp", "urgent", "blocked", "verify", "kyc", "bank", "account",
+        "click", "link", "suspend", "claim", "winner", "prize", "payment"
+    ]
+    if any(k in txt_l for k in scam_keywords):
+        return False
+
+    is_email = bool(re.fullmatch(r"[^\s@]+@[^\s@]+\.[^\s@]+", txt))
+    is_username_like = bool(re.fullmatch(r"[a-zA-Z0-9_.-]{3,40}(?:\s+\d{1,4})?", txt))
+    is_phone_like = bool(re.fullmatch(r"\+?\d{8,15}", txt))
+
+    return is_email or is_username_like or is_phone_like
+
 # --- Load Models ---
 current_dir = os.path.dirname(os.path.abspath(__file__))
 artifacts_dir = os.path.join(current_dir, "..", "artifacts")
 
-try:
-    model = joblib.load(os.path.join(artifacts_dir, "scam_detector_generalized.joblib"))
-    vectorizer = joblib.load(os.path.join(artifacts_dir, "tfidf_vectorizer_generalized.joblib"))
-    scaler = joblib.load(os.path.join(artifacts_dir, "feature_scaler_generalized.joblib"))
-    print("[OK] Generalized model loaded successfully!")
-except Exception as e:
-    print(f"[ERROR] Error loading model: {e}")
-    model = None
-    vectorizer = None
-    scaler = None
+MODEL_BUNDLES = {}
 
-def predict_message(text):
-    if not model:
-        raise Exception("Model not loaded")
+def load_bundle(tier, model_file, vectorizer_file, scaler_file, model_name, model_version):
+    try:
+        model_obj = joblib.load(os.path.join(artifacts_dir, model_file))
+        vectorizer_obj = joblib.load(os.path.join(artifacts_dir, vectorizer_file))
+        scaler_obj = joblib.load(os.path.join(artifacts_dir, scaler_file))
+
+        # Smoke-test compatibility so we don't advertise a tier that can't infer.
+        sample_text = "This is a model compatibility check message."
+        sample_txt = vectorizer_obj.transform([preprocess(sample_text)])
+        sample_feats = scaler_obj.transform(pd.DataFrame([extract_domain_features(sample_text)]))
+        sample_input = hstack([sample_txt, csr_matrix(sample_feats)])
+        _ = model_obj.predict(sample_input)[0]
+
+        MODEL_BUNDLES[tier] = {
+            "model": model_obj,
+            "vectorizer": vectorizer_obj,
+            "scaler": scaler_obj,
+            "name": model_name,
+            "version": model_version,
+            "tier": tier,
+        }
+        print(f"[OK] {tier} model loaded: {model_name} v{model_version}")
+    except Exception as e:
+        print(f"[WARN] Could not enable {tier} model bundle: {e}")
+
+load_bundle(
+    tier="standard",
+    model_file="scam_detector_generalized.joblib",
+    vectorizer_file="tfidf_vectorizer_generalized.joblib",
+    scaler_file="feature_scaler_generalized.joblib",
+    model_name="generalized",
+    model_version="3.0"
+)
+
+# Optional latest tier: falls back to standard if unavailable.
+load_bundle(
+    tier="latest",
+    model_file="scam_detector_xgboost.joblib",
+    vectorizer_file="vectorizer_xgboost.joblib",
+    scaler_file="feature_scaler_xgboost.joblib",
+    model_name="xgboost",
+    model_version="xgb-1"
+)
+
+def resolve_bundle(requested_tier="standard"):
+    desired = (requested_tier or "standard").lower()
+    if desired == "latest" and "latest" in MODEL_BUNDLES:
+        return MODEL_BUNDLES["latest"]
+    if "standard" in MODEL_BUNDLES:
+        return MODEL_BUNDLES["standard"]
+    if MODEL_BUNDLES:
+        return next(iter(MODEL_BUNDLES.values()))
+    return None
+
+def predict_message(text, requested_tier="standard"):
+    bundle = resolve_bundle(requested_tier)
+    if not bundle:
+        raise Exception("No model bundle loaded")
+
+    model = bundle["model"]
+    vectorizer = bundle["vectorizer"]
+    scaler = bundle["scaler"]
+
+    # Guard against false positives when user submits only identifiers
+    # (username/email/number) without scam context.
+    if is_low_context_identifier(text):
+        indicators = {
+            "ip_based_url": False,
+            "url_shortener": False,
+            "suspicious_tld": False,
+            "suspicious_pattern": False,
+            "urgency_keywords": False,
+            "high_entropy_domain": False,
+            "otp_share_request": False,
+            "account_block_threat": False,
+            "urgent_time_pressure": False,
+            "support_impersonation": False,
+            "rule_override": False,
+            "low_context_identifier": True,
+            "total_red_flags": 0,
+        }
+        return 0, 0.05, indicators, bundle
         
     X_txt = vectorizer.transform([preprocess(text)])
     feats = extract_domain_features(text)
@@ -188,6 +337,16 @@ def predict_message(text):
     
     pred = model.predict(X)[0]
     prob = model.predict_proba(X)[0, 1]
+
+    takeover = detect_takeover_patterns(text)
+
+    # Hybrid safety guardrail: force obvious OTP takeover attempts to scam.
+    if takeover["should_override"]:
+        pred = 1
+        prob = max(float(prob), 0.90)
+    elif takeover["takeover_combo"] >= 3 and float(prob) < 0.80:
+        pred = 1
+        prob = max(float(prob), 0.82)
     
     indicators = {
         "ip_based_url": bool(feats['has_ip_url']),
@@ -196,13 +355,21 @@ def predict_message(text):
         "suspicious_pattern": bool(feats['has_suspicious_pattern']),
         "urgency_keywords": bool(feats['has_urgency']),
         "high_entropy_domain": feats['avg_domain_entropy'] > 3.5,
+        "otp_share_request": takeover["otp_share_request"],
+        "account_block_threat": takeover["account_block_threat"],
+        "urgent_time_pressure": takeover["urgent_time_pressure"],
+        "support_impersonation": takeover["support_impersonation"],
+        "rule_override": takeover["should_override"],
+        "low_context_identifier": False,
         "total_red_flags": sum([
             feats['has_ip_url'], feats['has_url_shortener'], 
             feats['has_suspicious_tld'], feats['has_suspicious_pattern'], 
-            feats['has_urgency'], 1 if feats['avg_domain_entropy'] > 3.5 else 0
+            feats['has_urgency'], 1 if feats['avg_domain_entropy'] > 3.5 else 0,
+            int(takeover["otp_share_request"]), int(takeover["account_block_threat"]),
+            int(takeover["urgent_time_pressure"]), int(takeover["support_impersonation"]),
         ])
     }
-    return pred, prob, indicators
+    return pred, prob, indicators, bundle
 
 # --- API Endpoints ---
 @app.get("/", response_class=HTMLResponse)
@@ -221,19 +388,28 @@ async def root():
 @app.post("/predict-scam", response_model=ScamPredictionResponse)
 async def predict_scam(req: TextRequest):
     try:
-        pred, conf, indicators = predict_message(req.text)
+        pred, conf, indicators, bundle = predict_message(req.text, req.modelTier)
         return ScamPredictionResponse(
             input_text=req.text,
             prediction="scam" if pred == 1 else "not a scam",
             confidence=float(conf if pred == 1 else 1 - conf),
-            threat_indicators=indicators
+            threat_indicators=indicators,
+            model_name=bundle["name"],
+            model_version=bundle["version"],
+            model_tier=bundle["tier"],
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/health")
 async def health():
-    return {"status": "healthy", "model": "generalized", "version": "3.0"}
+    active_standard = MODEL_BUNDLES.get("standard")
+    return {
+        "status": "healthy",
+        "model": active_standard["name"] if active_standard else "unavailable",
+        "version": active_standard["version"] if active_standard else "unknown",
+        "available_tiers": list(MODEL_BUNDLES.keys()),
+    }
 
 if __name__ == "__main__":
     print("="*80)

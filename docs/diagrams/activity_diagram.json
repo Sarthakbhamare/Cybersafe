@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "1.0.0",
+  "project": "CyberSafe AI",
+  "activityDiagrams": [
+    {
+      "id": "ACT-01",
+      "name": "CyberSafe Message Analysis Activity",
+      "notation": "UML Activity",
+      "swimlanes": [
+        "User",
+        "Frontend",
+        "Backend API",
+        "ML Service",
+        "Database"
+      ],
+      "nodes": [
+        { "id": "N1", "type": "start", "lane": "User", "label": "Start" },
+        { "id": "N2", "type": "action", "lane": "User", "label": "Enter suspicious content" },
+        { "id": "N3", "type": "action", "lane": "Frontend", "label": "Validate input" },
+        { "id": "N4", "type": "decision", "lane": "Frontend", "label": "Input valid?" },
+        { "id": "N5", "type": "action", "lane": "Frontend", "label": "Show validation error" },
+        { "id": "N6", "type": "action", "lane": "Backend API", "label": "Authenticate, sanitize, redact" },
+        { "id": "N7", "type": "action", "lane": "Backend API", "label": "Call ML inference endpoint" },
+        { "id": "N8", "type": "action", "lane": "ML Service", "label": "Preprocess, vectorize, infer" },
+        { "id": "N9", "type": "decision", "lane": "ML Service", "label": "Prediction successful?" },
+        { "id": "N10", "type": "action", "lane": "Backend API", "label": "Build fallback response" },
+        { "id": "N11", "type": "action", "lane": "Backend API", "label": "Map risk and advisory" },
+        { "id": "N12", "type": "action", "lane": "Database", "label": "Store analysis metadata" },
+        { "id": "N13", "type": "action", "lane": "Frontend", "label": "Render result and explanation" },
+        { "id": "N14", "type": "decision", "lane": "User", "label": "Submit story or feedback?" },
+        { "id": "N15", "type": "action", "lane": "Backend API", "label": "Persist story/reaction" },
+        { "id": "N16", "type": "end", "lane": "User", "label": "End" }
+      ],
+      "transitions": [
+        { "from": "N1", "to": "N2" },
+        { "from": "N2", "to": "N3" },
+        { "from": "N3", "to": "N4" },
+        { "from": "N4", "to": "N5", "guard": "No" },
+        { "from": "N5", "to": "N2" },
+        { "from": "N4", "to": "N6", "guard": "Yes" },
+        { "from": "N6", "to": "N7" },
+        { "from": "N7", "to": "N8" },
+        { "from": "N8", "to": "N9" },
+        { "from": "N9", "to": "N10", "guard": "No" },
+        { "from": "N9", "to": "N11", "guard": "Yes" },
+        { "from": "N10", "to": "N12" },
+        { "from": "N11", "to": "N12" },
+        { "from": "N12", "to": "N13" },
+        { "from": "N13", "to": "N14" },
+        { "from": "N14", "to": "N15", "guard": "Yes" },
+        { "from": "N14", "to": "N16", "guard": "No" },
+        { "from": "N15", "to": "N16" }
+      ]
+    }
+  ]
+}

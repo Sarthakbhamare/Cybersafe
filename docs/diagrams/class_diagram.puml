@@ -1,0 +1,58 @@
+@startuml
+title CyberSafe - Core Domain Class Diagram
+
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam backgroundColor #FCFCFC
+skinparam class {
+  BorderColor #3A3A3A
+  FontColor #1F2937
+  BackgroundColor #EEF2FF
+}
+
+package "Domain Model" #EAF4FF {
+class User <<entity>> {
+  -id: ObjectId
+  -name: String
+  -email: String
+  -demographic: String
+  +submitStory(text: String): Story
+  +requestScan(input: String): ScanResult
+}
+
+class Story <<entity>> {
+  -id: ObjectId
+  -textRedacted: String
+  -riskLevel: String
+  -createdAt: Date
+  +addComment(text: String): Comment
+}
+
+class Comment <<entity>> {
+  -id: ObjectId
+  -textRedacted: String
+  -createdAt: Date
+}
+
+class ChatHistory <<entity>> {
+  -userId: ObjectId
+  -messages: List
+  +appendMessage(role: String, content: String): void
+}
+
+class ScanResult <<value object>> {
+  -inputText: String
+  -score: Float
+  -label: String
+  +isHighRisk(): Boolean
+}
+}
+
+User "1" --> "0..*" Story : creates
+Story "1" *-- "0..*" Comment : contains
+User "1" o-- "0..1" ChatHistory : owns
+User "1" --> "0..*" ScanResult : generates
+User "1" --> "0..*" Comment : writes
+
+@enduml

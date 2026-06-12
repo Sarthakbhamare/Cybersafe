@@ -1,0 +1,28 @@
+@startuml
+title CyberSafe - Core Activity Flow
+
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam backgroundColor #FCFCFC
+skinparam ArrowColor #374151
+skinparam ActivityBorderColor #3A3A3A
+skinparam ActivityBackgroundColor #F9FAFB
+skinparam DiamondBorderColor #3A3A3A
+skinparam DiamondBackgroundColor #FFF7ED
+skinparam linetype ortho
+
+(*) -right-> "User enters suspicious input"
+-right-> "Backend API sends input to ML"
+-right-> "ML Service predicts risk score"
+-right-> "Backend API stores scan result"
+-right-> "Backend API returns risk result"
+-right-> "User views result"
+
+if "Need cyber guidance?" then
+  -right-> [Yes] "Chatbot provides safe guidance"
+  -right-> (*)
+else
+  -right-> [No] (*)
+endif
+
+@enduml

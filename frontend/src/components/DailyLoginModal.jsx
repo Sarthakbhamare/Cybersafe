@@ -23,6 +23,11 @@ const DailyLoginModal = () => {
   const [loginData, setLoginData] = useState(null);
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      return;
+    }
+
     // Check if should show daily login modal
     const result = processDailyLogin();
     
@@ -69,7 +74,7 @@ const DailyLoginModal = () => {
           <div>
             <div className="flex justify-between text-xs text-gray-600 mb-2">
               <span>Day {streakDay} of 7</span>
-              <span>{streakDay === 7 ? '🎁 Bonus Ready!' : 'Keep going!'}</span>
+              <span>{streakDay === 7 ? 'Great consistency!' : 'Keep going!'}</span>
             </div>
             <div className="bg-gray-200 rounded-full h-2">
               <div

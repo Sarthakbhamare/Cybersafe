@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "1.0.0",
+  "project": "CyberSafe AI",
+  "useCaseDiagrams": [
+    {
+      "id": "UCD-01",
+      "name": "CyberSafe Use Case Diagram",
+      "notation": "UML Use Case",
+      "systemBoundary": {
+        "name": "CyberSafe Platform",
+        "description": "Fraud detection and cybersecurity training system"
+      },
+      "actors": [
+        { "id": "A1", "name": "Guest User", "category": "primary" },
+        { "id": "A2", "name": "Registered User", "category": "primary" },
+        { "id": "A3", "name": "Moderator", "category": "secondary" },
+        { "id": "A4", "name": "ML Service", "category": "external_system" },
+        { "id": "A5", "name": "LLM Provider", "category": "external_system" }
+      ],
+      "useCases": [
+        { "id": "U1", "name": "Sign Up/Login" },
+        { "id": "U2", "name": "Analyze Suspicious Text or URL" },
+        { "id": "U3", "name": "View Risk Score and Explanation" },
+        { "id": "U4", "name": "Submit Anonymous Story" },
+        { "id": "U5", "name": "View Community Feed" },
+        { "id": "U6", "name": "React/Comment/Share Story" },
+        { "id": "U7", "name": "Attempt Quiz and Track Progress" },
+        { "id": "U8", "name": "Chat with CyberSafe Assistant" },
+        { "id": "U9", "name": "Moderate Community Content" },
+        { "id": "U10", "name": "Generate Detection Prediction" },
+        { "id": "U11", "name": "Generate Guardrailed Reply" }
+      ],
+      "relationships": {
+        "associations": [
+          { "actorId": "A1", "useCaseId": "U2" },
+          { "actorId": "A1", "useCaseId": "U3" },
+          { "actorId": "A1", "useCaseId": "U5" },
+          { "actorId": "A2", "useCaseId": "U1" },
+          { "actorId": "A2", "useCaseId": "U2" },
+          { "actorId": "A2", "useCaseId": "U3" },
+          { "actorId": "A2", "useCaseId": "U4" },
+          { "actorId": "A2", "useCaseId": "U5" },
+          { "actorId": "A2", "useCaseId": "U6" },
+          { "actorId": "A2", "useCaseId": "U7" },
+          { "actorId": "A2", "useCaseId": "U8" },
+          { "actorId": "A3", "useCaseId": "U9" },
+          { "actorId": "A4", "useCaseId": "U10" },
+          { "actorId": "A5", "useCaseId": "U11" }
+        ],
+        "includes": [
+          { "base": "U2", "included": "U10" },
+          { "base": "U2", "included": "U3" },
+          { "base": "U8", "included": "U11" }
+        ],
+        "extends": [
+          { "extension": "U6", "base": "U5", "condition": "authenticated user" },
+          { "extension": "U9", "base": "U5", "condition": "moderator role" }
+        ]
+      }
+    }
+  ]
+}

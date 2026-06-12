@@ -1,0 +1,63 @@
+@startuml
+left to right direction
+title CyberSafe - Core Data Flow
+
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam linetype ortho
+skinparam ranksep 50
+skinparam nodesep 40
+skinparam backgroundColor #FCFCFC
+
+skinparam rectangle {
+	RoundCorner 12
+	BorderColor #3A3A3A
+	FontColor #1F2937
+}
+
+skinparam database {
+	RoundCorner 18
+	BorderColor #3A3A3A
+	FontColor #1F2937
+}
+
+package "Client Layer" #EAF4FF {
+	rectangle "<b>End User</b>" as U #DDEEFF
+}
+
+package "Application Layer" #F3F4F6 {
+	rectangle "<b>Backend API</b>" as B #E5E7EB
+	rectangle "<b>ML Model Service</b>" as M #FDECC8
+	rectangle "<b>Cyber Chatbot</b>" as C #FFE7D6
+}
+
+package "Data Layer" #ECFDF3 {
+	database "<b>MongoDB</b>" as DB #D1FAE5
+	database "<b>Model Artifacts</b>" as ART #FEF3C7
+}
+
+U -[#2563EB,thickness=2]-> B : suspicious text or URL
+B -[#D97706,thickness=2]-> M : prediction request
+M -[#D97706,thickness=2]-> ART : load model
+M -[#B45309,thickness=2]-> B : risk score
+B -[#059669,thickness=2]-> DB : save scan result
+B -[#2563EB,thickness=2]-> U : risk result
+
+U -[#EA580C,thickness=2]-> C : ask cyber question
+C -[#059669,thickness=2]-> DB : save chat history
+C -[#EA580C,thickness=2]-> U : safe guidance
+
+U -[hidden]-> B
+B -[hidden]-> M
+M -[hidden]-> C
+
+legend right
+|= Color |= Meaning |
+|<#DDEEFF>| User interaction |
+|<#E5E7EB>| Core backend orchestration |
+|<#FDECC8>| ML inference path |
+|<#FFE7D6>| Chatbot guidance path |
+|<#D1FAE5>| Persistent storage |
+endlegend
+
+@enduml

@@ -1,0 +1,61 @@
+@startuml
+left to right direction
+title CyberSafe - Use Case Diagram
+
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam backgroundColor #FCFCFC
+skinparam packageStyle rectangle
+skinparam usecase {
+  BorderColor #3A3A3A
+  BackgroundColor #EEF2FF
+  FontColor #1F2937
+}
+skinparam actor {
+  BorderColor #1D4ED8
+  FontColor #1F2937
+}
+
+actor "Guest User" as A1
+actor "Registered User" as A2
+
+rectangle "CyberSafe Platform" {
+  package "Public Features" #EAF4FF {
+    usecase "Analyze Suspicious\nText or URL\n(ML scoring)" as U2
+    usecase "View Risk Score and\nExplanation" as U3
+    usecase "View Community Feed" as U5
+  }
+
+  package "Registered User Features" #F3F4F6 {
+    usecase "Sign Up/Login" as U1
+    usecase "Submit Anonymous Story" as U4
+    usecase "React/Comment/Share Story" as U6
+    usecase "Attempt Quiz and\nTrack Progress" as U7
+    usecase "Chat with CyberSafe\nAssistant\n(Guardrailed LLM)" as U8
+  }
+
+  database "CyberSafe Database" as DB
+}
+
+A2 --|> A1
+
+A1 --> U2
+A1 --> U3
+A1 --> U5
+
+A2 --> U1
+A2 --> U4
+A2 --> U6
+A2 --> U7
+A2 --> U8
+
+
+
+U1 --> DB
+U4 --> DB
+
+U6 --> DB
+U7 --> DB
+U8 --> DB
+
+@enduml

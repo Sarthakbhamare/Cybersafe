@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { COLORS, TYPOGRAPHY } from "../../design/studentPageTokens";
+import { useAuth } from "../../context/AuthContext";
 
 const Button = ({
   children,
@@ -168,6 +169,9 @@ const CertificationPreview = () => {
 };
 
 const StudentHero = () => {
+  const { user } = useAuth();
+  const displayName = user?.name || localStorage.getItem("userName") || "Learner";
+
   return (
     <section className={`relative overflow-hidden bg-gradient-to-br ${COLORS.primary.gradient}`}>
       <div className="container mx-auto px-4 py-16 max-w-7xl">
@@ -191,6 +195,10 @@ const StudentHero = () => {
               protect yourself from online threats through fun, engaging
               games.
             </p>
+
+            <div className="inline-flex items-center rounded-full border border-white/25 bg-white/10 px-4 py-2 text-sm font-medium text-white">
+              Welcome back, {displayName}
+            </div>
             
             <div className="flex flex-col sm:flex-row gap-4">
               <a href="#learning-section">

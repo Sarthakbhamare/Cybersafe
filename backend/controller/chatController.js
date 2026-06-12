@@ -1,12 +1,12 @@
 /**
  * CyberSafe Chatbot Controller
- * Uses Google Gemini API with strict cyber safety constraints
+ * Uses Ollama (primary) with Gemini fallback and strict cyber safety constraints
  * Saves chat history per user in MongoDB
  */
 
 import ChatHistory from '../models/ChatHistory.js';
 
-// System prompt to constrain Gemini to cyber safety topics only
+// System prompt to constrain responses to cyber safety topics only
 const SYSTEM_PROMPT = `You are CyberSafe Assistant, a cyber safety guide for Indian users.
 
 SCOPE (ONLY answer these topics):
@@ -29,81 +29,158 @@ STRICT RULES:
 7. Always mention cybercrime.gov.in or 1930 helpline when discussing reporting
 8. Use simple English, avoid jargon`;
 
+const DEFAULT_PROVIDER_ORDER = ['ollama', 'gemini'];
+
+const getProviderOrder = () => {
+  const raw = process.env.CHAT_PROVIDER_ORDER;
+  if (!raw) return DEFAULT_PROVIDER_ORDER;
+  const providers = raw
+    .split(',')
+    .map((value) => value.trim().toLowerCase())
+    .filter(Boolean);
+  return providers.length ? providers : DEFAULT_PROVIDER_ORDER;
+};
+
+const callGemini = async (message) => {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    const err = new Error('GEMINI_API_KEY not configured');
+    err.code = 'CONFIG';
+    throw err;
+  }
+
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            role: 'user',
+            parts: [
+              { text: `${SYSTEM_PROMPT}\n\nUser question: ${message}` }
+            ]
+          }
+        ],
+        generationConfig: {
+          temperature: 0.7,
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 1024,
+        },
+        safetySettings: [
+          { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+          { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+          { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+          { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+        ]
+      })
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    const err = new Error(errorData.error?.message || 'Gemini request failed');
+    err.status = response.status;
+    err.details = errorData;
+    throw err;
+  }
+
+  const data = await response.json();
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) {
+    throw new Error('Empty response from Gemini');
+  }
+  return text;
+};
+
+const callOllama = async (message) => {
+  const baseUrl = (process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434').replace(/\/$/, '');
+  const model = process.env.OLLAMA_MODEL || 'llama3.2:3b';
+
+  const response = await fetch(`${baseUrl}/api/chat`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model,
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'user', content: message }
+      ],
+      stream: false
+    })
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    const err = new Error(errorData.error || 'Ollama request failed');
+    err.status = response.status;
+    err.details = errorData;
+    throw err;
+  }
+
+  const data = await response.json();
+  const text = data.message?.content || data.response;
+  if (!text) {
+    throw new Error('Empty response from Ollama');
+  }
+  return text;
+};
+
 export const chatWithGemini = async (req, res) => {
   try {
     const { message } = req.body;
     const userId = req.user?.id; // From auth middleware
+    const trimmedMessage = typeof message === 'string' ? message.trim() : '';
     
-    if (!message || typeof message !== 'string' || message.trim().length === 0) {
+    if (!trimmedMessage) {
       return res.status(400).json({ error: 'Message is required' });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      console.error('GEMINI_API_KEY not found in environment');
-      return res.status(500).json({ error: 'Chat service not configured' });
+    const providers = getProviderOrder();
+    const handlerByProvider = {
+      ollama: callOllama,
+      gemini: callGemini,
+    };
+
+    let lastError = null;
+    let geminiRateLimited = false;
+    let text = null;
+
+    for (const provider of providers) {
+      const handler = handlerByProvider[provider];
+      if (!handler) continue;
+
+      try {
+        text = await handler(trimmedMessage);
+        break;
+      } catch (error) {
+        lastError = error;
+        if (provider === 'gemini' && error?.status === 429) {
+          geminiRateLimited = true;
+        }
+        console.error(`Chat provider ${provider} failed:`, error);
+      }
     }
 
-    // Call Gemini API
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              role: 'user',
-              parts: [
-                { text: SYSTEM_PROMPT + '\n\nUser question: ' + message.trim() }
-              ]
-            }
-          ],
-          generationConfig: {
-            temperature: 0.7,
-            topK: 40,
-            topP: 0.95,
-            maxOutputTokens: 1024,
-          },
-          safetySettings: [
-            { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-            { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-            { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-            { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-          ]
-        })
-      }
-    );
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('Gemini API error:', response.status, errorData);
-      
-      // If quota exceeded (429), provide a helpful fallback response
-      if (response.status === 429) {
+    if (!text) {
+      if (geminiRateLimited) {
         return res.json({
           response: `I'm temporarily unavailable due to high demand. Here are quick cyber safety tips:\n\n**Strong Passwords:** Use 12+ characters with uppercase, lowercase, numbers, and symbols. Never reuse passwords.\n\n**Avoid Phishing:** Don't click suspicious links. Check sender email addresses carefully.\n\n**Enable 2FA:** Turn on two-factor authentication for all important accounts.\n\n**Report Scams:** File complaints at cybercrime.gov.in or call 1930.\n\nPlease try again in a minute for personalized answers!`,
           timestamp: new Date().toISOString(),
           fallback: true
         });
       }
-      
-      return res.status(500).json({ 
-        error: 'Failed to get response from AI',
-        details: errorData.error?.message || 'Unknown error'
-      });
-    }
 
-    const data = await response.json();
-    
-    // Extract text from Gemini response
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    
-    if (!text) {
-      console.error('No text in Gemini response:', data);
-      return res.status(500).json({ error: 'Empty response from AI' });
+      return res.status(500).json({
+        error: 'Failed to get response from AI',
+        details: lastError?.message || 'Unknown error'
+      });
     }
 
     // Save chat history if user is authenticated
@@ -116,7 +193,7 @@ export const chatWithGemini = async (req, res) => {
         
         // Add user message and assistant response
         chatHistory.messages.push(
-          { role: 'user', content: message.trim() },
+          { role: 'user', content: trimmedMessage },
           { role: 'assistant', content: text }
         );
         

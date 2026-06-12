@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { post } from "../utils/apiClient";
+import { getGamificationStats, ML_MODEL_UNLOCK_XP } from "../utils/gamification";
 
 const channels = [
   { value: "general", label: "General" },
@@ -11,7 +12,7 @@ const channels = [
 const examples = [
   { id: "lottery", label: "Lottery Scam", text: "Congratulations! You've won Rs 5,00,000. Call +91 98765 43210 within 10 minutes to claim.", channel: "sms" },
   { id: "job", label: "Fake Job", text: "Dear Candidate, pay Rs 6,999 onboarding fee via secure link to confirm your job offer.", channel: "email" },
-  { id: "otp", label: "OTP Fraud", text: "Your account will be blocked. Share the OTP now to keep it active.", channel: "sms" },
+  { id: "otp", label: "OTP Fraud", text: "URGENT: Your account will be blocked in 15 minutes. Share the OTP now with support to keep it active.", channel: "sms" },
   { id: "kyc", label: "KYC Scam", text: "SBI Alert: Your account blocked today. Update KYC here: sbi-verify.in", channel: "sms" },
 ];
 
@@ -20,9 +21,19 @@ const formatPercent = (value) => `${Math.round((Number(value) || 0) * 100)}%`;
 const APIToolPage = () => {
   const [text, setText] = useState("");
   const [channel, setChannel] = useState("general");
+  const [modelTier, setModelTier] = useState("standard");
   const [result, setResult] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const totalXP = useMemo(() => {
+    try {
+      return getGamificationStats().totalXP || 0;
+    } catch {
+      return 0;
+    }
+  }, []);
+  const engagementProgress = Math.min(100, Math.round((totalXP / ML_MODEL_UNLOCK_XP) * 100));
 
   const riskConfig = useMemo(() => {
     if (!result) return null;
@@ -42,11 +53,12 @@ const APIToolPage = () => {
       setError("Enter at least 4 characters.");
       return;
     }
+
     setError("");
     setIsLoading(true);
     setResult(null);
     try {
-      const data = await post("/stories/detect", { text: payload, channel }, { auth: false });
+      const data = await post("/stories/detect", { text: payload, channel, modelTier });
       setResult(data);
     } catch (err) {
       setError(err?.message || "Failed to analyze. Please try again.");
@@ -93,6 +105,29 @@ const APIToolPage = () => {
                 </button>
               ))}
             </div>
+            <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-2 py-1">
+              <button
+                onClick={() => setModelTier("standard")}
+                className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
+                  modelTier === "standard" ? "bg-slate-800 text-white" : "text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                Standard Model
+              </button>
+              <button
+                onClick={() => setModelTier("latest")}
+                className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
+                  modelTier === "latest"
+                    ? "bg-cyan-600 text-white"
+                    : "text-cyan-700 hover:bg-cyan-50"
+                }`}
+              >
+                Latest Model (Open)
+              </button>
+            </div>
+          </div>
+          <div className="mt-2 text-xs text-slate-500">
+            Engagement milestone: {totalXP.toLocaleString()}/{ML_MODEL_UNLOCK_XP.toLocaleString()} XP ({engagementProgress}%).
           </div>
         </div>
       </div>
@@ -109,7 +144,7 @@ const APIToolPage = () => {
             </div>
             <div className="relative flex-1">
               <textarea
-                className="h-full w-full resize-none border-0 bg-transparent p-5 text-base text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-0"
+                className="scanner-input h-full w-full resize-none border-0 bg-transparent p-5 text-base text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-0 focus-visible:outline-none"
                 placeholder="Paste a suspicious message here to check if it's a scam..."
                 value={text}
                 onChange={(e) => setText(e.target.value)}
@@ -245,7 +280,8 @@ const APIToolPage = () => {
                   {/* Meta */}
                   <div className="flex flex-wrap justify-center gap-4 text-sm text-slate-500">
                     <span>Channel: <strong className="text-slate-700">{(result.channel || channel).toUpperCase()}</strong></span>
-                    <span>Model: <strong className="text-slate-700">v{result.modelVersion || "3.0"}</strong></span>
+                    <span>Model: <strong className="text-slate-700">{result.modelName || "generalized"} v{result.modelVersion || "3.0"}</strong></span>
+                    <span>Tier: <strong className="text-slate-700">{(result.modelTierUsed || modelTier).toUpperCase()}</strong></span>
                   </div>
 
                   {/* Safety Tips */}

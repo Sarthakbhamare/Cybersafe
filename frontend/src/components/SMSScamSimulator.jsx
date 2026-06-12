@@ -144,6 +144,7 @@ const SMS_SCAMS = [
 const SMSScamSimulator = () => {
   const [currentSMSIndex, setCurrentSMSIndex] = useState(0);
   const [foundRedFlags, setFoundRedFlags] = useState([]);
+  const [flagHotspots, setFlagHotspots] = useState({});
   const [showHints, setShowHints] = useState(false);
   const [completed, setCompleted] = useState(false);
   const [xpGained, setXpGained] = useState(0);
@@ -193,8 +194,10 @@ const SMSScamSimulator = () => {
     setParticles(prev => [...prev, ...newParticles]);
   };
 
-  const handleRedFlagClick = (redFlag, e) => {
-    if (!foundRedFlags.some(f => f.id === redFlag.id)) {
+  const handleRedFlagClick = (redFlag, e, hotspotKey) => {
+    if (!redFlag || !e) return;
+    const alreadyFound = foundRedFlags.some(f => f.id === redFlag.id);
+    if (!alreadyFound) {
       createRipple(e);
       
       // Create confetti at click position
@@ -203,6 +206,9 @@ const SMSScamSimulator = () => {
       
       const newFoundFlags = [...foundRedFlags, redFlag];
       setFoundRedFlags(newFoundFlags);
+      if (hotspotKey) {
+        setFlagHotspots((prev) => ({ ...prev, [redFlag.id]: hotspotKey }));
+      }
       
       // Show tooltip with explanation
       setActiveTooltip({ flag: redFlag, x: e.clientX, y: e.clientY });
@@ -227,6 +233,7 @@ const SMSScamSimulator = () => {
     if (currentSMSIndex < SMS_SCAMS.length - 1) {
       setCurrentSMSIndex(currentSMSIndex + 1);
       setFoundRedFlags([]);
+      setFlagHotspots({});
       setShowHints(false);
       setCompleted(false);
     }
@@ -235,6 +242,7 @@ const SMSScamSimulator = () => {
   const handleReset = () => {
     setCurrentSMSIndex(0);
     setFoundRedFlags([]);
+    setFlagHotspots({});
     setShowHints(false);
     setCompleted(false);
     setXpGained(0);
@@ -362,12 +370,12 @@ const SMSScamSimulator = () => {
                           const senderFlag = currentSMS.redFlags.find(f => 
                             f.id.includes('sender') || f.id.includes('tm_') || f.id.includes('unknown_number') || f.id.includes('international_number')
                           );
-                          if (senderFlag) handleRedFlagClick(senderFlag, e);
+                          if (senderFlag) handleRedFlagClick(senderFlag, e, 'sender');
                         }}
                         className="font-semibold hover:bg-white/20 px-2 py-1 rounded transition-all duration-200 w-full text-left transform hover:scale-105"
                       >
                         {currentSMS.sender}
-                        {foundRedFlags.some(f => f.id.includes('sender') || f.id.includes('tm_') || f.id.includes('unknown_number') || f.id.includes('international_number')) && 
+                        {Object.values(flagHotspots).includes('sender') && 
                           <span className="ml-2 animate-bounce inline-block">🚩</span>
                         }
                       </button>
@@ -385,8 +393,9 @@ const SMSScamSimulator = () => {
                   {/* Message Bubble */}
                   <div className="mb-4">
                     <div className="bg-white rounded-2xl rounded-tl-none p-4 shadow-sm max-w-[85%] inline-block">
-                      <div className="text-gray-900 leading-relaxed whitespace-pre-wrap">
+                      <div className="text-gray-900 leading-relaxed whitespace-pre-wrap cursor-default">
                         {currentSMS.message.split(/(\bhttps?:\/\/\S+|\bbit\.ly\/\S+|\b\d{10}@\w+|\b₹[\d,]+(?:\s+(?:lakhs?|crores?))?\b|\bOTP:\s*\d+|\b\+?\d{1,3}[-\s]?\d{4,5}[-\s]?\d{4,5}|\b\d+hrs?\b|\bblocked?\b|\bKYC\b|\burgent\w*\b|\bemergency\b|\bimmediately\b|\bCEO\b|\bHR\b|\bgift\s+cards?\b|\bAmazon\b|\breimburse\b|\bPriya\b|\bCongratulations?\b|\bwon\b|\blottery\b|\bKBC\b|\bclaim\b|\bprocessing\s+fee\b|\bMom\b|\bhospital\b|\bnew\s+number\b|\border\b|\bdispatched\b|\bcancel\b|\bcharged\b|\bALERT\b|\bSuspicious\s+activity\b|\bDubai\b|\bverify\b|\bAMAZIN\b)/gi).map((part, index) => {
+                          const hotspotKey = `msg-${index}`;
                           const isURL = /^(https?:\/\/|bit\.ly\/)/.test(part);
                           const isUPI = /\d{10}@\w+/.test(part);
                           const isAmount = /₹[\d,]+/.test(part);
@@ -397,39 +406,33 @@ const SMSScamSimulator = () => {
                           let isClickable = false;
 
                           if (isURL) {
-                            clickHandler = (e) => {
+                            clickHandler = (e, key) => {
                               const flag = currentSMS.redFlags.find(f => 
                                 f.id.includes('url') || f.id.includes('shortened') || f.id.includes('verify')
                               );
-                              if (flag) handleRedFlagClick(flag, e);
+                              if (flag) handleRedFlagClick(flag, e, key);
                             };
                             isClickable = true;
                           } else if (isUPI || isAmount || isOTP || isPhone) {
-                            clickHandler = (e) => {
+                            clickHandler = (e, key) => {
                               const flag = currentSMS.redFlags.find(f => 
                                 (isUPI && f.id.includes('gift_card')) ||
                                 (isAmount && (f.id.includes('upfront_fee') || f.id.includes('fake_order'))) ||
                                 (isOTP && f.id.includes('otp')) ||
                                 (isPhone && f.id.includes('fake_number'))
                               );
-                              if (flag) handleRedFlagClick(flag, e);
+                              if (flag) handleRedFlagClick(flag, e, key);
                             };
                             isClickable = true;
                           }
 
-                          const hasFoundFlag = foundRedFlags.some(f =>
-                            (isURL && (f.id.includes('url') || f.id.includes('shortened') || f.id.includes('verify'))) ||
-                            (isUPI && f.id.includes('gift_card')) ||
-                            (isAmount && (f.id.includes('upfront_fee') || f.id.includes('fake_order'))) ||
-                            (isOTP && f.id.includes('otp')) ||
-                            (isPhone && f.id.includes('fake_number'))
-                          );
+                          const hasFoundFlag = Object.values(flagHotspots).includes(hotspotKey);
 
                           if (isClickable) {
                             return (
                               <span
                                 key={index}
-                                onClick={(e) => clickHandler(e)}
+                                onClick={(e) => clickHandler(e, hotspotKey)}
                                 className={`cursor-pointer hover:bg-yellow-100 px-1 rounded transition-all duration-200 transform hover:scale-105 ${
                                   hasFoundFlag ? 'bg-emerald-100 font-semibold text-emerald-800 ring-2 ring-emerald-300' : isURL || isUPI || isPhone ? 'text-blue-600 underline decoration-2' : 'font-semibold'
                                 }`}
@@ -503,12 +506,16 @@ const SMSScamSimulator = () => {
                               );
                             }
                             
-                            const keywordFound = foundRedFlags.some(f => f.id === keywordFlag?.id);
+                            const keywordFound = Object.values(flagHotspots).includes(hotspotKey);
+
+                            if (!keywordFlag) {
+                              return <span key={index} className="cursor-default">{part}</span>;
+                            }
 
                             return (
                               <span
                                 key={index}
-                                onClick={(e) => keywordFlag && handleRedFlagClick(keywordFlag, e)}
+                                onClick={(e) => handleRedFlagClick(keywordFlag, e, hotspotKey)}
                                 className={`cursor-pointer hover:bg-yellow-100 px-1 rounded transition-all duration-200 transform hover:scale-105 ${keywordFound ? 'bg-emerald-100 font-semibold ring-2 ring-emerald-300' : ''}`}
                               >
                                 {part}
@@ -517,7 +524,7 @@ const SMSScamSimulator = () => {
                             );
                           }
 
-                          return <span key={index}>{part}</span>;
+                          return <span key={index} className="cursor-default">{part}</span>;
                         })}
                       </div>
                       <div className="text-xs text-gray-500 mt-2 text-right">{currentSMS.time}</div>

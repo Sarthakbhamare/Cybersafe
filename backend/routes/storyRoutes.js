@@ -11,7 +11,7 @@ import {
   reactComment,
   analyzeText,
 } from "../controller/storyController.js";
-import auth from "../middleware/auth.js";
+import auth, { optionalAuth } from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -25,8 +25,8 @@ router.get("/mine/list", auth, (req, res, next) => {
 router.post("/detect", analyzeText);
 
 router.post("/", auth, createStory);
-router.get("/", getStories);
-router.get("/:id", getStory);
+router.get("/", optionalAuth, getStories);
+router.get("/:id", optionalAuth, getStory);
 router.post("/:id/comments", auth, addComment);
 router.post("/:id/upvote", upvoteStory);
 router.post("/comments/:id/upvote", upvoteComment);

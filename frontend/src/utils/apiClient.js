@@ -1,7 +1,7 @@
 // Simple API client wrapper with auth + JSON handling
-// Production URL for GitHub Pages deployment
-const PRODUCTION_API_URL = "https://cybersafe-sfoz.onrender.com/api";
-const API_BASE = (import.meta.env.VITE_API_BASE_URL || PRODUCTION_API_URL).replace(/\/$/, '');
+import { API_BASE as CONFIG_API_BASE } from "../config/api";
+
+const API_BASE = (CONFIG_API_BASE || "").replace(/\/$/, "");
 
 export const apiClient = async (path, { method = 'GET', headers = {}, body, auth = true } = {}) => {
   const finalHeaders = { 'Content-Type': 'application/json', ...headers };

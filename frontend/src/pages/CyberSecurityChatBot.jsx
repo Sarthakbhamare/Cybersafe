@@ -1,4 +1,5 @@
 ﻿import React, { useState, useEffect, useRef } from 'react';
+import { post } from '../utils/apiClient';
 
 // ============ CYBER SAFETY CHATBOT CONFIGURATION ============
 
@@ -275,25 +276,8 @@ const CybersecurityChatbot = () => {
   };
 
   const callGeminiAPI = async (prompt) => {
-    // Call backend which proxies to Gemini API
-    // Use production URL for GitHub Pages deployment
-    const API_URL = import.meta.env.VITE_API_URL || 'https://cybersafe-sfoz.onrender.com';
-    
     try {
-      const response = await fetch(`${API_URL}/api/chat`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ message: prompt }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Failed to get response');
-      }
-
-      const data = await response.json();
+      const data = await post('/chat', { message: prompt });
       return data.response;
     } catch (error) {
       console.error('Gemini API error:', error);

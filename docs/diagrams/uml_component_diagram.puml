@@ -1,0 +1,56 @@
+@startuml
+left to right direction
+title CyberSafe - Core UML Component View
+
+skinparam componentStyle rectangle
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam backgroundColor #FCFCFC
+skinparam linetype ortho
+skinparam ranksep 45
+skinparam nodesep 35
+
+skinparam component {
+	BorderColor #3A3A3A
+	FontColor #1F2937
+	RoundCorner 12
+}
+
+skinparam database {
+	BorderColor #3A3A3A
+	FontColor #1F2937
+	RoundCorner 16
+}
+
+package "Client Layer" #EAF4FF {
+	component "Web Client\n(React + Vite)" as C1 #DDEEFF
+}
+
+package "Application Layer" #F3F4F6 {
+	component "API Gateway\n(Express.js)" as C2 #E5E7EB
+	component "ML Inference Service\n(Python)" as C3 #FDECC8
+	component "Cyber Chatbot Service" as C4 #FFE7D6
+}
+
+package "Data Layer" #ECFDF3 {
+	database "MongoDB" as C7 #D1FAE5
+	database "Model Artifacts" as C8 #FEF3C7
+}
+
+C1 -[#2563EB,thickness=2]-> C2 : REST API
+C2 -[#D97706,thickness=2]-> C3 : risk prediction
+C3 -[#D97706,thickness=2]-> C8 : load model
+C2 -[#EA580C,thickness=2]-> C4 : chat request
+C2 -[#059669,thickness=2]-> C7 : read/write data
+C4 -[#059669,thickness=2]-> C7 : save chat history
+
+legend right
+|= Color |= Meaning |
+|<#DDEEFF>| Client |
+|<#E5E7EB>| API core |
+|<#FDECC8>| ML service |
+|<#FFE7D6>| Chatbot service |
+|<#D1FAE5>| Main database |
+endlegend
+
+@enduml

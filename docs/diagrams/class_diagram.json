@@ -1,0 +1,171 @@
+{
+  "schemaVersion": "1.0.0",
+  "project": "CyberSafe AI",
+  "classDiagrams": [
+    {
+      "id": "CLS-01",
+      "name": "CyberSafe Domain Class Diagram",
+      "notation": "UML Class",
+      "layer": "Backend Domain Models",
+      "classes": [
+        {
+          "name": "User",
+          "source": "backend/models/User.js",
+          "attributes": [
+            { "name": "_id", "type": "ObjectId", "visibility": "private" },
+            { "name": "name", "type": "String", "visibility": "private" },
+            { "name": "gender", "type": "String", "visibility": "private" },
+            { "name": "email", "type": "String", "visibility": "private", "constraints": ["required", "unique"] },
+            { "name": "phone", "type": "String", "visibility": "private" },
+            { "name": "demographic", "type": "String", "visibility": "private" },
+            { "name": "password", "type": "String", "visibility": "private" },
+            { "name": "xp", "type": "Number", "visibility": "private", "default": 0 },
+            { "name": "lastLoginAt", "type": "Date", "visibility": "private" },
+            { "name": "certification", "type": "Certification", "visibility": "private" },
+            { "name": "createdAt", "type": "Date", "visibility": "private" },
+            { "name": "updatedAt", "type": "Date", "visibility": "private" }
+          ],
+          "operations": [
+            { "name": "indexByXp", "returnType": "Index", "visibility": "public" },
+            { "name": "indexByCreatedAt", "returnType": "Index", "visibility": "public" }
+          ]
+        },
+        {
+          "name": "Story",
+          "source": "backend/models/Story.js",
+          "attributes": [
+            { "name": "_id", "type": "ObjectId", "visibility": "private" },
+            { "name": "userId", "type": "ObjectId", "visibility": "private", "references": "User" },
+            { "name": "textRedacted", "type": "String", "visibility": "private" },
+            { "name": "textOriginal", "type": "String", "visibility": "private" },
+            { "name": "tags", "type": "String[]", "visibility": "private" },
+            { "name": "upvotes", "type": "Number", "visibility": "private" },
+            { "name": "reactions", "type": "ReactionStats", "visibility": "private" },
+            { "name": "reactionsByUser", "type": "Map<String,String>", "visibility": "private" },
+            { "name": "shares", "type": "ShareStats", "visibility": "private" },
+            { "name": "mlScamDetection", "type": "MlScamDetection", "visibility": "private" },
+            { "name": "createdAt", "type": "Date", "visibility": "private" }
+          ],
+          "operations": [
+            { "name": "indexByUserAndDate", "returnType": "Index", "visibility": "public" },
+            { "name": "indexByTagsAndDate", "returnType": "Index", "visibility": "public" }
+          ]
+        },
+        {
+          "name": "Comment",
+          "source": "backend/models/Comment.js",
+          "attributes": [
+            { "name": "_id", "type": "ObjectId", "visibility": "private" },
+            { "name": "userId", "type": "ObjectId", "visibility": "private", "references": "User" },
+            { "name": "storyId", "type": "ObjectId", "visibility": "private", "references": "Story" },
+            { "name": "textRedacted", "type": "String", "visibility": "private" },
+            { "name": "textOriginal", "type": "String", "visibility": "private" },
+            { "name": "upvotes", "type": "Number", "visibility": "private" },
+            { "name": "reactions", "type": "ReactionStats", "visibility": "private" },
+            { "name": "reactionsByUser", "type": "Map<String,String>", "visibility": "private" },
+            { "name": "createdAt", "type": "Date", "visibility": "private" }
+          ],
+          "operations": [
+            { "name": "indexByStoryAndDate", "returnType": "Index", "visibility": "public" }
+          ]
+        },
+        {
+          "name": "ChatHistory",
+          "source": "backend/models/ChatHistory.js",
+          "attributes": [
+            { "name": "_id", "type": "ObjectId", "visibility": "private" },
+            { "name": "userId", "type": "ObjectId", "visibility": "private", "references": "User" },
+            { "name": "messages", "type": "ChatMessage[]", "visibility": "private" },
+            { "name": "createdAt", "type": "Date", "visibility": "private" },
+            { "name": "updatedAt", "type": "Date", "visibility": "private" }
+          ],
+          "operations": [
+            { "name": "preSaveUpdateTimestamp", "returnType": "void", "visibility": "public" }
+          ]
+        },
+        {
+          "name": "IndicatorReport",
+          "source": "backend/models/IndicatorReport.js",
+          "attributes": [
+            { "name": "_id", "type": "ObjectId", "visibility": "private" },
+            { "name": "indicator", "type": "String", "visibility": "private" },
+            { "name": "normalizedIndicator", "type": "String", "visibility": "private", "constraints": ["required", "unique"] },
+            { "name": "indicatorType", "type": "String", "visibility": "private" },
+            { "name": "reports", "type": "IndicatorReportEntry[]", "visibility": "private" },
+            { "name": "totalReports", "type": "Number", "visibility": "private" },
+            { "name": "uniqueReporterCount", "type": "Number", "visibility": "private" },
+            { "name": "lastReportedAt", "type": "Date", "visibility": "private" },
+            { "name": "createdAt", "type": "Date", "visibility": "private" },
+            { "name": "updatedAt", "type": "Date", "visibility": "private" }
+          ],
+          "operations": [
+            { "name": "preSaveUpdateCounters", "returnType": "void", "visibility": "public" }
+          ]
+        },
+        {
+          "name": "IndicatorReportEntry",
+          "source": "embedded in IndicatorReport",
+          "attributes": [
+            { "name": "userId", "type": "ObjectId", "visibility": "private", "references": "User" },
+            { "name": "reportType", "type": "String", "visibility": "private" },
+            { "name": "description", "type": "String", "visibility": "private" },
+            { "name": "proofUrl", "type": "String", "visibility": "private" },
+            { "name": "createdAt", "type": "Date", "visibility": "private" },
+            { "name": "updatedAt", "type": "Date", "visibility": "private" }
+          ]
+        },
+        {
+          "name": "ChatMessage",
+          "source": "embedded in ChatHistory",
+          "attributes": [
+            { "name": "role", "type": "String", "visibility": "private" },
+            { "name": "content", "type": "String", "visibility": "private" },
+            { "name": "timestamp", "type": "Date", "visibility": "private" }
+          ]
+        },
+        {
+          "name": "Certification",
+          "source": "embedded in User",
+          "attributes": [
+            { "name": "status", "type": "String", "visibility": "private" },
+            { "name": "isCertified", "type": "Boolean", "visibility": "private" },
+            { "name": "certificateId", "type": "String", "visibility": "private" },
+            { "name": "score", "type": "Number", "visibility": "private" },
+            { "name": "issuedAt", "type": "Date", "visibility": "private" },
+            { "name": "expiryDate", "type": "Date", "visibility": "private" },
+            { "name": "attempts", "type": "CertificationAttempt[]", "visibility": "private" },
+            { "name": "updatedAt", "type": "Date", "visibility": "private" }
+          ]
+        },
+        {
+          "name": "CertificationAttempt",
+          "source": "embedded in Certification",
+          "attributes": [
+            { "name": "attemptNumber", "type": "Number", "visibility": "private" },
+            { "name": "date", "type": "Date", "visibility": "private" },
+            { "name": "score", "type": "Number", "visibility": "private" },
+            { "name": "passed", "type": "Boolean", "visibility": "private" },
+            { "name": "timeTaken", "type": "Number", "visibility": "private" }
+          ]
+        }
+      ],
+      "relationships": [
+        { "type": "association", "from": "User", "to": "Story", "multiplicity": "1 to many", "label": "creates" },
+        { "type": "association", "from": "User", "to": "Comment", "multiplicity": "1 to many", "label": "writes" },
+        { "type": "association", "from": "Story", "to": "Comment", "multiplicity": "1 to many", "label": "has" },
+        { "type": "association", "from": "User", "to": "ChatHistory", "multiplicity": "1 to 1", "label": "owns" },
+        { "type": "composition", "from": "ChatHistory", "to": "ChatMessage", "multiplicity": "1 to many", "label": "contains" },
+        { "type": "composition", "from": "User", "to": "Certification", "multiplicity": "1 to 1", "label": "embeds" },
+        { "type": "composition", "from": "Certification", "to": "CertificationAttempt", "multiplicity": "1 to many", "label": "records" },
+        { "type": "association", "from": "IndicatorReport", "to": "IndicatorReportEntry", "multiplicity": "1 to many", "label": "includes" },
+        { "type": "association", "from": "User", "to": "IndicatorReportEntry", "multiplicity": "1 to many", "label": "reports" }
+      ],
+      "constraints": [
+        { "class": "User", "rule": "email must be unique" },
+        { "class": "IndicatorReport", "rule": "normalizedIndicator must be unique" },
+        { "class": "Comment", "rule": "storyId is required" },
+        { "class": "Story", "rule": "userId is required" }
+      ]
+    }
+  ]
+}

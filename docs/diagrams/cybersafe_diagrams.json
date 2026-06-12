@@ -1,0 +1,334 @@
+{
+  "schemaVersion": "1.0.0",
+  "project": "CyberSafe AI",
+  "generatedFor": "B.Tech Project Report",
+  "diagramBundle": {
+    "dataFlowDiagram": {
+      "name": "CyberSafe Data Flow Diagram (Level-1)",
+      "notation": "DFD",
+      "layout": {
+        "direction": "LR",
+        "grid": 40,
+        "optimizeCrossLinks": true,
+        "grouping": "layered"
+      },
+      "entities": [
+        {
+          "id": "E1",
+          "type": "external_entity",
+          "label": "End User",
+          "x": 80,
+          "y": 220
+        },
+        {
+          "id": "E2",
+          "type": "external_entity",
+          "label": "Community Moderator",
+          "x": 80,
+          "y": 420
+        },
+        {
+          "id": "E3",
+          "type": "external_entity",
+          "label": "Threat Intel Source (Future)",
+          "x": 80,
+          "y": 620
+        }
+      ],
+      "processes": [
+        {
+          "id": "P1",
+          "type": "process",
+          "label": "P1: Input & Authentication",
+          "x": 360,
+          "y": 160,
+          "tech": ["React", "Express", "JWT"]
+        },
+        {
+          "id": "P2",
+          "type": "process",
+          "label": "P2: Preprocessing & PII Redaction",
+          "x": 360,
+          "y": 300,
+          "tech": ["Express", "helper.js"]
+        },
+        {
+          "id": "P3",
+          "type": "process",
+          "label": "P3: Scam Inference Service",
+          "x": 360,
+          "y": 440,
+          "tech": ["Python", "Flask/FastAPI", "scikit-learn"]
+        },
+        {
+          "id": "P4",
+          "type": "process",
+          "label": "P4: Risk Scoring & Advisory Generation",
+          "x": 360,
+          "y": 580,
+          "tech": ["Express", "Rule Engine"]
+        },
+        {
+          "id": "P5",
+          "type": "process",
+          "label": "P5: Community Feed & Learning Module",
+          "x": 700,
+          "y": 300,
+          "tech": ["React", "Express", "Quiz Engine"]
+        },
+        {
+          "id": "P6",
+          "type": "process",
+          "label": "P6: Chatbot Safety Assistant",
+          "x": 700,
+          "y": 500,
+          "tech": ["Express", "Gemini/Ollama", "Guardrails"]
+        }
+      ],
+      "dataStores": [
+        {
+          "id": "D1",
+          "type": "data_store",
+          "label": "D1: User & Auth Store",
+          "x": 1040,
+          "y": 150,
+          "tech": ["MongoDB", "User Model"]
+        },
+        {
+          "id": "D2",
+          "type": "data_store",
+          "label": "D2: Story & Comment Store",
+          "x": 1040,
+          "y": 300,
+          "tech": ["MongoDB", "Story/Comment Models"]
+        },
+        {
+          "id": "D3",
+          "type": "data_store",
+          "label": "D3: Chat History Store",
+          "x": 1040,
+          "y": 460,
+          "tech": ["MongoDB", "ChatHistory"]
+        },
+        {
+          "id": "D4",
+          "type": "data_store",
+          "label": "D4: ML Artifacts Store",
+          "x": 1040,
+          "y": 620,
+          "tech": ["joblib", "model/vectorizer/thresholds"]
+        }
+      ],
+      "flows": [
+        { "id": "F1", "from": "E1", "to": "P1", "label": "credentials, input text, URL" },
+        { "id": "F2", "from": "P1", "to": "D1", "label": "user profile, auth token metadata" },
+        { "id": "F3", "from": "P1", "to": "P2", "label": "validated payload" },
+        { "id": "F4", "from": "P2", "to": "P3", "label": "normalized text + channel" },
+        { "id": "F5", "from": "P3", "to": "D4", "label": "load model/vectorizer/threshold" },
+        { "id": "F6", "from": "P3", "to": "P4", "label": "scam probability + risk signals" },
+        { "id": "F7", "from": "P4", "to": "P5", "label": "advisory + flags + recommendations" },
+        { "id": "F8", "from": "P5", "to": "D2", "label": "redacted stories/comments/reactions" },
+        { "id": "F9", "from": "P5", "to": "E1", "label": "risk result + learning feedback" },
+        { "id": "F10", "from": "E1", "to": "P6", "label": "cyber-safety queries" },
+        { "id": "F11", "from": "P6", "to": "D3", "label": "conversation logs" },
+        { "id": "F12", "from": "P6", "to": "E1", "label": "guardrailed response" },
+        { "id": "F13", "from": "E2", "to": "P5", "label": "moderation actions" },
+        { "id": "F14", "from": "E3", "to": "P4", "label": "threat feed updates (future)" }
+      ]
+    },
+    "useCaseDiagram": {
+      "name": "CyberSafe Use Case Diagram",
+      "notation": "UML Use Case",
+      "systemBoundary": "CyberSafe Platform",
+      "actors": [
+        { "id": "A1", "label": "Guest User", "category": "primary" },
+        { "id": "A2", "label": "Registered User", "category": "primary" },
+        { "id": "A3", "label": "Moderator", "category": "secondary" },
+        { "id": "A4", "label": "ML Service", "category": "external_system" },
+        { "id": "A5", "label": "LLM Provider", "category": "external_system" }
+      ],
+      "useCases": [
+        { "id": "U1", "label": "Sign Up / Login" },
+        { "id": "U2", "label": "Analyze Suspicious Text/URL" },
+        { "id": "U3", "label": "View Risk Score & Explanation" },
+        { "id": "U4", "label": "Submit Anonymous Story" },
+        { "id": "U5", "label": "View Community Feed" },
+        { "id": "U6", "label": "React/Comment/Share Story" },
+        { "id": "U7", "label": "Attempt Quiz & Track Progress" },
+        { "id": "U8", "label": "Chat with CyberSafe Assistant" },
+        { "id": "U9", "label": "Moderate Community Content" },
+        { "id": "U10", "label": "Generate Detection Prediction" },
+        { "id": "U11", "label": "Generate Guardrailed Reply" }
+      ],
+      "relations": {
+        "associations": [
+          { "actorId": "A1", "useCaseId": "U2" },
+          { "actorId": "A1", "useCaseId": "U3" },
+          { "actorId": "A1", "useCaseId": "U5" },
+          { "actorId": "A2", "useCaseId": "U1" },
+          { "actorId": "A2", "useCaseId": "U2" },
+          { "actorId": "A2", "useCaseId": "U3" },
+          { "actorId": "A2", "useCaseId": "U4" },
+          { "actorId": "A2", "useCaseId": "U5" },
+          { "actorId": "A2", "useCaseId": "U6" },
+          { "actorId": "A2", "useCaseId": "U7" },
+          { "actorId": "A2", "useCaseId": "U8" },
+          { "actorId": "A3", "useCaseId": "U9" },
+          { "actorId": "A4", "useCaseId": "U10" },
+          { "actorId": "A5", "useCaseId": "U11" }
+        ],
+        "includes": [
+          { "base": "U2", "included": "U10" },
+          { "base": "U2", "included": "U3" },
+          { "base": "U8", "included": "U11" }
+        ],
+        "extends": [
+          { "extension": "U6", "base": "U5", "condition": "authenticated user" },
+          { "extension": "U9", "base": "U5", "condition": "moderator role" }
+        ]
+      }
+    },
+    "activityDiagram": {
+      "name": "CyberSafe Message Analysis Activity Diagram",
+      "notation": "UML Activity",
+      "swimlanes": [
+        "User",
+        "Frontend",
+        "Backend API",
+        "ML Service",
+        "Database"
+      ],
+      "nodes": [
+        { "id": "N1", "type": "start", "lane": "User", "label": "Start" },
+        { "id": "N2", "type": "action", "lane": "User", "label": "Enter suspicious content" },
+        { "id": "N3", "type": "action", "lane": "Frontend", "label": "Validate input format" },
+        { "id": "N4", "type": "decision", "lane": "Frontend", "label": "Input valid?" },
+        { "id": "N5", "type": "action", "lane": "Frontend", "label": "Show validation error" },
+        { "id": "N6", "type": "action", "lane": "Backend API", "label": "Authenticate + sanitize + redact" },
+        { "id": "N7", "type": "action", "lane": "Backend API", "label": "Call ML inference endpoint" },
+        { "id": "N8", "type": "action", "lane": "ML Service", "label": "Preprocess + vectorize + infer" },
+        { "id": "N9", "type": "decision", "lane": "ML Service", "label": "Prediction successful?" },
+        { "id": "N10", "type": "action", "lane": "Backend API", "label": "Build fallback low-risk response" },
+        { "id": "N11", "type": "action", "lane": "Backend API", "label": "Map probability to risk/advisory" },
+        { "id": "N12", "type": "action", "lane": "Database", "label": "Store analysis metadata" },
+        { "id": "N13", "type": "action", "lane": "Frontend", "label": "Render risk badge + explanation" },
+        { "id": "N14", "type": "decision", "lane": "User", "label": "Submit story/feedback?" },
+        { "id": "N15", "type": "action", "lane": "Backend API", "label": "Persist story/reaction" },
+        { "id": "N16", "type": "end", "lane": "User", "label": "End" }
+      ],
+      "transitions": [
+        { "from": "N1", "to": "N2" },
+        { "from": "N2", "to": "N3" },
+        { "from": "N3", "to": "N4" },
+        { "from": "N4", "to": "N5", "guard": "No" },
+        { "from": "N5", "to": "N2" },
+        { "from": "N4", "to": "N6", "guard": "Yes" },
+        { "from": "N6", "to": "N7" },
+        { "from": "N7", "to": "N8" },
+        { "from": "N8", "to": "N9" },
+        { "from": "N9", "to": "N10", "guard": "No" },
+        { "from": "N9", "to": "N11", "guard": "Yes" },
+        { "from": "N10", "to": "N12" },
+        { "from": "N11", "to": "N12" },
+        { "from": "N12", "to": "N13" },
+        { "from": "N13", "to": "N14" },
+        { "from": "N14", "to": "N15", "guard": "Yes" },
+        { "from": "N14", "to": "N16", "guard": "No" },
+        { "from": "N15", "to": "N16" }
+      ]
+    },
+    "umlComponentDiagram": {
+      "name": "CyberSafe UML Component Diagram",
+      "notation": "UML Component",
+      "components": [
+        {
+          "id": "C1",
+          "name": "Web Client",
+          "stereotype": "<<component>>",
+          "technology": "React + Vite",
+          "provides": ["User Interface"],
+          "requires": ["REST API"]
+        },
+        {
+          "id": "C2",
+          "name": "API Gateway",
+          "stereotype": "<<component>>",
+          "technology": "Express.js",
+          "provides": ["Auth API", "Story API", "Chat API", "Reputation API"],
+          "requires": ["MongoDB", "ML Inference", "LLM Provider"]
+        },
+        {
+          "id": "C3",
+          "name": "Auth Module",
+          "stereotype": "<<subsystem>>",
+          "technology": "JWT + bcryptjs",
+          "provides": ["Token Issuance", "Route Guard"],
+          "requires": ["User Store"]
+        },
+        {
+          "id": "C4",
+          "name": "Story & Community Module",
+          "stereotype": "<<subsystem>>",
+          "technology": "Express Controllers",
+          "provides": ["Story CRUD", "Reactions", "Comments"],
+          "requires": ["PII Redaction", "Story Store", "ML Score Adapter"]
+        },
+        {
+          "id": "C5",
+          "name": "Chatbot Module",
+          "stereotype": "<<subsystem>>",
+          "technology": "Provider Router",
+          "provides": ["Guardrailed Cyber Chat"],
+          "requires": ["Gemini/Ollama", "Chat Store"]
+        },
+        {
+          "id": "C6",
+          "name": "ML Inference Service",
+          "stereotype": "<<component>>",
+          "technology": "Python Service",
+          "provides": ["/predict", "/batch_predict", "risk score"],
+          "requires": ["Model Artifacts"]
+        },
+        {
+          "id": "C7",
+          "name": "MongoDB",
+          "stereotype": "<<database>>",
+          "technology": "MongoDB",
+          "provides": ["Persistent Data Storage"],
+          "requires": []
+        },
+        {
+          "id": "C8",
+          "name": "Redis Cache (Optional)",
+          "stereotype": "<<cache>>",
+          "technology": "Redis",
+          "provides": ["Warm Cache", "Fast Lookup"],
+          "requires": []
+        }
+      ],
+      "interfaces": [
+        { "id": "I1", "name": "REST API", "provider": "C2", "consumer": "C1" },
+        { "id": "I2", "name": "Inference API", "provider": "C6", "consumer": "C2" },
+        { "id": "I3", "name": "Data Access", "provider": "C7", "consumer": "C2" },
+        { "id": "I4", "name": "Chat Completion API", "provider": "External LLM", "consumer": "C5" },
+        { "id": "I5", "name": "Cache Access", "provider": "C8", "consumer": "C2" }
+      ],
+      "dependencies": [
+        { "from": "C1", "to": "C2", "type": "uses" },
+        { "from": "C2", "to": "C3", "type": "composes" },
+        { "from": "C2", "to": "C4", "type": "composes" },
+        { "from": "C2", "to": "C5", "type": "composes" },
+        { "from": "C4", "to": "C6", "type": "calls" },
+        { "from": "C2", "to": "C7", "type": "persists_to" },
+        { "from": "C2", "to": "C8", "type": "caches_in", "optional": true },
+        { "from": "C5", "to": "External LLM", "type": "requests" }
+      ]
+    }
+  },
+  "qualityChecks": {
+    "namingConsistency": true,
+    "singleResponsibilityPerProcess": true,
+    "minimalCrossingEdges": true,
+    "reportAlignment": true
+  }
+}

@@ -189,6 +189,7 @@ Vendor Billing Department`,
 const PhishingEmailSimulator = () => {
   const [currentEmailIndex, setCurrentEmailIndex] = useState(0);
   const [foundRedFlags, setFoundRedFlags] = useState([]);
+  const [flagHotspots, setFlagHotspots] = useState({});
   const [showHints, setShowHints] = useState(false);
   const [completed, setCompleted] = useState(false);
   const [xpGained, setXpGained] = useState(0);
@@ -196,10 +197,15 @@ const PhishingEmailSimulator = () => {
   const currentEmail = PHISHING_EMAILS[currentEmailIndex];
   const allRedFlagsFound = foundRedFlags.length === currentEmail.redFlags.length;
 
-  const handleRedFlagClick = (redFlag) => {
-    if (!foundRedFlags.some(f => f.id === redFlag.id)) {
+  const handleRedFlagClick = (redFlag, hotspotKey) => {
+    if (!redFlag) return;
+    const alreadyFound = foundRedFlags.some(f => f.id === redFlag.id);
+    if (!alreadyFound) {
       const newFoundFlags = [...foundRedFlags, redFlag];
       setFoundRedFlags(newFoundFlags);
+      if (hotspotKey) {
+        setFlagHotspots((prev) => ({ ...prev, [redFlag.id]: hotspotKey }));
+      }
       
       // Award XP for finding red flag
       const xp = addXP(XP_REWARDS.SPOT_ALL_RED_FLAGS / currentEmail.redFlags.length, `Spotted: ${redFlag.text}`);
@@ -222,6 +228,7 @@ const PhishingEmailSimulator = () => {
     if (currentEmailIndex < PHISHING_EMAILS.length - 1) {
       setCurrentEmailIndex(currentEmailIndex + 1);
       setFoundRedFlags([]);
+      setFlagHotspots({});
       setShowHints(false);
       setCompleted(false);
     }
@@ -230,6 +237,7 @@ const PhishingEmailSimulator = () => {
   const handleReset = () => {
     setCurrentEmailIndex(0);
     setFoundRedFlags([]);
+    setFlagHotspots({});
     setShowHints(false);
     setCompleted(false);
     setXpGained(0);
@@ -286,11 +294,11 @@ const PhishingEmailSimulator = () => {
                 <div className="flex items-start gap-2">
                   <span className="font-semibold text-gray-700 min-w-[60px]">From:</span>
                   <button
-                    onClick={() => handleRedFlagClick(currentEmail.redFlags.find(f => f.id.includes('sender') || f.id.includes('domain') || f.id.includes('fakeDomain') || f.id.includes('emailDomain') || f.id.includes('vendorDomain')))}
+                    onClick={() => handleRedFlagClick(currentEmail.redFlags.find(f => f.id.includes('sender') || f.id.includes('domain') || f.id.includes('fakeDomain') || f.id.includes('emailDomain') || f.id.includes('vendorDomain')), 'header-from')}
                     className="text-gray-900 hover:bg-yellow-100 px-2 py-1 rounded transition-colors text-left flex-1"
                   >
                     {currentEmail.from}
-                    {foundRedFlags.some(f => f.id.includes('sender') || f.id.includes('domain') || f.id.includes('fakeDomain') || f.id.includes('emailDomain') || f.id.includes('vendorDomain')) && 
+                    {Object.values(flagHotspots).includes('header-from') && 
                       <span className="ml-2 text-red-600">🚩</span>
                     }
                   </button>
@@ -305,7 +313,7 @@ const PhishingEmailSimulator = () => {
 
             {/* Email Body */}
             <div className="p-6 bg-white">
-              <div className="whitespace-pre-wrap font-mono text-sm leading-relaxed text-gray-800">
+              <div className="whitespace-pre-wrap font-mono text-sm leading-relaxed text-gray-800 cursor-default">
                 {currentEmail.body.split('\n').map((line, index) => {
                   // Check if line contains clickable red flags
                   const isUrl = line.includes('http') || line.includes('Click here') || line.includes('Verify Now') || line.includes('📎');
@@ -317,41 +325,35 @@ const PhishingEmailSimulator = () => {
 
                   let clickHandler = null;
                   let isClickable = false;
+                  const hotspotKey = `line-${index}`;
 
                   if (isUrl) {
-                    clickHandler = () => handleRedFlagClick(currentEmail.redFlags.find(f => f.id.includes('link') || f.id.includes('attachment')));
+                    clickHandler = () => handleRedFlagClick(currentEmail.redFlags.find(f => f.id.includes('link') || f.id.includes('attachment')), hotspotKey);
                     isClickable = true;
                   } else if (isUrgent) {
-                    clickHandler = () => handleRedFlagClick(currentEmail.redFlags.find(f => f.id.includes('urgency') || f.id.includes('pressure')));
+                    clickHandler = () => handleRedFlagClick(currentEmail.redFlags.find(f => f.id.includes('urgency') || f.id.includes('pressure')), hotspotKey);
                     isClickable = true;
                   } else if (isThreat) {
-                    clickHandler = () => handleRedFlagClick(currentEmail.redFlags.find(f => f.id.includes('threat') || f.id.includes('legalThreat')));
+                    clickHandler = () => handleRedFlagClick(currentEmail.redFlags.find(f => f.id.includes('threat') || f.id.includes('legalThreat')), hotspotKey);
                     isClickable = true;
                   } else if (isPersonalInfo) {
-                    clickHandler = () => handleRedFlagClick(currentEmail.redFlags.find(f => f.id.includes('credentials') || f.id.includes('personal')));
+                    clickHandler = () => handleRedFlagClick(currentEmail.redFlags.find(f => f.id.includes('credentials') || f.id.includes('personal')), hotspotKey);
                     isClickable = true;
                   } else if (isPayment) {
-                    clickHandler = () => handleRedFlagClick(currentEmail.redFlags.find(f => f.id.includes('payment')));
+                    clickHandler = () => handleRedFlagClick(currentEmail.redFlags.find(f => f.id.includes('payment')), hotspotKey);
                     isClickable = true;
                   } else if (isGeneric) {
-                    clickHandler = () => handleRedFlagClick(currentEmail.redFlags.find(f => f.id.includes('generic')));
+                    clickHandler = () => handleRedFlagClick(currentEmail.redFlags.find(f => f.id.includes('generic')), hotspotKey);
                     isClickable = true;
                   }
 
-                  const hasFoundFlag = foundRedFlags.some(f => 
-                    (isUrl && (f.id.includes('link') || f.id.includes('attachment'))) ||
-                    (isUrgent && (f.id.includes('urgency') || f.id.includes('pressure'))) ||
-                    (isThreat && (f.id.includes('threat') || f.id.includes('legalThreat'))) ||
-                    (isPersonalInfo && (f.id.includes('credentials') || f.id.includes('personal'))) ||
-                    (isPayment && f.id.includes('payment')) ||
-                    (isGeneric && f.id.includes('generic'))
-                  );
+                  const hasFoundFlag = Object.values(flagHotspots).includes(hotspotKey);
 
                   return (
                     <div
                       key={index}
                       onClick={clickHandler}
-                      className={`${isClickable ? 'cursor-pointer hover:bg-yellow-50 px-2 py-1 rounded transition-colors' : ''} ${hasFoundFlag ? 'bg-red-50 border-l-4 border-red-500 pl-2' : ''}`}
+                      className={`${isClickable ? 'cursor-pointer hover:bg-yellow-50 px-2 py-1 rounded transition-colors' : 'cursor-default'} ${hasFoundFlag ? 'bg-red-50 border-l-4 border-red-500 pl-2' : ''}`}
                     >
                       {line}
                       {hasFoundFlag && <span className="ml-2 text-red-600 text-lg">🚩</span>}

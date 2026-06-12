@@ -455,6 +455,8 @@ const VideoTutorial = () => {
       description: "Learn to identify genuine vs fake shopping offers",
       thumbnail: "🛒",
       topic: "Shopping Safety",
+      embedUrl: "https://www.youtube.com/embed?listType=search&list=How+to+Spot+Fake+Online+Deals",
+      watchUrl: "https://www.youtube.com/results?search_query=How+to+Spot+Fake+Online+Deals",
     },
     {
       id: 2,
@@ -463,6 +465,8 @@ const VideoTutorial = () => {
       description: "Understand how to handle KYC update requests safely",
       thumbnail: "🏦",
       topic: "Banking Security",
+      embedUrl: "https://www.youtube.com/embed?listType=search&list=KYC+scam+prevention+India",
+      watchUrl: "https://www.youtube.com/results?search_query=KYC+scam+prevention+India",
     },
     {
       id: 3,
@@ -471,6 +475,8 @@ const VideoTutorial = () => {
       description: "Step-by-step guide to verify and pay bills securely",
       thumbnail: "💡",
       topic: "Bill Payments",
+      embedUrl: "https://www.youtube.com/embed?listType=search&list=Safe+bill+payment+cyber+security",
+      watchUrl: "https://www.youtube.com/results?search_query=Safe+bill+payment+cyber+security",
     },
   ];
 
@@ -495,17 +501,27 @@ const VideoTutorial = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg p-6 shadow-inner border-2 border-dashed border-rose-200">
-          <div className="text-center">
-            <div className="text-4xl mb-3">
-              {tutorials[currentVideo].thumbnail}
-            </div>
-            <p className="text-gray-600 mb-4">
-              Video player would be embedded here
-            </p>
-            <Button className="bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700">
-              ▶️ Play Tutorial
-            </Button>
+        <div className="bg-white rounded-lg p-4 shadow-inner border border-rose-200">
+          <div className="aspect-video w-full overflow-hidden rounded-lg">
+            <iframe
+              title={`Tutorial: ${tutorials[currentVideo].title}`}
+              src={tutorials[currentVideo].embedUrl}
+              className="h-full w-full"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allowFullScreen
+            />
+          </div>
+          <div className="mt-4 text-center">
+            <a
+              href={tutorials[currentVideo].watchUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <Button className="bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700">
+                ▶️ Play Tutorial
+              </Button>
+            </a>
           </div>
         </div>
       </Card>

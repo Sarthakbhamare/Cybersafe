@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "1.0.0",
+  "project": "CyberSafe AI",
+  "dataFlowDiagrams": [
+    {
+      "id": "DFD-01",
+      "name": "CyberSafe Data Flow Diagram (Level-1)",
+      "notation": "DFD",
+      "layout": {
+        "direction": "LR",
+        "grid": 40,
+        "optimizeCrossLinks": true,
+        "grouping": "layered"
+      },
+      "entities": [
+        { "id": "E1", "label": "End User", "type": "external_entity" },
+        { "id": "E2", "label": "Community Moderator", "type": "external_entity" },
+        { "id": "E3", "label": "Threat Intel Source (Future)", "type": "external_entity" }
+      ],
+      "processes": [
+        { "id": "P1", "label": "Input and Authentication", "tech": ["React", "Express", "JWT"] },
+        { "id": "P2", "label": "Preprocessing and PII Redaction", "tech": ["Express", "helper.js"] },
+        { "id": "P3", "label": "Scam Inference Service", "tech": ["Python", "Flask/FastAPI", "scikit-learn"] },
+        { "id": "P4", "label": "Risk Scoring and Advisory", "tech": ["Express", "Rule Engine"] },
+        { "id": "P5", "label": "Community Feed and Learning", "tech": ["React", "Express"] },
+        { "id": "P6", "label": "Chatbot Safety Assistant", "tech": ["Express", "Gemini/Ollama"] }
+      ],
+      "dataStores": [
+        { "id": "D1", "label": "User and Auth Store", "tech": ["MongoDB", "User"] },
+        { "id": "D2", "label": "Story and Comment Store", "tech": ["MongoDB", "Story", "Comment"] },
+        { "id": "D3", "label": "Chat History Store", "tech": ["MongoDB", "ChatHistory"] },
+        { "id": "D4", "label": "ML Artifacts Store", "tech": ["joblib", "thresholds.json"] }
+      ],
+      "flows": [
+        { "id": "F1", "from": "E1", "to": "P1", "label": "credentials and suspicious input" },
+        { "id": "F2", "from": "P1", "to": "D1", "label": "profile and auth data" },
+        { "id": "F3", "from": "P1", "to": "P2", "label": "validated payload" },
+        { "id": "F4", "from": "P2", "to": "P3", "label": "normalized text and channel" },
+        { "id": "F5", "from": "P3", "to": "D4", "label": "load model artifacts" },
+        { "id": "F6", "from": "P3", "to": "P4", "label": "probability and risk signals" },
+        { "id": "F7", "from": "P4", "to": "P5", "label": "advisory and recommendations" },
+        { "id": "F8", "from": "P5", "to": "D2", "label": "stories, comments, reactions" },
+        { "id": "F9", "from": "P5", "to": "E1", "label": "risk result and learning feedback" },
+        { "id": "F10", "from": "E1", "to": "P6", "label": "chat query" },
+        { "id": "F11", "from": "P6", "to": "D3", "label": "chat logs" },
+        { "id": "F12", "from": "P6", "to": "E1", "label": "guardrailed response" },
+        { "id": "F13", "from": "E2", "to": "P5", "label": "moderation actions" },
+        { "id": "F14", "from": "E3", "to": "P4", "label": "threat updates" }
+      ]
+    }
+  ]
+}

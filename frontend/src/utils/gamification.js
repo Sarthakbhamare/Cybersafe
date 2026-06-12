@@ -1,31 +1,67 @@
 // Gamification System - XP, Levels, Achievements (User-scoped storage)
 import { keyFor, ensureScopedMigration } from './userScopedStorage';
 
+const PRODUCTION_API_URL = "https://cybersafe-sfoz.onrender.com/api";
+const DEFAULT_API_URL = import.meta.env.DEV ? "/api" : PRODUCTION_API_URL;
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || DEFAULT_API_URL).replace(/\/$/, "");
+
+export const ML_MODEL_UNLOCK_XP = 5000;
+
+const getAuthToken = () => {
+  try {
+    return localStorage.getItem('token');
+  } catch (_) {
+    return null;
+  }
+};
+
+const syncXPToServer = async (delta) => {
+  const token = getAuthToken();
+  if (!token || !Number.isFinite(delta) || delta === 0) return null;
+
+  try {
+    const response = await fetch(`${API_BASE}/auth/xp`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+        'x-auth-token': token,
+      },
+      body: JSON.stringify({ delta }),
+    });
+
+    if (!response.ok) return null;
+    return await response.json();
+  } catch (_) {
+    return null;
+  }
+};
+
 // XP Points Configuration
 export const XP_REWARDS = {
   // Quiz Actions
-  QUIZ_DAILY_COMPLETE: 50,
-  QUIZ_PRACTICE_COMPLETE: 40,
-  QUIZ_SPEED_COMPLETE: 60,
-  QUIZ_SURVIVAL_COMPLETE: 70,
-  QUIZ_PERFECT_SCORE: 100,
-  CORRECT_ANSWER: 10,
-  SPEED_BONUS: 20,
+  QUIZ_DAILY_COMPLETE: 20,
+  QUIZ_PRACTICE_COMPLETE: 16,
+  QUIZ_SPEED_COMPLETE: 22,
+  QUIZ_SURVIVAL_COMPLETE: 25,
+  QUIZ_PERFECT_SCORE: 35,
+  CORRECT_ANSWER: 4,
+  SPEED_BONUS: 8,
   
   // Learning Actions
-  READ_THREAT_CARD: 10,
-  COMPLETE_SIMULATION: 75,
-  SPOT_ALL_RED_FLAGS: 50,
+  READ_THREAT_CARD: 3,
+  COMPLETE_SIMULATION: 18,
+  SPOT_ALL_RED_FLAGS: 12,
   
   // Social Actions
-  SHARE_ACHIEVEMENT: 25,
-  INVITE_FRIEND: 50,
+  SHARE_ACHIEVEMENT: 8,
+  INVITE_FRIEND: 20,
   
   // Daily Actions
-  DAILY_LOGIN: 10,
-  FIRST_LOGIN_OF_DAY: 20,
-  CONSECUTIVE_7_DAYS: 100,
-  CONSECUTIVE_30_DAYS: 500,
+  DAILY_LOGIN: 4,
+  FIRST_LOGIN_OF_DAY: 6,
+  CONSECUTIVE_7_DAYS: 30,
+  CONSECUTIVE_30_DAYS: 120,
 };
 
 // Level System Configuration
@@ -252,12 +288,12 @@ export const ACHIEVEMENTS = {
 // Daily Login Rewards
 export const DAILY_REWARDS = [
   { day: 1, xp: 10, bonus: null },
-  { day: 2, xp: 15, bonus: null },
-  { day: 3, xp: 20, bonus: '🎁 +3 Day Streak' },
-  { day: 4, xp: 25, bonus: null },
-  { day: 5, xp: 30, bonus: null },
-  { day: 6, xp: 40, bonus: null },
-  { day: 7, xp: 100, bonus: '🏆 Week Complete! +100 XP Bonus' },
+  { day: 2, xp: 10, bonus: null },
+  { day: 3, xp: 10, bonus: null },
+  { day: 4, xp: 10, bonus: null },
+  { day: 5, xp: 10, bonus: null },
+  { day: 6, xp: 10, bonus: null },
+  { day: 7, xp: 10, bonus: null },
 ];
 
 /**
@@ -301,9 +337,22 @@ export const getLevelProgress = (totalXP) => {
  */
 export const addXP = (xpAmount, reason = '') => {
   ensureScopedMigration();
+  const normalizedXP = Math.max(0, Math.round(Number(xpAmount) || 0));
+  if (normalizedXP === 0) {
+    const currentXP = parseInt(localStorage.getItem(keyFor('totalXP')) || '0');
+    return {
+      xpGained: 0,
+      newTotalXP: currentXP,
+      leveledUp: false,
+      oldLevel: getCurrentLevel(currentXP),
+      newLevel: getCurrentLevel(currentXP),
+      reason,
+    };
+  }
+
   const currentXP = parseInt(localStorage.getItem(keyFor('totalXP')) || '0');
   const currentLevel = getCurrentLevel(currentXP);
-  const newXP = currentXP + xpAmount;
+  const newXP = currentXP + normalizedXP;
   const newLevel = getCurrentLevel(newXP);
   
   // Save new XP
@@ -312,7 +361,7 @@ export const addXP = (xpAmount, reason = '') => {
   // Track XP history
   const xpHistory = JSON.parse(localStorage.getItem(keyFor('xpHistory')) || '[]');
   xpHistory.push({
-    amount: xpAmount,
+    amount: normalizedXP,
     reason,
     timestamp: new Date().toISOString(),
     totalXP: newXP
@@ -321,9 +370,19 @@ export const addXP = (xpAmount, reason = '') => {
   
   // Check for level up
   const leveledUp = newLevel.level > currentLevel.level;
+
+  // Fire-and-forget sync for persistent per-user XP.
+  void syncXPToServer(normalizedXP).then((result) => {
+    if (!result || typeof result.xp !== 'number') return;
+    const serverXP = Math.max(0, Math.round(result.xp));
+    localStorage.setItem(keyFor('serverXP'), String(serverXP));
+    if (serverXP > newXP) {
+      localStorage.setItem(keyFor('totalXP'), String(serverXP));
+    }
+  });
   
   return {
-    xpGained: xpAmount,
+    xpGained: normalizedXP,
     newTotalXP: newXP,
     leveledUp,
     oldLevel: currentLevel,
@@ -337,7 +396,14 @@ export const addXP = (xpAmount, reason = '') => {
  */
 export const getGamificationStats = () => {
   ensureScopedMigration();
-  const totalXP = parseInt(localStorage.getItem(keyFor('totalXP')) || '0');
+  const localXP = parseInt(localStorage.getItem(keyFor('totalXP')) || '0');
+  const serverXP = parseInt(localStorage.getItem(keyFor('serverXP')) || '0');
+  const totalXP = Math.max(localXP, serverXP);
+
+  if (totalXP !== localXP) {
+    localStorage.setItem(keyFor('totalXP'), String(totalXP));
+  }
+
   const currentLevel = getCurrentLevel(totalXP);
   const nextLevel = getNextLevel(totalXP);
   const progress = getLevelProgress(totalXP);
@@ -378,6 +444,11 @@ export const getGamificationStats = () => {
       lastLoginDate
     }
   };
+};
+
+export const hasUnlockedLatestModel = () => {
+  const stats = getGamificationStats();
+  return (stats?.totalXP || 0) >= ML_MODEL_UNLOCK_XP;
 };
 
 /**
@@ -489,11 +560,6 @@ export const processDailyLogin = () => {
   // Award login XP
   const xpResult = addXP(reward.xp, 'Daily Login Reward');
   
-  // Award streak bonus for day 7
-  if (streakDay === 7) {
-    addXP(100, '7-Day Login Streak Bonus');
-  }
-  
   localStorage.setItem(keyFor('lastLoginDate'), today);
   localStorage.setItem(keyFor('loginStreak'), newStreak.toString());
   
@@ -502,7 +568,7 @@ export const processDailyLogin = () => {
     loginStreak: newStreak,
     streakDay,
     reward,
-    xpGained: reward.xp + (streakDay === 7 ? 100 : 0),
+    xpGained: reward.xp,
     ...xpResult
   };
 };

@@ -1,11 +1,6 @@
-import React, { useState } from "react";
-import { 
-  detectIndicatorType, 
-  searchLocalDatabase, 
-  calculateReputationScore, 
-  getThreatColor 
-} from '../utils/threatDatabase';
+import React, { useEffect, useState } from "react";
 import { checkIndicator } from '../utils/virusTotalService';
+import { get, post } from '../utils/apiClient';
 
 const Card = ({ children, className = "" }) => (
   <div className={`border border-gray-200 rounded-xl ${className}`}>
@@ -178,14 +173,14 @@ const ReportModal = ({ isOpen, onClose, indicator, onSubmit }) => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Description (Optional)
+              Reason (Optional)
             </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               rows="3"
-              placeholder="Additional details about this threat..."
+              placeholder="Why are you reporting this indicator?"
             />
           </div>
 
@@ -295,33 +290,7 @@ const ReputationCard = ({ indicator, reputation, onReport }) => {
   );
 };
 
-const TrendingThreats = () => {
-  const threats = [
-    {
-      indicator: "free-netflix-trial.scam.com",
-      score: 5,
-      reports: 1247,
-      trend: "up",
-    },
-    {
-      indicator: "whatsapp-premium-offer.net",
-      score: 12,
-      reports: 892,
-      trend: "up",
-    },
-    {
-      indicator: "crypto-investment-guru.biz",
-      score: 8,
-      reports: 756,
-      trend: "down",
-    },
-    {
-      indicator: "+91-9876543210",
-      score: 3,
-      reports: 634,
-      trend: "up",
-    },
-  ];
+const TrendingThreats = ({ threats = [] }) => {
 
   return (
     <Card className="p-6 bg-white shadow-lg border border-gray-200">
@@ -333,47 +302,69 @@ const TrendingThreats = () => {
       </div>
 
       <div className="space-y-4">
-        {threats.map((threat, index) => (
-          <div
-            key={index}
-            className="flex items-center justify-between p-4 bg-gradient-to-r from-red-50 to-orange-50 rounded-lg border border-red-100"
-          >
-            <div className="flex-1">
-              <div className="font-mono text-sm text-gray-900 mb-1 break-all">
-                {threat.indicator}
-              </div>
-              <div className="flex items-center gap-2">
-                <Badge variant="destructive">Risk: {threat.score}/100</Badge>
-                <span className="text-xs text-gray-600">
-                  {threat.reports} reports
-                </span>
-              </div>
-            </div>
-            <div className="ml-4 text-center">
-              <div
-                className={`text-lg ${
-                  threat.trend === "up" ? "text-red-500" : "text-green-500"
-                }`}
-              >
-                {threat.trend === "up" ? "📈" : "📉"}
-              </div>
-              <div className="text-xs text-gray-600 capitalize">
-                {threat.trend}
-              </div>
-            </div>
+        {threats.length === 0 ? (
+          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+            No trending indicators yet. Reports will appear here as the community submits them.
           </div>
-        ))}
+        ) : (
+          threats.map((threat, index) => (
+            <div
+              key={index}
+              className="flex items-center justify-between p-4 bg-gradient-to-r from-red-50 to-orange-50 rounded-lg border border-red-100"
+            >
+              <div className="flex-1">
+                <div className="font-mono text-sm text-gray-900 mb-1 break-all">
+                  {threat.indicator}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge variant="destructive">Risk: {threat.score || 0}/100</Badge>
+                  <span className="text-xs text-gray-600">
+                    {threat.reports || 0} reports
+                  </span>
+                </div>
+              </div>
+              <div className="ml-4 text-center">
+                <div
+                  className={`text-lg ${
+                    threat.trend === "up" ? "text-red-500" : "text-green-500"
+                  }`}
+                >
+                  {threat.trend === "up" ? "📈" : "📉"}
+                </div>
+                <div className="text-xs text-gray-600 capitalize">
+                  {threat.trend || "stable"}
+                </div>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </Card>
   );
 };
 
-const CommunityStats = () => {
-  const stats = [
-    { label: "Reports This Week", value: "2,847", change: "+12%" },
-    { label: "Active Contributors", value: "15,230", change: "+8%" },
-    { label: "Threats Identified", value: "45,672", change: "+15%" },
-    { label: "Community Score", value: "94.2%", change: "+2%" },
+const CommunityStats = ({ stats }) => {
+  const statCards = [
+    {
+      label: "Reports This Week",
+      value: Number(stats?.reportsThisWeek || 0).toLocaleString(),
+      change: "Live",
+    },
+    {
+      label: "Active Contributors",
+      value: Number(stats?.activeContributors || 0).toLocaleString(),
+      change: "Live",
+    },
+    {
+      label: "Threats Identified",
+      value: Number(stats?.indicatorsTracked || 0).toLocaleString(),
+      change: "Live",
+    },
+    {
+      label: "Community Score",
+      value: `${Number(stats?.communityScore || 0)}%`,
+      change: "Live",
+    },
   ];
 
   const icons = [
@@ -393,7 +384,7 @@ const CommunityStats = () => {
 
   return (
     <div className="mb-8 grid grid-cols-2 gap-6 lg:grid-cols-4">
-      {stats.map((stat, index) => (
+      {statCards.map((stat, index) => (
         <Card
           key={index}
           className="group border-slate-200 bg-white p-6 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-1"
@@ -425,48 +416,83 @@ const CommunityReputationPage = () => {
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchResult, setSearchResult] = useState(null);
   const [searchError, setSearchError] = useState(null);
+  const [communityStats, setCommunityStats] = useState(null);
+  const [trendingThreats, setTrendingThreats] = useState([]);
+  const [recentReports, setRecentReports] = useState([]);
+  const [myImpact, setMyImpact] = useState(null);
+  const [newIndicator, setNewIndicator] = useState('');
 
+  useEffect(() => {
+    const loadCommunityData = async () => {
+      try {
+        const [statsRes, trendingRes, recentRes] = await Promise.all([
+          get('/reputation/stats', { auth: false }),
+          get('/reputation/trending', { auth: false, params: { limit: 8 } }),
+          get('/reputation/recent', { auth: false, params: { limit: 8 } }),
+        ]);
 
-  const sampleReputations = [
-    {
-      indicator: "suspicious-bank-alert.com",
-      score: 15,
-      total_reports: 234,
-      unique_reporters: 89,
-      report_types: [
-        { type: "phishing", count: 156, last_seen: "2025-08-22T10:30:00Z" },
-        { type: "scam", count: 78, last_seen: "2025-08-21T15:45:00Z" },
-      ],
-    },
-    {
-      indicator: "+91-8765432109",
-      score: 8,
-      total_reports: 187,
-      unique_reporters: 92,
-      report_types: [
-        { type: "spam", count: 124, last_seen: "2025-08-23T09:15:00Z" },
-        { type: "harassment", count: 63, last_seen: "2025-08-22T14:20:00Z" },
-      ],
-    },
-    {
-      indicator: "crypto-doubler-pro.net",
-      score: 3,
-      total_reports: 456,
-      unique_reporters: 178,
-      report_types: [
-        { type: "scam", count: 289, last_seen: "2025-08-23T11:00:00Z" },
-        { type: "phishing", count: 167, last_seen: "2025-08-22T16:30:00Z" },
-      ],
-    },
-  ];
+        setCommunityStats(statsRes);
+        setTrendingThreats(
+          (trendingRes?.items || []).map((item) => ({
+            indicator: item.indicator,
+            score: Math.max(0, 100 - Math.min(95, item.reports * 2)),
+            reports: item.reports || 0,
+            trend: item.trend || 'up',
+          }))
+        );
+        setRecentReports(
+          (recentRes?.items || []).map((item) => ({
+            indicator: item.indicator,
+            score: item.score || 0,
+            total_reports: item.total_reports || 0,
+            unique_reporters: item.unique_reporters || 0,
+            report_types: item.report_types || [],
+          }))
+        );
+      } catch (error) {
+        console.error('Failed to load community data:', error);
+      }
+
+      try {
+        const impactRes = await get('/reputation/impact');
+        setMyImpact(impactRes);
+      } catch (_) {
+        setMyImpact(null);
+      }
+    };
+
+    loadCommunityData();
+  }, []);
 
   const handleReport = (indicator) => {
     setReportModal({ isOpen: true, indicator });
   };
 
-  const handleReportSubmit = (reportData) => {
-    console.log("Report submitted:", reportData);
-    alert(`Report submitted for ${reportData.indicator}`);
+  const handleReportSubmit = async (reportData) => {
+    try {
+      const result = await post('/reputation/report', {
+        indicator: reportData.indicator,
+        type: reportData.type,
+        description: reportData.description,
+        proofUrl: reportData.proofUrl,
+      });
+
+      alert(`Report submitted for ${reportData.indicator}. Total reports: ${result.total_reports}`);
+
+      // Refresh recent reports quickly.
+      const recentRes = await get('/reputation/recent', { auth: false, params: { limit: 8 } });
+      setRecentReports(
+        (recentRes?.items || []).map((item) => ({
+          indicator: item.indicator,
+          score: item.score || 0,
+          total_reports: item.total_reports || 0,
+          unique_reporters: item.unique_reporters || 0,
+          report_types: item.report_types || [],
+        }))
+      );
+    } catch (error) {
+      alert(error?.message || 'Failed to submit report. Please log in and try again.');
+    }
   };
 
   const handleCheckIndicator = async () => {
@@ -480,35 +506,11 @@ const CommunityReputationPage = () => {
     setSearchResult(null);
 
     try {
-      const type = detectIndicatorType(searchIndicator);
-      
-      if (type === 'unknown') {
-        setSearchError('Unable to identify indicator type. Please enter a valid URL, IP, email, or phone number.');
-        setSearchLoading(false);
-        return;
-      }
-
-      const localResult = searchLocalDatabase(searchIndicator, type);
-      
-      if (localResult) {
-        const reputationScore = calculateReputationScore(localResult.severity, localResult.reports);
-        setSearchResult({
-          ...localResult,
-          reputationScore,
-          source: 'Local Database',
-          cached: true
-        });
-        setSearchLoading(false);
-        return;
-      }
-
-      const vtResult = await checkIndicator(searchIndicator, type);
+      const vtResult = await checkIndicator(searchIndicator);
       
       if (vtResult) {
-        const reputationScore = calculateReputationScore(vtResult.severity, vtResult.reports);
         setSearchResult({
-          ...vtResult,
-          reputationScore
+          ...vtResult
         });
       } else {
         setSearchResult({
@@ -517,6 +519,9 @@ const CommunityReputationPage = () => {
           severity: 'safe',
           category: 'No Threats Detected',
           reports: 0,
+          total_reports: 0,
+          unique_reporters: 0,
+          report_types: [],
           lastSeen: 'Never',
           description: 'This indicator has not been reported in our threat databases. However, always exercise caution with unfamiliar links, emails, or phone numbers.',
           tags: ['unreported'],
@@ -530,20 +535,6 @@ const CommunityReputationPage = () => {
     } finally {
       setSearchLoading(false);
     }
-  };
-
-  const getReputationColorClass = (score) => {
-    if (score >= 75) return 'text-green-600';
-    if (score >= 50) return 'text-yellow-600';
-    if (score >= 25) return 'text-orange-600';
-    return 'text-red-600';
-  };
-
-  const getReputationLabel = (score) => {
-    if (score >= 75) return 'Good';
-    if (score >= 50) return 'Questionable';
-    if (score >= 25) return 'Poor';
-    return 'Dangerous';
   };
 
   return (
@@ -564,7 +555,7 @@ const CommunityReputationPage = () => {
           </p>
         </div>
 
-        <CommunityStats />
+        <CommunityStats stats={communityStats} />
 
         <Tabs defaultValue="search" className="space-y-8">
           <TabsList className="flex w-full gap-3">
@@ -606,7 +597,7 @@ const CommunityReputationPage = () => {
                   onChange={(e) => setSearchIndicator(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && !searchLoading && handleCheckIndicator()}
                   placeholder="Enter URL or IP address..."
-                  className="flex-1 rounded-xl border-slate-300 p-4 text-sm transition-all focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 focus-visible:outline-none"
+                  className="flex-1 rounded-xl border border-slate-300 p-4 text-sm transition-all focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 focus-visible:outline-none"
                   disabled={searchLoading}
                 />
                 <Button className="px-8" onClick={handleCheckIndicator} disabled={searchLoading}>
@@ -647,6 +638,31 @@ const CommunityReputationPage = () => {
               <p className="mt-3 text-sm text-slate-500">
                 Search our comprehensive threat intelligence database for URLs and IP addresses.
               </p>
+
+              <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                <h4 className="text-sm font-semibold text-slate-900">Report New Indicator</h4>
+                <p className="mt-1 text-xs text-slate-600">
+                  Found a suspicious website, IP, email, or phone? Report it directly here.
+                </p>
+                <div className="mt-3 flex flex-col gap-3 sm:flex-row">
+                  <input
+                    type="text"
+                    value={newIndicator}
+                    onChange={(e) => setNewIndicator(e.target.value)}
+                    placeholder="Report a new website, IP, email, or phone"
+                    className="w-full rounded-lg border border-slate-300 p-3 text-sm focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 focus-visible:outline-none"
+                  />
+                  <Button
+                    className="sm:whitespace-nowrap"
+                    onClick={() => {
+                      if (!newIndicator.trim()) return;
+                      handleReport(newIndicator.trim());
+                    }}
+                  >
+                    🚀 Report Now
+                  </Button>
+                </div>
+              </div>
 
               {searchError && (
                 <div className="mt-6 flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4">
@@ -691,7 +707,7 @@ const CommunityReputationPage = () => {
 
             {!searchResult && !searchError && !searchLoading && (
               <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3">
-                {sampleReputations.map((reputation, index) => (
+                {recentReports.map((reputation, index) => (
                   <ReputationCard
                     key={index}
                     indicator={reputation.indicator}
@@ -704,9 +720,9 @@ const CommunityReputationPage = () => {
 
             {(searchResult || searchError) && (
               <div className="mt-8">
-                <h3 className="text-lg font-semibold text-slate-900 mb-4">Example Community Reports</h3>
+                <h3 className="text-lg font-semibold text-slate-900 mb-4">Latest Community Reports</h3>
                 <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3">
-                  {sampleReputations.map((reputation, index) => (
+                  {recentReports.map((reputation, index) => (
                     <ReputationCard
                       key={index}
                       indicator={reputation.indicator}
@@ -725,11 +741,14 @@ const CommunityReputationPage = () => {
                 <h3 className="text-lg font-semibold text-gray-900">
                   Latest Community Reports
                 </h3>
-                {sampleReputations.map((reputation, index) => (
+                {recentReports.map((reputation, index) => (
                   <Card
                     key={index}
                     className="p-4 bg-white shadow-md border border-gray-200"
                   >
+                    {(() => {
+                      const topType = reputation.report_types?.[0] || { type: 'report', last_seen: new Date().toISOString() };
+                      return (
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="font-mono text-sm text-gray-900 break-all mb-2">
@@ -737,7 +756,7 @@ const CommunityReputationPage = () => {
                         </div>
                         <div className="flex items-center gap-2 mb-2">
                           <Badge variant="destructive">
-                            {reputation.report_types[0].type}
+                            {topType.type}
                           </Badge>
                           <span className="text-xs text-gray-500">
                             {reputation.total_reports} reports from{" "}
@@ -747,7 +766,7 @@ const CommunityReputationPage = () => {
                         <div className="text-xs text-gray-500">
                           Last reported:{" "}
                           {new Date(
-                            reputation.report_types[0].last_seen
+                            topType.last_seen
                           ).toLocaleString()}
                         </div>
                       </div>
@@ -759,18 +778,20 @@ const CommunityReputationPage = () => {
                         🚨 Report
                       </Button>
                     </div>
+                      );
+                    })()}
                   </Card>
                 ))}
               </div>
               <div>
-                <TrendingThreats />
+                <TrendingThreats threats={trendingThreats} />
               </div>
             </div>
           </TabsContent>
 
           <TabsContent value="trending" className="space-y-8">
             <div className="grid lg:grid-cols-2 gap-8">
-              <TrendingThreats />
+              <TrendingThreats threats={trendingThreats} />
               <Card className="p-6 bg-white shadow-lg border border-gray-200">
                 <div className="flex items-center gap-2 mb-6">
                   <span className="text-2xl">🎯</span>
@@ -779,33 +800,42 @@ const CommunityReputationPage = () => {
                   </h3>
                 </div>
                 <div className="space-y-3">
-                  {[
-                    { type: "Phishing", count: 1847, percentage: 35 },
-                    { type: "Scam", count: 1456, percentage: 28 },
-                    { type: "Spam", count: 892, percentage: 17 },
-                    { type: "Malware", count: 634, percentage: 12 },
-                    { type: "Harassment", count: 423, percentage: 8 },
-                  ].map((category, index) => (
+                  {Object.entries(
+                    recentReports.reduce((acc, report) => {
+                      (report.report_types || []).forEach((item) => {
+                        const key = item.type || 'other';
+                        acc[key] = (acc[key] || 0) + (item.count || 0);
+                      });
+                      return acc;
+                    }, {})
+                  )
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 5)
+                    .map(([type, count], index) => {
+                      const total = Math.max(1, recentReports.reduce((sum, r) => sum + (r.total_reports || 0), 0));
+                      const percentage = Math.round((count / total) * 100);
+                      return (
                     <div
-                      key={index}
+                      key={`${type}-${index}`}
                       className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
                     >
                       <span className="font-medium text-gray-900">
-                        {category.type}
+                        {type.charAt(0).toUpperCase() + type.slice(1)}
                       </span>
                       <div className="flex items-center gap-3">
                         <div className="w-24 bg-gray-200 rounded-full h-2">
                           <div
                             className="bg-indigo-600 h-2 rounded-full"
-                            style={{ width: `${category.percentage}%` }}
+                            style={{ width: `${percentage}%` }}
                           ></div>
                         </div>
                         <span className="text-sm text-gray-600 w-16 text-right">
-                          {category.count}
+                          {count}
                         </span>
                       </div>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </Card>
             </div>
@@ -843,9 +873,6 @@ const CommunityReputationPage = () => {
                       </span>
                     </div>
                   </div>
-                  <Button className="mt-6 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 shadow-lg">
-                    🚀 Start Contributing
-                  </Button>
                 </div>
               </Card>
 
@@ -859,7 +886,7 @@ const CommunityReputationPage = () => {
                 <div className="space-y-4">
                   <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
                     <div className="text-3xl font-bold text-green-600 mb-1">
-                      47
+                      {myImpact ? myImpact.reportsSubmitted : '0'}
                     </div>
                     <div className="text-sm text-green-700">
                       Reports Submitted
@@ -867,7 +894,7 @@ const CommunityReputationPage = () => {
                   </div>
                   <div className="text-center p-4 bg-blue-50 rounded-lg border border-blue-200">
                     <div className="text-3xl font-bold text-blue-600 mb-1">
-                      12,890
+                      {myImpact ? Number(myImpact.peopleProtectedEstimate || 0).toLocaleString() : '0'}
                     </div>
                     <div className="text-sm text-blue-700">
                       People Protected
@@ -875,7 +902,7 @@ const CommunityReputationPage = () => {
                   </div>
                   <div className="text-center p-4 bg-purple-50 rounded-lg border border-purple-200">
                     <div className="text-3xl font-bold text-purple-600 mb-1">
-                      Gold
+                      {myImpact ? myImpact.contributorLevel : 'Guest'}
                     </div>
                     <div className="text-sm text-purple-700">
                       Contributor Level
@@ -886,11 +913,13 @@ const CommunityReputationPage = () => {
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-yellow-600">🏆</span>
                     <span className="font-semibold text-yellow-800">
-                      Achievement Unlocked!
+                      Community Milestone
                     </span>
                   </div>
                   <p className="text-sm text-yellow-700">
-                    Threat Hunter - You've identified 25+ unique threats
+                    {myImpact
+                      ? `You have contributed to ${myImpact.indicatorsContributed || 0} unique indicator report(s).`
+                      : 'Log in and submit reports to start building your contributor profile.'}
                   </p>
                 </div>
               </Card>

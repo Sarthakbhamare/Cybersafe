@@ -1,0 +1,104 @@
+{
+  "schemaVersion": "1.0.0",
+  "project": "CyberSafe AI",
+  "umlComponentDiagrams": [
+    {
+      "id": "CMP-01",
+      "name": "CyberSafe UML Component Diagram",
+      "notation": "UML Component",
+      "components": [
+        {
+          "id": "C1",
+          "name": "Web Client",
+          "stereotype": "component",
+          "technology": "React + Vite",
+          "interfaces": {
+            "provides": ["User Interface"],
+            "requires": ["REST API"]
+          }
+        },
+        {
+          "id": "C2",
+          "name": "API Gateway",
+          "stereotype": "component",
+          "technology": "Express.js",
+          "interfaces": {
+            "provides": ["Auth API", "Story API", "Chat API", "Reputation API"],
+            "requires": ["MongoDB", "ML Inference", "LLM Provider"]
+          }
+        },
+        {
+          "id": "C3",
+          "name": "Auth Module",
+          "stereotype": "subsystem",
+          "technology": "JWT + bcryptjs",
+          "interfaces": {
+            "provides": ["Token Issuance", "Route Guard"],
+            "requires": ["User Store"]
+          }
+        },
+        {
+          "id": "C4",
+          "name": "Story and Community Module",
+          "stereotype": "subsystem",
+          "technology": "Express Controllers",
+          "interfaces": {
+            "provides": ["Story CRUD", "Reactions", "Comments"],
+            "requires": ["PII Redaction", "Story Store", "ML Score Adapter"]
+          }
+        },
+        {
+          "id": "C5",
+          "name": "Chatbot Module",
+          "stereotype": "subsystem",
+          "technology": "Provider Router",
+          "interfaces": {
+            "provides": ["Guardrailed Cyber Chat"],
+            "requires": ["Gemini or Ollama", "Chat Store"]
+          }
+        },
+        {
+          "id": "C6",
+          "name": "ML Inference Service",
+          "stereotype": "component",
+          "technology": "Python Service",
+          "interfaces": {
+            "provides": ["predict", "batch_predict", "risk score"],
+            "requires": ["Model Artifacts"]
+          }
+        },
+        {
+          "id": "C7",
+          "name": "MongoDB",
+          "stereotype": "database",
+          "technology": "MongoDB",
+          "interfaces": {
+            "provides": ["Persistent Storage"],
+            "requires": []
+          }
+        },
+        {
+          "id": "C8",
+          "name": "Redis Cache",
+          "stereotype": "cache",
+          "technology": "Redis",
+          "optional": true,
+          "interfaces": {
+            "provides": ["Warm Cache", "Fast Lookup"],
+            "requires": []
+          }
+        }
+      ],
+      "dependencies": [
+        { "from": "C1", "to": "C2", "type": "uses" },
+        { "from": "C2", "to": "C3", "type": "composes" },
+        { "from": "C2", "to": "C4", "type": "composes" },
+        { "from": "C2", "to": "C5", "type": "composes" },
+        { "from": "C4", "to": "C6", "type": "calls" },
+        { "from": "C2", "to": "C7", "type": "persists_to" },
+        { "from": "C2", "to": "C8", "type": "caches_in", "optional": true },
+        { "from": "C5", "to": "External LLM", "type": "requests" }
+      ]
+    }
+  ]
+}
