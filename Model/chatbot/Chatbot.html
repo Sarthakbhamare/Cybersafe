@@ -116,9 +116,8 @@
     </div>
 
     <script>
-        // API key for Gemini API (provided by the environment at runtime)
-        const apiKey = "AIzaSyAKzo7iQPbxyy4HYVALGUCunL4T1lBo9wg";
-        const apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=" + apiKey;
+        // Gemini requests are proxied by the backend so the API key is never sent to browsers.
+        const apiUrl = window.CHAT_API_URL || "http://localhost:5000/api/chat";
 
         // Get DOM elements
         const chatHistory = document.getElementById('chatHistory');
@@ -174,11 +173,9 @@
             }
         }
 
-        // Function to call the Gemini API
+        // Function to call the backend chatbot proxy
         async function callGeminiAPI(prompt) {
-            const chatHistory = [];
-            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
-            const payload = { contents: chatHistory };
+            const payload = { message: prompt };
             
             // Implement exponential backoff for API calls
             const maxRetries = 5;
@@ -193,10 +190,8 @@
 
                     if (response.ok) {
                         const result = await response.json();
-                        if (result.candidates && result.candidates.length > 0 &&
-                            result.candidates[0].content && result.candidates[0].content.parts &&
-                            result.candidates[0].content.parts.length > 0) {
-                            return result.candidates[0].content.parts[0].text;
+                        if (typeof result.response === 'string' && result.response.length > 0) {
+                            return result.response;
                         } else {
                             throw new Error('Unexpected API response structure.');
                         }
