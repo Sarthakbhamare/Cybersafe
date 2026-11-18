@@ -2,14 +2,23 @@ import mongoose from "mongoose";
 
 const DEFAULT_URI = "mongodb://127.0.0.1:27017/cybersafe";
 
+const describeMongoUri = (uri) => {
+  try {
+    const parsed = new URL(uri);
+    return `${parsed.protocol}//${parsed.host}${parsed.pathname}`;
+  } catch {
+    return "[configured MongoDB URI]";
+  }
+};
+
 const connectDB = async () => {
   const uri = process.env.MONGODB_URI && process.env.MONGODB_URI.trim() !== "" ? process.env.MONGODB_URI : DEFAULT_URI;
   if (!process.env.MONGODB_URI) {
-    console.warn(`[db] MONGODB_URI not set; falling back to ${DEFAULT_URI}`);
+    console.warn(`[db] MONGODB_URI not set; falling back to ${describeMongoUri(DEFAULT_URI)}`);
   }
   try {
     await mongoose.connect(uri, { autoIndex: process.env.NODE_ENV !== "production" });
-    console.log(`MongoDB connected (${uri})`);
+    console.log(`MongoDB connected (${describeMongoUri(uri)})`);
   } catch (error) {
     console.error("MongoDB connection error:", error.message);
     console.error("Stack:", error.stack);
